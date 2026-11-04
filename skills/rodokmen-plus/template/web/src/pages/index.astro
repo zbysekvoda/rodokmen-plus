@@ -19,12 +19,12 @@ const cards = config.zajimavosti_na_uvodu ?? [];
       <div>
         {uvod.nadpis && <h2>{uvod.nadpis}</h2>}
         {(uvod.odstavce ?? []).map((t) => <p>{t}</p>)}
-        {config.maPribeh && <a class="btn" href="/pribehy/">{config.pribeh?.tlacitko || `Přečíst: ${pribeh.title}`} →</a>}
+        {config.maPribeh && <a class="btn" href="/pribeh-rodu/">{config.pribeh?.tlacitko || `Přečíst: ${pribeh.title}`} →</a>}
         {config.pribehDomuStranka && <a class="btn" href="/pribeh-domu/">Přečíst: {pribehDomu.title} →</a>}
         {(config.pribehy ?? []).map((p) => <a class="btn" href={`/pribeh/${p.slug}/`}>Přečíst: {p.titulek} →</a>)}
       </div>
       {uvod.foto && (
-        <a href={config.maPribeh ? '/pribehy/' : `/img/${uvod.foto}.jpg`}><img src={`/img/${uvod.foto}.jpg`} alt={uvod.foto_popis || ''} /></a>
+        <a href={config.maPribeh ? '/pribeh-rodu/' : `/img/${uvod.foto}.jpg`}><img src={`/img/${uvod.foto}.jpg`} alt={uvod.foto_popis || ''} /></a>
       )}
     </section>
   )}
@@ -34,7 +34,7 @@ const cards = config.zajimavosti_na_uvodu ?? [];
       <div>
         <h2>{pribeh.title}</h2>
         {pribeh.lead && <p>{pribeh.lead}</p>}
-        <a class="btn" href="/pribehy/">{config.pribeh?.tlacitko || 'Přečíst příběh'} →</a>
+        <a class="btn" href="/pribeh-rodu/">{config.pribeh?.tlacitko || 'Přečíst příběh'} →</a>
         {config.pribehDomuStranka && <a class="btn" href="/pribeh-domu/">Přečíst: {pribehDomu.title} →</a>}
         {(config.pribehy ?? []).map((p) => <a class="btn" href={`/pribeh/${p.slug}/`}>Přečíst: {p.titulek} →</a>)}
       </div>

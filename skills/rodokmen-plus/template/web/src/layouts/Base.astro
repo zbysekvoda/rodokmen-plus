@@ -4,14 +4,12 @@ import { config, lines } from '../lib/data.js';
 const siteName = config.nazev || 'Rodokmen';
 const { title, description = config.popis || siteName, wide = false, wider = false, full = false } = Astro.props;
 const path = Astro.url.pathname;
-// nahoře jen hlavní cesty; Vějíř / Předci jsou přepínač pohledů u stromu, badatelské stránky v patičce
+// nahoře jen hlavní cesty; příběhy, zajímavosti a mapa vedou přes rozcestník /pribehy/ a stránku Domy; Vějíř / Předci jsou přepínač pohledů u stromu, badatelské stránky v patičce
 const top = [
-  ...(config.maPribeh ? [['/pribehy/', 'Příběhy', ['/pribeh-domu/', '/pribeh/', '/zajimavosti/']]] : [['/zajimavosti/', 'Příběhy', ['/pribeh-domu/', '/pribeh/']]]),
+  ['/pribehy/', 'Příběhy', ['/pribeh-rodu/', '/pribeh-domu/', '/pribeh/', '/zajimavosti/']],
   ['/rody/', 'Rody', ['/rod/', '/rodina/']], ['/domy/', 'Domy', ['/dum/', '/mapa/']], ['/strom/', 'Strom', ['/vejir/', '/predci/', '/pasy/', '/strom-cely/']],
   ['/osa/', 'Časová osa', []], ['/hledat/', 'Hledat', []],
 ];
-const more = [...(config.pribehDomuStranka ? [['/pribeh-domu/', 'Příběh domu']] : []), ...(config.pribehy ?? []).map((p) => [`/pribeh/${p.slug}/`, p.titulek]),
-  ...(config.maPribeh ? [['/zajimavosti/', 'Zajímavosti']] : []), ['/mapa/', 'Mapa']];
 const mobileTabs = [top[0][0], '/strom/', '/domy/', '/hledat/'];
 const research = [['/zapisy/', 'Zápisy'], ['/denik/', 'Deník'], ['/hledame/', 'Co hledáme']];
 const lineVars = Object.values(lines).map((l) => `--line-${l.slug}:${l.color}`).join(';');
@@ -35,7 +33,6 @@ const current = (url, also = []) => ([url, ...also].some((u) => path.startsWith(
       <a class="rail-search" href="/hledat/">Hledat <kbd>/</kbd></a>
       <nav aria-label="Hlavní">
         {[['/', 'Úvod', []], ...top.filter(([u]) => u !== '/hledat/')].map(([url, label, also]) => <a href={url} aria-current={url === '/' ? (path === '/' ? 'page' : undefined) : current(url, also)}>{label}</a>)}
-        {more.filter(([u]) => !top.some(([t]) => t === u)).map(([url, label]) => <a href={url} aria-current={current(url)}>{label}</a>)}
       </nav>
       <div class="rail-label">Pro badatele</div>
       <nav aria-label="Pro badatele">
@@ -57,7 +54,7 @@ const current = (url, also = []) => ([url, ...also].some((u) => path.startsWith(
     </div>
     </div>
     <div class="more-sheet" id="more-sheet">
-      {[...top.filter(([u]) => !mobileTabs.includes(u)), ...more.filter(([u]) => !top.some(([t]) => t === u)), ...research].map(([url, label]) => <a href={url} aria-current={current(url)}>{label}</a>)}
+      {[...top.filter(([u]) => !mobileTabs.includes(u)), ...research].map(([url, label]) => <a href={url} aria-current={current(url)}>{label}</a>)}
       <p><button class="theme-btn" type="button" data-theme-toggle>Tmavý režim</button></p>
     </div>
     <nav class="tabbar" aria-label="Hlavní (mobil)">

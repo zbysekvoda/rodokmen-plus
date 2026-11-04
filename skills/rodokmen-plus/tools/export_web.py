@@ -580,7 +580,7 @@ def main():
     # příběh domu (data/pribeh_domy.md) patří jen hlavnímu domu z web_domy.json, ne každému zpracovanému domu
     story_house = house_slug(village_name, jload("web_domy.json", {}).get("hlavni_dum", ""))
     public_cfg["pribehDum"] = story_house if story_house in houses and has_house_story else None
-    # oba příběhy zvlášť: /pribehy/ = příběh rodu (pribeh.md, jinak příběh domu), /pribeh-domu/ = příběh domu, když jsou oba
+    # oba příběhy zvlášť: /pribeh-rodu/ = příběh rodu (pribeh.md, jinak příběh domu), /pribeh-domu/ = příběh domu, když jsou oba
     public_cfg["pribehDomuStranka"] = has_house_story and os.path.exists(os.path.join(DATA, "pribeh.md"))
     # další příběhy (např. jednoho rodu) z web.json „pribehy“: [{slug, titulek, soubor}] → /pribeh/<slug>/
     extra_stories = []
@@ -670,7 +670,7 @@ def main():
     write(os.path.join(gen_dir, "zajimavosti.md"), render(md("zajimavosti.md").rstrip() + "\n\n" + house_links(md("zajimavosti_domy.md")).strip() + "\n",
                                                           "zajimavosti.md", ("/zajimavosti/", "Zajímavosti")))
     main_story = "pribeh.md" if os.path.exists(os.path.join(DATA, "pribeh.md")) else "pribeh_domy.md"
-    write(os.path.join(gen_dir, "pribeh.md"), render(story(main_story, "---\ntitle: Příběh\nlead: ''\n---\n"), main_story, ("/pribehy/", "Příběh")))
+    write(os.path.join(gen_dir, "pribeh.md"), render(story(main_story, "---\ntitle: Příběh\nlead: ''\n---\n"), main_story, ("/pribeh-rodu/", "Příběh")))
     write(os.path.join(gen_dir, "pribeh_domu.md"), render(story("pribeh_domy.md", "---\ntitle: Příběh domu\nlead: ''\n---\n"), "pribeh_domy.md",
                                                           ("/pribeh-domu/", "Příběh domu") if public_cfg["pribehDomuStranka"] else None))
     story_dir = os.path.join(gen_dir, "pribehy")

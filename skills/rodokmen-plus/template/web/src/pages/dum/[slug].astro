@@ -28,7 +28,7 @@ const isAnc = (x) => Boolean(x.person);
     {h.ancestors.length > 0 && <span class="chip">{h.ancestors.length} {h.ancestors.length === 1 ? 'předek' : h.ancestors.length < 5 ? 'předkové' : 'předků'}</span>}
   </div>
   {h.desc && <p class="lead">{h.desc}</p>}
-  {config.maPribeh && config.pribehDum === h.slug && <p><a class="btn" href={config.pribehDomuStranka ? "/pribeh-domu/" : "/pribehy/"}>Přečíst příběh domu →</a></p>}
+  {config.maPribeh && config.pribehDum === h.slug && <p><a class="btn" href={config.pribehDomuStranka ? "/pribeh-domu/" : "/pribeh-rodu/"}>Přečíst příběh domu →</a></p>}
 
   <h2>Předkové v tomto domě</h2>
   {h.family.length ? (

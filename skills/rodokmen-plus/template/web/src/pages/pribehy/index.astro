@@ -1,21 +1,26 @@
 ---
+// Rozcestník příběhů: hlavní příběh (/pribeh-rodu/), příběh domu, další příběhy z web.json „pribehy“ a zajímavosti.
 import Base from '../../layouts/Base.astro';
-import StoryDocs from '../../components/StoryDocs.astro';
-import { config, lineByK, href, houseList, houseTitle } from '../../lib/data.js';
-const house = houseList.find((h) => h.slug === config.pribehDum);
-import { Content, frontmatter } from '../../generated/pribeh.md';
-const line = lineByK[config.pribeh?.rod ?? 8];
+import { config } from '../../lib/data.js';
+import { frontmatter as pribeh } from '../../generated/pribeh.md';
+import { frontmatter as pribehDomu } from '../../generated/pribeh_domu.md';
+const items = [
+  ...(config.maPribeh ? [['/pribeh-rodu/', pribeh.title, pribeh.lead]] : []),
+  ...(config.pribehDomuStranka ? [['/pribeh-domu/', pribehDomu.title, pribehDomu.lead]] : []),
+  ...(config.pribehy ?? []).map((p) => [`/pribeh/${p.slug}/`, p.titulek, '']),
+  ['/zajimavosti/', 'Zajímavosti z rodokmenu', 'Co nás při hledání nejvíc překvapilo – nejstarší předek, spojené větve, řemesla a osudy.'],
+];
 ---
-<Base title={frontmatter.title}>
-  <p class="crumbs">{house && <><a href={href.house(house.slug)}>{houseTitle(house)}</a> · </>}{line && <><a href={href.line(line.slug)}>rod {line.name}</a> · </>}<a href="/zajimavosti/">další zajímavosti</a></p>
-  <h1>{frontmatter.title}</h1>
-  {frontmatter.lead && <p class="lead">{frontmatter.lead}</p>}
-  <div class="prose"><Content /></div>
-
-  <div class="next-step">
-    <p><strong>Chcete víc?</strong> Další objevy z rodokmenu najdete v zajímavostech, podrobnosti o domě – držitele, obyvatele, staré mapy – na jeho stránce.</p>
-    {house && <a class="btn" href={href.house(house.slug)}>Dějiny domu →</a>} <a class="btn" href="/zajimavosti/">Zajímavosti →</a>
+<Base title="Příběhy" wide>
+  <h1>Příběhy</h1>
+  <p class="lead">Vyprávění o rodině a domech, sepsaná z matrik a dalších pramenů.</p>
+  <div class="house-list">
+    {items.map(([url, title, lead]) => (
+      <a class="card card-link" href={url}>
+        <h3>{title}</h3>
+        {lead && <p class="small">{lead}</p>}
+        <span class="more-link">Číst</span>
+      </a>
+    ))}
   </div>
-
-  <StoryDocs story="pribehy" />
 </Base>

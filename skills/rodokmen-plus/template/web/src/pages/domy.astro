@@ -8,6 +8,7 @@ const byVillage = Object.entries(rest.reduce((a, h) => ((a[h.obec] ??= []).push(
 ---
 <Base title="Domy" wide>
   <h1>Domy, kde žili naši předci</h1>
+  <p class="lead"><a href="/mapa/">Mapa míst →</a></p>
   <p class="lead">{houseList.length} domů ve {byVillage.length + (done.length ? 1 : 0)} obcích. U {done.length === 1 ? 'jednoho' : done.length} máme zpracované celé dějiny – kdo dům držel, kdo v něm bydlel, staré mapy. U ostatních zatím jen to, kdo z rodiny v nich žil.</p>
 
   {done.length > 0 && (
