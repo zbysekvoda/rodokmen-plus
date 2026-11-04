@@ -1,0 +1,17 @@
+{
+ "nazev": "",
+ "popis": "",
+ "zapati": "",
+ "kontakt": {
+  "jmeno": "",
+  "email": ""
+ },
+ "prihlaseni": {
+  "uvod": "",
+  "otazka": "",
+  "odpoved": ""
+ },
+ "hlavni_dum": "",
+ "zajimavosti_na_uvodu": [],
+ "verejny": false
+}

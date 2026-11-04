@@ -1,0 +1,14 @@
+{
+  "name": "rodokmen-plus",
+  "description": "Skill pro Claude Code: rodokmen z českých matrik a dějiny domů nad grafem osob, s rodinným webem.",
+  "owner": {
+    "name": "Zbyšek Voda"
+  },
+  "plugins": [
+    {
+      "name": "rodokmen-plus",
+      "source": "./",
+      "description": "Rodokmen a dějiny domů z českých archivů, graf osob, čtení portálů za ALTCHA, paralelní bádání – průvodce pro začátečníky (česky)."
+    }
+  ]
+}
