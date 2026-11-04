@@ -96,12 +96,15 @@ def main():
                 if o.get("o") is None:
                     continue
                 kde = f"dům {obec} čp. {cp}, {role} {o.get('n')}"
-                k = g.id_osoby(o["o"])   # id osoby; po přechodné období i Kekulé (int) od hlavního kořene
+                if isinstance(o["o"], int) or str(o["o"]).isdigit():
+                    k = g.id_osoby(o["o"])
+                    err.append(f"{kde}: o={o['o']!r} je Kekulého číslo – odkaz na osobu musí být id z osoby.py"
+                               + (f", tady o=\"{k}\"" if k else " (najdi ho: python3 -I tools/graf.py osoba <číslo>; hromadně tools/prevod_odkazu_id.py)"))
+                    continue
+                k = g.id_osoby(o["o"])
                 if k is None:
                     err.append(f"{kde}: odkaz o={o['o']!r} na osobu, která v osoby.py není")
                     continue
-                if isinstance(o["o"], int):
-                    warn.append(f"{kde}: o={o['o']} je Kekulého číslo – přepiš na id o=\"{k}\" (tools/prevod_odkazu_id.py)")
                 prijmeni = {w[:5] for w in re.findall(r"\w{4,}", O[k].get("n", ""))}
                 if not prijmeni & {w[:5] for w in re.findall(r"\w{4,}", o.get("n", ""))}:
                     warn.append(f"{kde}: o={k}, ale osoba {k} se jmenuje {O[k].get('n')} – je to opravdu tatáž osoba?")
@@ -117,11 +120,22 @@ def main():
                             f"ale nemá ji mezi držiteli/obyvateli s o=\"{hlavni(k)}\"")
         if zije(k) and (p.get("bydliste") or p.get("r")):
             warn.append(f"SOUKROMÍ: osoba {k} ({p.get('n')}) je žijící – jen jméno a rok narození, bez bydliště a zápisů")
-    # Zápis může volitelně odkazovat na osoby a domy: "osoby": [id osoby] (po přechodné období i Kekulé č.), "domy": [{"obec": …, "cp": …}]
+    # Zápis může volitelně odkazovat na osoby a domy: "osoby": [id osoby] (jen id, ne Kekulé č.), "domy": [{"obec": …, "cp": …}]
+    for dk in jload("dokumenty.json", []):   # dokumenty: "osoby": [id osoby]
+        for x in dk.get("osoby", []) if isinstance(dk, dict) else []:
+            if isinstance(x, int) or str(x).isdigit():
+                k = g.id_osoby(x)
+                err.append(f"dokument {dk.get('soubor') or dk.get('nazev')!r}: v 'osoby' je Kekulého číslo {x!r} – piš id z osoby.py"
+                           + (f" (tady \"{k}\")" if k else " (najdi ho: python3 -I tools/graf.py osoba <číslo>; hromadně tools/prevod_odkazu_id.py)"))
+            elif g.id_osoby(x) is None:
+                err.append(f"dokument {dk.get('soubor') or dk.get('nazev')!r}: osoba {x!r} v 'osoby' není v osoby.py")
     for z in zaz:
         for x in z.get("osoby", []):
             k = g.id_osoby(x)
-            if k is None:
+            if isinstance(x, int) or str(x).isdigit():
+                err.append(f"zápis {z.get('klic')}: v 'osoby' je Kekulého číslo {x!r} – piš id z osoby.py"
+                           + (f" (tady \"{k}\")" if k else " (najdi ho: python3 -I tools/graf.py osoba <číslo>; hromadně tools/prevod_odkazu_id.py)"))
+            elif k is None:
                 err.append(f"zápis {z.get('klic')}: osoba {x!r} v 'osoby' není v osoby.py")
             elif z.get("klic") not in O[k].get("r", []) + [r for t in O.values() if t.get("tataz") == k for r in t.get("r", [])]:
                 warn.append(f"zápis {z.get('klic')}: uvádí osobu {k}, ale ta zápis necituje v 'r'")

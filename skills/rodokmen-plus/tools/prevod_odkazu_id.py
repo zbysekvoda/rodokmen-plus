@@ -7,7 +7,7 @@ Mapa z graf.kekule() (hlavní kořen z KORENY); druhý výskyt předka vede na h
   data/dokumenty.json   "osoby": [64]   → ["jan-novak-1890"]
 (data/domy_rodiny.json generuje tools/domy_rodiny.py rovnou s polem "osoba".)
 Už převedené odkazy nechá být, takže jde spustit znovu po zápisech rešeršních agentů.
-Neznámé číslo nechá beze změny a vypíše ho (kontrola.py ho pak hlásí jako chybu).
+Neznámé číslo nechá beze změny a vypíše ho (kontrola.py ho hlásí jako chybu).
 
 Použití: python3 -I tools/prevod_odkazu_id.py [--zkouska]
 """

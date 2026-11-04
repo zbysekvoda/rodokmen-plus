@@ -271,7 +271,9 @@ def main():
     for i, d in O.items():
         if d.get("tataz"):
             twins.setdefault(d["tataz"], []).append(d)
-    doc_people = lambda d: [s for s in (g.id_osoby(x, ROOT_KEY) for x in d.get("osoby", [])) if s in slugs]
+    # odkaz na osobu = id grafu (str); Kekulého čísla v datech neplatí (kontrola.py je hlásí jako chybu)
+    ref = lambda x: g.id_osoby(x) if isinstance(x, str) and not x.isdigit() else None
+    doc_people = lambda d: [s for s in (ref(x) for x in d.get("osoby", [])) if s in slugs]
 
     def line_of(k):
         g_ = gen(k)
@@ -466,7 +468,7 @@ def main():
     # domy.py: dům bez pole `obec` patří do OBEC (village_name), jinak má vlastní obec= a cp= (klíč „Obec čp“)
     for h in ewd.build_houses(hns["D"], recs, docs_cfg, village_name).values():
         for x in h["owners"] + h["people"]:
-            x["person"] = (lambda s: s if s in people else None)(g.id_osoby(x.pop("k", None), ROOT_KEY))
+            x["person"] = (lambda s: s if s in people else None)(ref(x.pop("k", None)))
         h.update(slug=house_slug(h["obec"], h["cp"]), processed=True, family=[], approx=False)
         houses[h["slug"]] = h
     place_xy = {n: (e["lat"], e["lon"]) for n, e in jload("mista.json", {}).items() if "lat" in e}
@@ -491,7 +493,7 @@ def main():
                                 lat=xy[0] if xy else None, lon=xy[1] if xy else None, family=[])
         fam = houses[slug]["family"]
         for o in d["osoby"]:
-            s = g.id_osoby(o.get("osoba", o.get("kekule")), ROOT_KEY)   # "kekule" jen po přechodné období
+            s = ref(o.get("osoba"))
             if s not in people:
                 continue
             fam.append(dict(person=s, role=o.get("role", ""), since=o.get("od"), until=o.get("do"),
