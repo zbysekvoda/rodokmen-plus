@@ -78,6 +78,15 @@ nechat založit předem, ať vidíte, jak web vypadá.
 - Skripty chodí jen na archivní portály, Wikipedii, Kramerius a ANNO, RÚIAN a ČÚZK, OpenStreetMap a při instalaci
   webu na registr npm; na hosting jen když web sami zveřejníte.
 
+## Verze a aktualizace
+Verze je v `.claude-plugin/plugin.json` a `skills/rodokmen-plus/VERZE` (projekt si ji pamatuje v `.skill_verze` a skill
+při neshodě nabídne aktualizaci). Aktualizace pluginu: `claude plugin marketplace update rodokmen-plus` a
+`claude plugin update rodokmen-plus@rodokmen-plus`; pak v projektu `novy_projekt.py` na stejnou složku (data zůstanou).
+
+Vydání (správce): `scripts/release.sh X.Y.Z` – kontrola, že v repu nejsou jména a obce ze soukromého rodokmenu
+(`scripts/kontrola_soukromi.py`, cesta v `RODOKMEN_SOUKROMA_DATA`), zvednutí verze, commit a tag `vX.Y.Z`;
+`scripts/release.sh X.Y.Z --push` ho pošle na GitHub.
+
 ## Zpětná vazba
 Chyby a nápady (bez údajů o rodině) zakládejte jako issue v tomto repozitáři. Týká-li se věc převzatých částí,
 zvažte poslat ji i autorům původních skillů.
