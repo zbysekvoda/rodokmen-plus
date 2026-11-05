@@ -132,6 +132,27 @@ Adresy u nevyzkoušených portálů ověř při prvním použití (portály se m
 - Knihu najdi v prohlížeči podle obce nebo fary. Snímky jsou IIIF: adresu obrázku najdi v síťovém provozu a stáhni ji
   přes `curl` (Python dostane HTTP 426). Dál podle „Ostatní portály“ níže.
 
+### MZA – ARON (pozemkové knihy, tereziánský katastr, urbáře)
+- **ARON MZA** (`https://www.mza.cz/aron/`) má veřejné JSON API bez ALTCHA: `GET …/aron/api/aron/apu/<id>` (pole `parts`:
+  „Digitální“, inv. č., `parent` = cesta fond > panství > obce) a `POST …/aron/api/aron/apu/listview?listType=SEARCH`
+  s filtry `{"field":"type","operation":"EQ","value":"ARCH_DESC"}` + `{"operation":"FTXF","field":"name","value":"<obec>"}`.
+  Podle `parent` filtrovat nejde – ber `size=100` a filtruj u sebe. **Dotazů málo** (přes `slusne.py`): MZA po ~20
+  dotazech za sebou přestala přijímat spojení.
+- **Pozemkové (gruntovní) knihy panství**: fond „Pozemkové knihy“ > <panství> > Jednotlivé obce. Mnoho knih je
+  digitalizovaných („Digitální: Ano“, originál nepřístupný). Kniha 18. století má rejstřík podle pořadí zápisů,
+  19. století podle čp. – dává předání gruntu, jméno manželky a výměnek, tedy vazbu mezi generacemi, kterou matrika
+  nedá. Před dotazem do archivu se vždy podívej, jestli kniha není online.
+- **Tereziánský katastr moravský (fond D 4, 1750–1768)** je online (digitální kopie); jednotky se jmenují často jen
+  „Tereziánský katastr“ – obec hledej ve stromu panství, ne fulltextem. Josefský katastr = fond D 6.
+- Opisy moravských urbářů (17. stol.) jsou v ARON taky, hledej „<panství> urbář“.
+- **„Connection refused“ z mza.cz** (prohlížeč i nástroje) = přetížení nebo odmítnutá adresa. Hned
+  `slusne.py zablokuj www.mza.cz "…"`, všem pomocníkům zastav MZA a pokračuj jinými prameny. Neobcházej proxy ani
+  scrapovacími službami (Apify apod.) – ať uživatel ověří mza.cz z jiné sítě; je-li odmítnutá jen jeho adresa,
+  navrhni omluvný dopis archivu (odešle uživatel).
+- **Evangelické matriky na Moravě**: katalog Acta Publica je po obcích, ale evangelická kniha se objeví jen u obce
+  sídla sboru (a obcí, které sbor výslovně uvádí), ne u vsi, kde evangelík bydlel. `mza.py matriky "<obec>"` ukáže
+  jen katolické → hledej sbory podle původce „evangelická církev …“ a podle literatury (sbory h. v. na Vysočině).
+
 ## Pražské policejní přihlášky 1850–1914 (Národní archiv) – `tools/policie_prihlasky.py`
 - Karty pražských rodin: hlava rodiny, manželka s rokem a místem narození, děti s roky, adresy, někdy místo sňatku.
   Výborné, když rodina žila v Praze a nevíš farnost (pražské matriky nemají rejstříky).
@@ -193,6 +214,19 @@ A když osoba „chybí“ v očekávaných matrikách (stěhovala se se službo
 - **Rizika:** jména se opakují a fulltext šumí („Winter“ = i zima, „Novák“ = nový obyvatel). Ztotožni jen při shodě víc údajů (bydliště,
   funkce navazující na matriku, časová posloupnost). Zdroj je „J“ (jiný pramen) – vodítko a příběh, ne náhrada matriky.
 - Výstřižky jsou skvělé na web: ulož do `dokumenty/noviny/`, přes `vyrez.py` a do `dokumenty.json`.
+- **Soudní a úřední vyhlášky** (Úřední list Brněnských novin, Brünner Zeitung, Brünner Morgenpost; v Čechách Pražské
+  noviny / Prager Zeitung) jsou nejvýnosnější pro venkov: dražby usedlostí s čp., opatrovnictví, výmazy pohledávek,
+  vypsání učitelských míst, obchodní rejstřík. OCR bývá bez diakritiky, čísla domů špatně („40“ místo „4“).
+- **Dotazy:** Solr skládá diakritiku, ne pády – hledej obec v 6. a 2. pádě („v Horní Lhotě“, „z Horní Lhoty“).
+  Filtr `datum_begin:[od TO do]` vyřadí čísla bez data – hledej bez filtru a rok čti z výstupu. Obec se jménem shodným
+  s křestním jménem (Vladislav, Václavov) dává šum – přidej druhé slovo. Facet `root_title` nefunguje, použij `root_pid`.
+- `dnnt.py ocr klic=uuid:…` stáhne text veřejné strany; `dnnt.py kontext` bere slova jako AND (víc než 2–3 slova = 0).
+  Úryvek z OCR je `lit`, ne `doc`.
+- **Regionální periodika** malých okresů v Krameriu často chybí – čti je přes celozemské listy (Moravská orlice,
+  Lidové noviny, Našinec, Venkov, Národní listy…). Školní ročenky (programy gymnázií, seznamy žáků) levně potvrdí,
+  kdo z obce studoval.
+- **Literatura o toleranci a skrytých evangelících** (DNNT) jde prohledat po úryvcích bez přihlášení: příjmení + ves
+  ukáže rody z tajné církve → pak hledej v tolerančních matrikách.
 - Pořadí: nejdřív matriky; noviny, když chybí stopa kvůli stěhování, nebo když jde o úředníka/vojáka a chceme příběh.
 
 ## Ostatní portály – obecný postup
@@ -224,6 +258,23 @@ Nástroje pro ně hotové nejsou. Postupuj takto a výsledek zapiš do `STAV.md`
   stejná čp., ale předměstí a vesnice čísla přečíslovávaly. Hodí se na „procházku po stopách předků“.
   Stavbu podle obce a čísla popisného najde i nahlizenidokn.cuzk.gov.cz (ověření adresy z dokladu); vlastník je za
   CAPTCHou a je to údaj o žijícím člověku – nezjišťuj ho.
+
+## Vojenské prameny (1. světová válka, kmenové listy)
+Pro muže narozené ~1865–1900. Starší: matriky, Musterlisten, Kriegsarchiv Vídeň.
+- **Seznamy ztrát (Verlustlisten) 1914–1918** – ANNO (`tools/anno.py`) a Kramerius MO `https://kramerius.army.cz`
+  (veřejné API v5 `…/search/api/v5.0/search?q=text_ocr:"…" AND fedora.model:page`). Zápis: „Příjmení Jméno, hodnost,
+  IR. Nr., rota, Mähren/Böhmen, okres a obec německy, rok narození; verw. / kriegsgef. / gefallen (datum)“.
+  Hledej **obec** v několika německých a OCR tvarech, nejen jméno. Doplňovací okrsek okresu = číslo pluku, další
+  vodítko. Rodiče tam nejsou → ztotožnění jen `prob` (rok + obec + okres + pluk).
+- **Databáze VHA** (`https://www.vuapraha.cz/databaze-vha/`): padlí v 1. sv. válce (~186 tis.), legionáři, padlí
+  ve 2. sv. válce. Formulář je JS; jde volat REST `POST https://www.vuapraha.cz/wp-json/mo/v1/archive-database/html`
+  s JSON `{"page":1,"surname":"…","name":"","place":"","date":"","database":"fallen-first"}`
+  (`legio`, `fallen-first`, `fallen-second`, `abroad-second`) přes `slusne.py curl`. Příjmení = podřetězec, místa
+  bývají zkomolená (jiná ves téhož okresu) → kontroluj rok, okres a pluk.
+- **Bílá kartotéka a úmrtní matriky pluků** (`/kartoteky/`, `/vojenske-matriky/`): originální zápis o smrti vojáka;
+  pluk zjisti ze seznamu ztrát.
+- **Kmenové listy** (VHA Praha) online nejsou, jen placená rešerše (jméno + rok narození). **Ročníky 1887–1900
+  a 1903–1910 jsou skartované** – smysl mají pro ročníky 1865–1886.
 
 ## Oběti 2. světové války
 - **Arolsen Archives** (collections.arolsen-archives.org): dokumenty o vězních, nuceně nasazených a vysídlených. Vyhledávání

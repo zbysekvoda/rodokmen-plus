@@ -46,6 +46,17 @@ Mladší knihy jsou na matričním úřadě obce s rozšířenou působností / 
    evangelické sbory (a. v. i h. v.), jeden sbor pokrýval desítky obcí; v ARONu mají signatury „R …“ a `aron_search.py`
    je najde podle obce. Ve východních Čechách časté (Rychnovsko, Dobrušsko, Opočensko). Židovské matriky viz `portaly.md`.
    Ve 20. století (1920–1945) zkus i **civilní matriky** lidí bez vyznání u okresních úřadů (vyzkoušeno v SOA Třeboň, viz `portaly.md`).
+8. **Když matrika mlčí – projdi celý seznam zdrojů**, než osobu odložíš (a zapiš do deníku, co jsi zkusil):
+   - **civilní sňatek** (Čechy a Morava od 1919; okresní úřady) – vysvětlí sňatek, který „není v žádné faře“,
+   - **evangelická (toleranční) matrika** sboru, i když ves byla katolická (sbor pokrýval desítky obcí),
+   - **gruntovní/pozemková kniha** (předání gruntu, manželka, výměnek) – na Moravě v ARON MZA, často online,
+   - **katastry** (tereziánský, josefský, stabilní) – držitel čísla domu v daném roce,
+   - **sčítání lidu** – rok a místo narození celé domácnosti,
+   - **seznamy ztrát a databáze padlých** (muži 1865–1900), **noviny** (dražby, úřední vyhlášky, parte, učitelé),
+   - **veřejné indexy dobrovolníků** a cizí stromy (jen vodítko, `mh`/`lit`),
+   - **matriční úřad** (mladší než lhůta) – žádost přímého potomka, draft do `archivni_dotazy.md`.
+   Jednou za čas udělej **audit zdrojů celého projektu**: který z typů výše ještě nebyl použit a na kterou otevřenou
+   otázku by mířil (výstup `data/audit_zdroju.md`).
 
 ## Čtení písma
 - Kurentový rejstřík: stáhni plné rozlišení a rozřež stránku na čtvrtiny (sloupec jmen + data),

@@ -151,6 +151,8 @@ Podrobně `reference/matriky.md`, portály `reference/portaly.md`.
 7. **Deník** `data/research_log.md` – každé hledání, i neúspěšné, s rozsahem (roky, snímky). Zjevně související výskyty
    (vzácné příjmení, stejný dům) zapiš jako stopu.
 8. `python3 -I tools/graf.py kontrola` a `python3 -I tools/kontrola.py`, oprav chyby.
+9. **Osoba v matrikách nejde najít?** Projdi kontrolní seznam „Když matrika mlčí“ v `reference/matriky.md`
+   (civilní a evangelické matriky, gruntovní knihy, katastry, vojenské prameny, noviny) – ne jen další farnosti.
 
 ## Režim dům – kostra a prameny
 Podrobně `reference-dum/prameny.md` (pořadí pramenů, čísla domů, městský dům 20. století), dál `reference-dum/portaly.md`.
