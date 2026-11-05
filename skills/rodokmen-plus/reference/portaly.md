@@ -219,7 +219,7 @@ A když osoba „chybí“ v očekávaných matrikách (stěhovala se se službo
   vypsání učitelských míst, obchodní rejstřík. OCR bývá bez diakritiky, čísla domů špatně („40“ místo „4“).
 - **Dotazy:** Solr skládá diakritiku, ne pády – hledej obec v 6. a 2. pádě („v Horní Lhotě“, „z Horní Lhoty“).
   Filtr `datum_begin:[od TO do]` vyřadí čísla bez data – hledej bez filtru a rok čti z výstupu. Obec se jménem shodným
-  s křestním jménem (Vladislav, Václavov) dává šum – přidej druhé slovo. Facet `root_title` nefunguje, použij `root_pid`.
+  s křestním jménem (např. Lukov, Bohdalov) dává šum – přidej druhé slovo. Facet `root_title` nefunguje, použij `root_pid`.
 - `dnnt.py ocr klic=uuid:…` stáhne text veřejné strany; `dnnt.py kontext` bere slova jako AND (víc než 2–3 slova = 0).
   Úryvek z OCR je `lit`, ne `doc`.
 - **Regionální periodika** malých okresů v Krameriu často chybí – čti je přes celozemské listy (Moravská orlice,
