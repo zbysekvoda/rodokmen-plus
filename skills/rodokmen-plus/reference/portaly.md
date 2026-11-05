@@ -82,6 +82,8 @@ Adresy u nevyzkoušených portálů ověř při prvním použití (portály se m
   id je v adrese `…/pages/ArchivaliePage/archivalieId/<id>`.
 - Starší snímky bývají z mikrofilmu nebo silně vybledlé – čti se zvýšeným kontrastem:
   `magick x.jpg -colorspace Gray -contrast-stretch 2%x30% x_k.jpg` (výřez pak dělej z kontrastní verze a poznamenej to v přepisu).
+  Víc variant najednou (CLAHE, odečtené pozadí, kanál inkoustu): `tools/vylepsi_snimek.py`. Detekce hran a
+  černobílé prahování kurentu škodí – vlasové tahy zdvojí nebo smažou.
 - Portál dává vždy celý snímek (nedlaždicuje); náhled a výřez dělá nástroj po stažení přes ImageMagick (`magick`).
   Denní údržba kolem 4:44 (asi 2 minuty).
 

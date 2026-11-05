@@ -137,7 +137,8 @@ Podrobně `reference/matriky.md`, portály `reference/portaly.md`.
    – bývá to jiná kniha než matrika. Před listováním **ověř druh a rozsah knihy** (N/O/Z, roky, obce oddílu) na prvních
    snímcích; popis v katalogu se plete a rejstřík bývá zapsaný jako matrika. Dva snímky v indexu ušetří dvacet v matrice.
 5. **Stáhni snímek** do `pracovni/<svazek>/` (nejdřív se podívej, jestli ho už nemáš) a **přečti ho sám** v plném
-   rozlišení. Nečitelné místo obce či příjmení → skill `ztotozneni-mist` a slovníky `data/mista_nazvy.json`,
+   rozlišení. Vybledlé nebo skvrnité místo → `python3 -I tools/vylepsi_snimek.py pracovni/<stránka>.jpg [x0,y0,x1,y1]`
+   a čti ze všech variant (v přepisu poznamenej ze které). Nečitelné místo obce či příjmení → skill `ztotozneni-mist` a slovníky `data/mista_nazvy.json`,
    `data/prijmeni_varianty.json`.
 6. **Zapiš nález** (vždy všech 6 kroků):
    1. svazek do `data/svazky.json` (`aron_img.py <apu> svazek`, `trebon.py svazek`, jinak `zapis.py svazky …`),
@@ -317,6 +318,7 @@ Vždy **projektovou kopii**, nikdy `SKILL_DIR/tools/` (zapisovala by do skillu; 
 | `anno.py`, `anno_snap.py`, `kramerius.py` | noviny a knihy (ANNO, Kramerius – Hosák–Šrámek, vlastivědy) |
 | `ged_import.py`, `ftb_export.py` | GEDCOM a záloha MyHeritage → kostra osob a fronta zápisů |
 | `vyrez.py`, `ramecek.py`, `overit.py` | výřez, rámeček čteného místa, ověření čtení na dvou polovinách |
+| `vylepsi_snimek.py` | špatně čitelný snímek → varianty vedle sebe (kontrast, CLAHE, odečtené pozadí, kanál) |
 | `zapis.py <soubor> <klíč> <vstup.json> [--sloucit]` | změna jedné položky v JSON datech beze změny formátu |
 | `mista.py`, `mista_domy.py ruian / okoli / hledej / pridej` | místa na mapu (OSM); dům v RÚIAN (obec, parcela, k. ú., poloha) |
 | `napady.py` | náměty na zajímavosti z dat |
