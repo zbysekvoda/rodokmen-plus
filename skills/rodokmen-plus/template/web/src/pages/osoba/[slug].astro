@@ -38,6 +38,7 @@ const onAxis = p.birth && (p.death || p.alive);
     <div class="views">
       <ViewSwitch slug={p.slug} />
       {p.k && <a class="chip" href={`/vejir/?o=${p.slug}`}>ve vějíři →</a>}
+      <a class="chip" href={`/reka/?o=${p.slug}`}>Řeka kolem této osoby →</a>
       {onAxis && <a class="chip" href={`/osa/?o=${p.slug}`}>ukázat na ose →</a>}
     </div>
   </div>

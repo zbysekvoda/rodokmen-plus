@@ -305,7 +305,8 @@ tr.anc td { background: var(--accent-soft); }
 .person-card .big-years { font: 1.6rem/1.2 var(--serif); color: var(--text-head); }
 .person-card .chips { margin: 0.5rem 0 0; }
 .person-card .views { margin-left: auto; display: flex; flex-direction: column; gap: 0.4rem; align-items: flex-end; }
-.view-switch { display: inline-flex; border: 1px solid var(--rule); border-radius: 999px; overflow: hidden; font-size: 0.85rem; }
+.view-switch { display: inline-flex; max-width: 100%; border: 1px solid var(--rule); border-radius: 999px; overflow: hidden; overflow-x: auto; scrollbar-width: none; font-size: 0.85rem; }
+.view-switch a { white-space: nowrap; }
 .view-switch a { padding: 0.2rem 0.75rem; text-decoration: none; color: var(--text); }
 .view-switch a + a { border-left: 1px solid var(--rule); }
 .view-switch a:hover, .view-switch a[aria-current] { background: var(--surface-head); color: var(--on-head); }

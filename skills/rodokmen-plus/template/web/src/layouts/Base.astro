@@ -7,7 +7,7 @@ const path = Astro.url.pathname;
 // nahoře jen hlavní cesty; příběhy, zajímavosti a mapa vedou přes rozcestník /pribehy/ a stránku Domy; Vějíř / Předci jsou přepínač pohledů u stromu, badatelské stránky v patičce
 const top = [
   ['/pribehy/', 'Příběhy', ['/pribeh-rodu/', '/pribeh-domu/', '/pribeh/', '/zajimavosti/']],
-  ['/rody/', 'Rody', ['/rod/', '/rodina/']], ['/domy/', 'Domy', ['/dum/', '/mapa/']], ['/strom/', 'Strom', ['/vejir/', '/predci/', '/pasy/', '/strom-cely/']],
+  ['/rody/', 'Rody', ['/rod/', '/rodina/']], ['/domy/', 'Domy', ['/dum/', '/mapa/']], ['/strom/', 'Strom', ['/vejir/', '/predci/', '/pasy/', '/strom-cely/', '/osa-vazby/', '/vejir-cas/', '/reka/']],
   ['/osa/', 'Časová osa', []], ['/hledat/', 'Hledat', []],
 ];
 const mobileTabs = [top[0][0], '/strom/', '/domy/', '/hledat/'];
@@ -60,7 +60,7 @@ const current = (url, also = []) => ([url, ...also].some((u) => path.startsWith(
     <nav class="tabbar" aria-label="Hlavní (mobil)">
       <a href="/" aria-current={path === '/' ? 'page' : undefined}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 11l8-7 8 7v9H4z"/></svg>Úvod</a>
       <a href={top[0][0]} aria-current={current(top[0][0], top[0][2])}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 4h10l4 4v12H5z"/></svg>Příběhy</a>
-      <a href="/strom/" aria-current={current('/strom/', ['/vejir/', '/predci/', '/pasy/', '/strom-cely/'])}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 20V10M12 10l-6-5M12 10l6-5"/></svg>Strom</a>
+      <a href="/strom/" aria-current={current('/strom/', ['/vejir/', '/predci/', '/pasy/', '/strom-cely/', '/osa-vazby/', '/vejir-cas/', '/reka/'])}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 20V10M12 10l-6-5M12 10l6-5"/></svg>Strom</a>
       <a href="/domy/" aria-current={current('/domy/', ['/dum/'])}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 20V9l8-5 8 5v11zM10 20v-6h4v6"/></svg>Domy</a>
       <button type="button" aria-expanded="false" aria-controls="more-sheet" data-more><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Více</button>
     </nav>
