@@ -605,9 +605,9 @@ def main():
         return strip_comments(re.sub(r"^# .*\n", "", text, count=1))
 
     # Wiki odkazy v příbězích a zajímavostech: [[osoba:id]], [[osoba:id|popisek]], [[dum:obec-cp]], [[zdroj:klic]],
-    # [[rod:slug]], [[misto:Obec]]. Export je rozbalí na markdown odkazy; neplatný cíl zastaví export.
+    # [[rod:slug]], [[misto:Obec]], [[pribeh:slug]] (slug z web.json „pribehy“ → /pribeh/<slug>/). Export je rozbalí na markdown odkazy; neplatný cíl zastaví export.
     # Zároveň vzniká zpětný index „Zmíněno v příběhu“ (osoba, dům, zápis) s kotvou odstavce.
-    wiki_rx = re.compile(r"\[\[(osoba|dum|zdroj|rod|misto):([^\]|]+?)(?:\|([^\]]+))?\]\]")
+    wiki_rx = re.compile(r"\[\[(osoba|dum|zdroj|rod|misto|pribeh):([^\]|]+?)(?:\|([^\]]+))?\]\]")
     mentions = dict(osoba={}, dum={}, zdroj={})
     wiki_err = []
 
@@ -622,6 +622,10 @@ def main():
             return x, f"rod {lines[x]['name']}"
         if kind == "misto" and slugify(x) in villages:
             return slugify(x), villages[slugify(x)]["name"]
+        if kind == "pribeh":
+            st = next((s_ for s_ in extra_stories if s_["slug"] == x), None)
+            if st:
+                return x, st["titulek"]
         return None
 
     def render(text, fname, page=None):
