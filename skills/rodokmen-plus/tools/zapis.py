@@ -4,9 +4,10 @@
 
 Použití (z kořene projektu):
   zapis.py <soubor> <klíč> <vstup.json> [--sloucit]
-    soubor     zaznamy | svazky | prepisy | zvyrazneni | mista | dokumenty | mapy | web   (= data/<soubor>.json)
+    soubor     zaznamy | svazky | prepisy | zvyrazneni | mista | scitani_mza | dokumenty | mapy | web  (= data/<soubor>.json)
     klíč       zaznamy: „klic“ zápisu; dokumenty, mapy: „img“; web: pole nastavení (uvod, pribeh, prihlaseni,
-               zajimavosti_na_uvodu, nazev…); ostatní: klíč ve slovníku (id svazku, klíč zápisu, obec)
+               zajimavosti_na_uvodu, nazev…); ostatní: klíč ve slovníku (id svazku, klíč zápisu, obec;
+               scitani_mza: obec – s --sloucit a {"operaty": {…}} se celé „operaty“ nahradí, tak je uveď všechny)
     vstup.json soubor s jedním objektem JSON (napiš ho nástrojem Write do pracovni/), „-“ = ze vstupu
     --sloucit  jen změní / doplní uvedená pole, ostatní pole položky nechá
 Položka se stejným klíčem se nahradí, jinak se přidá na konec. Python skripty ani `sed -i` na data nepoužívej.
@@ -21,7 +22,7 @@ if not os.path.exists(os.path.join(ROOT, "data", "STAV.md")):   # spuštěno ze 
     sys.exit(f"{os.path.basename(__file__)}: {ROOT} není složka projektu (chybí data/STAV.md). "
              f"Spusť projektovou kopii z kořene projektu: python3 -I tools/{os.path.basename(__file__)} …")
 SEZNAMY = {"zaznamy": "klic", "dokumenty": "img", "mapy": "img"}   # soubory se seznamem: pole, podle kterého se položka pozná
-SLOVNIKY = {"svazky", "prepisy", "zvyrazneni", "mista", "web"}
+SLOVNIKY = {"svazky", "prepisy", "zvyrazneni", "mista", "scitani_mza", "web"}
 LIBOVOLNE = {"web"}   # hodnota nemusí být objekt (web.json: „nazev“ je text, „zajimavosti_na_uvodu“ seznam)
 WS = re.compile(r"\s*")
 

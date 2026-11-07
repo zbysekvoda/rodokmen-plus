@@ -284,7 +284,7 @@ velkého kola) nabídni uživateli, že poznámky po očištění vypíšeš jak
 | `data/osoby.py` | graf: `OSOBY` (id = slug), `VZTAHY`, `RODY`, `KORENY`, `ISSUES`, `HYPOTEZY` |
 | `data/domy.py` | `OBEC`, `OBEC_UDALOSTI`, domy `D` (události, držitelé, obyvatelé, `o=`), `ISSUES` |
 | `data/domy_rodiny.json`, `.md`, `data/domy_zpracovane.json` | fronta domů z `bydliste` (`tools/domy_rodiny.py`); domy s hotovými dějinami |
-| `data/scitani_mza.json` | signatury sčítacích operátů MZA pro `tools/scitani_mza.py` |
+| `data/scitani_mza.json` | signatury sčítacích operátů MZA pro `tools/scitani_mza.py` (rok může mít vlastní `cesta`/`prefix` – jiný disk, 1857 pod mateřskou obcí); zápis `tools/zapis.py scitani_mza <obec>` |
 | `data/zaznamy.json`, `data/svazky.json` | zápisy z pramenů a svazky |
 | `data/prepisy.json`, `data/zvyrazneni.json` | přepisy s překlady, rámečky čteného místa |
 | `data/mista_nazvy.json`, `data/prijmeni_varianty.json` | slovníky tvarů obcí a příjmení pro čtení (`ztotozneni-mist`) |
