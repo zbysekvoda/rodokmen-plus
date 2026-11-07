@@ -5,7 +5,7 @@ Použití: kontrola.py
 Vypíše CHYBY (rozbijí web nebo jsou věcně špatně) a UPOZORNĚNÍ (něco chybí, doplnit).
 Návratový kód 1, pokud jsou chyby.
 """
-import datetime, json, os, re, sys
+import datetime, json, os, re, sys, unicodedata
 for _s in (sys.stdout, sys.stderr):   # UTF-8 výstup i na Windows bez -X utf8 (cp1250 neumí třeba „→“)
     if hasattr(_s, "reconfigure"):
         _s.reconfigure(encoding="utf-8", errors="replace")
@@ -19,6 +19,63 @@ import kontrola_domy  # noqa: E402
 def jload(name, default):
     p = os.path.join(DATA, name)
     return json.load(open(p, encoding="utf-8")) if os.path.exists(p) else default
+
+
+def slugify(text):   # stejně jako export_web.py
+    t = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode().lower()
+    return re.sub(r"[^a-z0-9]+", "-", t).strip("-")
+
+
+def wiki_odkazy(err, warn, g, O, LINES, kek, keys, D, obec_domu, dum_id, cfg):
+    """Wiki odkazy [[typ:cíl]] / [[typ:cíl|popisek]] v příbězích a zajímavostech – stejné cíle jako v export_web.py
+    (neplatný cíl tam zastaví export). Osoby, zápisy a příběhy přesně; domy, rody a místa podle dat (export je skládá složitěji)."""
+    soubory = ["zajimavosti.md", "zajimavosti_domy.md", "pribeh.md", "pribeh_domy.md"]
+    pribehy = set()
+    for x in cfg.get("pribehy", []) if isinstance(cfg.get("pribehy"), list) else []:
+        if isinstance(x, dict) and x.get("soubor") and os.path.exists(os.path.join(DATA, x["soubor"])):
+            soubory.append(x["soubor"])
+            pribehy.add(x.get("slug", ""))
+    placeholder = lambda p: (p.get("n") or "").startswith(("otec neuveden", "matka neuvedena")) or p.get("n") in ("", "?", None)
+    osoby = {i for i, p in O.items() if not (placeholder(p) or p.get("druh") == "bocni" or p.get("tataz"))}
+    domy = {slugify(" ".join(dum_id(k, d))) for k, d in D.items()}
+    obce = {d.get("obec") or obec_domu for d in D.values()}
+    for d in jload("domy_rodiny.json", []):
+        if isinstance(d, dict) and d.get("obec"):
+            domy.add(slugify(f"{d['obec']} {d.get('cp', '')}"))
+            obce.add(d["obec"])
+    obce |= {n for n, e in jload("mista.json", {}).items() if isinstance(e, dict) and "lat" in e}
+    rody = {slugify(v[0] if isinstance(v, (list, tuple)) else str(v)) for k, v in LINES.items() if k in kek}
+    rx = re.compile(r"\[\[([^\]|:]+):([^\]|]+?)(?:\|([^\]]+))?\]\]")
+    for f in dict.fromkeys(soubory):
+        path = os.path.join(DATA, f)
+        if not os.path.exists(path):
+            continue
+        text = re.sub(r"<!--.*?-->", "", open(path, encoding="utf-8").read(), flags=re.S)   # komentáře export zahodí
+        for m in rx.finditer(text):
+            typ, x, odkaz = m.group(1).strip(), m.group(2).strip(), m.group(0)
+            kde = f"data/{f}: odkaz {odkaz}"
+            if typ == "osoba":
+                if x not in osoby:
+                    hl = O.get(x, {}).get("tataz")
+                    err.append(f"{kde} – osoba {x!r} nemá stránku" + (f" (druhý výskyt, piš [[osoba:{hl}]])" if hl else
+                               " (není v osoby.py, nebo je to boční souhrn / neuvedený rodič)"))
+            elif typ == "zdroj":
+                if x not in keys:
+                    err.append(f"{kde} – zápis {x!r} není v zaznamy.json")
+            elif typ == "pribeh":
+                if x not in pribehy:
+                    err.append(f"{kde} – příběh {x!r} není ve web.json „pribehy“ (nebo chybí jeho soubor)")
+            elif typ == "dum":
+                if x not in domy:
+                    err.append(f"{kde} – dům {x!r} není v domy.py ani domy_rodiny.json (adresa je obec-cp, např. horni-lhota-12)")
+            elif typ == "rod":
+                if x not in rody:
+                    err.append(f"{kde} – rod {x!r} neexistuje (adresy rodů: {', '.join(sorted(rody)) or 'žádné'})")
+            elif typ == "misto":
+                if slugify(x) not in {slugify(o) for o in obce if o}:
+                    warn.append(f"{kde} – obec {x!r} nemá souřadnice v mista.json ani dům; export ji asi nenajde a zastaví se")
+            else:
+                warn.append(f"{kde} – neznámý typ {typ!r} (osoba, dum, zdroj, rod, misto, pribeh); na webu zůstane jako text")
 
 
 def main():
@@ -217,6 +274,8 @@ def main():
             warn.append(f"CITLIVÉ ({kde}): „…{text[max(0, m.start() - 40):m.end() + 40].strip()}…“ – jde na web; "
                         f"zeptej se uživatele, jestli to tam smí být (reference/soukromi.md); když ano, "
                         f"přidej úryvek textu s tím slovem do web.json „citlive_schvaleno“")
+
+    wiki_odkazy(err, warn, g, O, LINES, kek, keys, D, obec_domu, dum_id, cfg)
 
     if not os.path.exists(os.path.join(DATA, "pribeh.md")) and LINES:
         hlavni = min(LINES)
