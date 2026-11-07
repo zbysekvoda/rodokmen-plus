@@ -163,6 +163,33 @@ Adresy u nevyzkoušených portálů ověř při prvním použití (portály se m
 - Rejstřík najdeš bez prohlížeče: HTML stránky knihy má seznam `labels` s popisky snímků („04-Index Taufe_0001“).
 - Vojenské matriky (např. Štýrský Hradec) tam nejsou – jsou v Kriegsarchivu ve Vídni (offline).
 
+## Rakousko a Vídeň mimo matriky
+Matriky viz Matricula výše, noviny ANNO níže. Navíc:
+- **Wienbibliothek digital** (https://www.digital.wienbibliothek.at) – zdarma, bez přihlášení, fulltext (OCR švabachu).
+  Před stránkami je JS ověření prohlížeče („Verifying your browser“) → curl/slusne.py vrátí jen výzvu; čti přes
+  Claude in Chrome (ověření projde samo za pár sekund), šetrně jako MZA. Stojí za to:
+  - **Lehmann** (Adolph Lehmann's allgemeiner Wohnungs-Anzeiger 1859–1942) – adresář: příjmení, jméno, povolání,
+    okres/ulice. Oddíl „VII. Nachweis. Einwohner“ **vynechává pomocníky, dělníky, služebné a nesamostatné** – chybějící
+    jméno nic nevylučuje. Užitečné k domům: kdo bydlel na adrese a čím byl.
+  - **Verzeichnis der Verstorbenen** (Magistrat, sešity po datech) – jméno, povolání, věk, domovská příslušnost, bydliště,
+    příčina smrti. Je **výběrový** (desítky jmen denně), není to úplná matrika.
+  - Häuser-Kataster / Lenobel (domy a majitelé 1911–1928), Wiener Kommunal-Kalender.
+  - Postup: `…/wbrobv/search/quick?query=<příjmení>` najde svazky (víc slov se spojuje přes NEBO). Svazek/ročník má
+    `…/periodical/titleinfo/<id>` (rodič řady přes odkaz „Titel“), hledání uvnitř `…/periodical/search/<id>?query=<slovo>`
+    (funguje `*`, např. `Pois*` – OCR jména komolí), stránka `…/periodical/pageview/<id>`; zásah je na snímku zvýrazněný.
+- **GenTeam** (https://www.genteam.at) – zdarma, ale **jen po registraci** → hledá uživatel sám (agent se nepřihlašuje).
+  Indexy vídeňských křtů/sňatků/úmrtí, Totenbeschauprotokolle 1648–1920, židovské a evangelické matriky.
+- **Wiener Stadt- und Landesarchiv (WStLA)** – policejní přihlášky (Meldezettel) 1890–1976 a úmrtní protokoly; katalog
+  WAIS, snímky většinou jen v archivu nebo na objednávku. Úplná vídeňská matrika úmrtí pro období od 1938 je na
+  Standesamt / MA 8.
+- **Dějiny domů ve Vídni:** Wien Geschichte Wiki (https://www.geschichtewiki.wien.gv.at, ulice, domy, osobnosti;
+  běžný HTTP funguje), Lehmann a Häuser-Kataster výše.
+- **Domy mimo Vídeň:** Františkovský (stabilní) katastr 1817–61 – mapy na Mapire (https://maps.arcanum.com, curl vrací 403 →
+  jen prohlížeč), protokoly a pozemkové knihy (Grundbücher) v zemských archivech, online jen výjimečně (zemské mapové portály
+  DORIS, SAGIS, tiris mají starý katastr jako vrstvu).
+- **Co skoro není:** rakouské sčítací operáty 1857–1910 jsou z velké části skartované; vojenské kmenové listy jsou
+  v Kriegsarchivu (osobně / placeně) – padlé 1914–18 hledej ve Verlustlisten přes ANNO.
+
 ## Polsko – Geneteka (geneteka.genealodzy.pl)
 - Zdarma dobrovolnické indexy křtů, sňatků a úmrtí po farnostech; hledej ve webovém rozhraní (vojvodství → farnost →
   příjmení). Index je vodítko – skeny často online nejsou (farní nebo diecézní archiv), pak zápis žádej tam.
