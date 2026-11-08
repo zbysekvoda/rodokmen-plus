@@ -10,7 +10,7 @@ Licence: MIT (původní © Jakub Valenta, xsigik; úpravy rodokmen-plus).
 Použití (z kořene projektu):
   nahledy.py <archiv> <kniha> <od> <do> [volby]
   nahledy.py <archiv> <kniha> --rok <klíč svazku> <rok> [volby]   -> rozsah z data/svazky.json → orientace.roky
-    archiv  = aron | pf | mza | ahmp (kniha jako u mapa_knihy.py)
+    archiv  = aron | pf | mza | ahmp (kniha jako u mapa_knihy.py; pf i id domu ze sčítání)
 
 Volby:
   --vyrez x0,y0,x1,y1  jen část každého snímku (zlomky 0–1), např. sloupec se jmény 0,0,0.5,1
