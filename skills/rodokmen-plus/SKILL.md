@@ -145,7 +145,7 @@ Podrobně `reference/matriky.md`, portály `reference/portaly.md`.
    **Jak hledat ve svazku:**
    - **Víc předků jedním průchodem.** Než svazek otevřeš, sesbírej všechny, koho v něm hledáš (farnost a druh
      zápisu sedí, události do zhruba ±5 let – křty dvou prarodičů z téže vsi, sňatky sourozenců předků). Pomůže
-     `tools/fronta.py` (předci bez rodiče s obcí a rokem). Okno vezmi kolem všech odhadnutých dat a zapisuj každý
+     `tools/fronta.py` (předci bez rodiče s obcí a rokem); co už se v které knize hledalo, ukáže `tools/prosle_knihy.py`. Okno vezmi kolem všech odhadnutých dat a zapisuj každý
      nález z okna, ať se ke knize nevracíš.
    - **Okno ±5 let** kolem známého či odhadnutého roku (z věku při úmrtí širší, viz `reference/matriky.md`);
      začátek okna najdi přes `mapa_knihy.py rok`. Nic? Okno rozšiř o dalších 5 let na stranu, kde je odhad
@@ -353,6 +353,8 @@ Vždy **projektovou kopii**, nikdy `SKILL_DIR/tools/` (zapisovala by do skillu; 
 | `ipr_praha.py`, `dnnt.py` | Praha: staré plány a letecké snímky; tisk 20. století (DNNT) |
 | `anno.py`, `anno_snap.py`, `kramerius.py` | noviny a knihy (ANNO, Kramerius – Hosák–Šrámek, vlastivědy) |
 | `ged_import.py`, `ftb_export.py` | GEDCOM a záloha MyHeritage → kostra osob a fronta zápisů |
+| `ged_export.py [vystup.ged]` | graf osob → GEDCOM 5.5.1 (osoby, narození/úmrtí/sňatky, rodiny FAM, zdroje) pro jiné programy |
+| `prosle_knihy.py [příjmení]` | přehled prošlých knih ze `svazky.json`, `zaznamy.json` a deníku – podívej se před čtením knihy |
 | `vyrez.py`, `ramecek.py`, `overit.py` | výřez, rámeček čteného místa, ověření čtení na dvou polovinách |
 | `vylepsi_snimek.py` | špatně čitelný snímek → varianty vedle sebe (kontrast, CLAHE, odečtené pozadí, kanál) |
 | `zapis.py <soubor> <klíč> <vstup.json> [--sloucit]` | změna jedné položky v JSON datech beze změny formátu |

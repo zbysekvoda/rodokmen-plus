@@ -32,6 +32,9 @@ Pokud vám stačí jen rodokmen, nebo jen dějiny jednoho domu, použijte klidn�
 
 ### Převzato z forků
 Nápady z forků původního skillu, přepsané na graf osob (licence MIT):
+- `tools/ged_export.py` – export grafu do GEDCOM 5.5.1 a `tools/prosle_knihy.py` – přehled prošlých knih
+  (z deníku a záznamů místo ruční tabulky) ze
+  [vlastimilvasek/rodokmen-skill@e04b220](https://github.com/vlastimilvasek/rodokmen-skill/tree/e04b220e8188cac1353a9ba02cf675671098eb27/skills/rodokmen) (vlastimilvasek),
 - `tools/fronta.py` – fronta hledání (chybějící rodiče, neuzavřené rody) ze
   [srameko/rodokmen-skill@5f25edb](https://github.com/srameko/rodokmen-skill/blob/5f25edb9a201f8ac03b79293bbcb79b5109d022e/skills/rodokmen/tools/fronta.py) (srameko),
 - `tools/kmotri.py` – kmotři a svědci jako stopy ze
