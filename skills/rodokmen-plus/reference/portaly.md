@@ -366,6 +366,20 @@ Nástroje pro ně hotové nejsou. Postupuj takto a výsledek zapiš do `STAV.md`
   Na **císařských otiscích** chybí u části listů barvy a čísla domů. Lepší jsou **indikační skici**: mají čísla domů
   a u pozemků jméno majitele („N. 13“ = patří k domu čp. 13). Dům bez pozemků mimo ves = domkář bez polí.
   Jméno majitele samotného domu bývá jen v písemném operátu (archiv, ne online). Výřezy map patří na web k rodině.
+- **Obce, které byly do roku 1920 v Dolních Rakousích** (Valticko: Valtice/Feldsberg, Hlohovec/Bischofswarth,
+  Poštorná/Unter-Themenau, Charvátská Nová Ves/Ober-Themenau, Úvaly/Garschönthal…, i část Vitorazska) indikační skici
+  v MZA nemají. Rakouský stabilní katastr („Franziszeischer Kataster“, kolem 1821) je online v NÖ Landesarchiv:
+  `https://www.noela.findbuch.net/` (hledej německý název obce):
+  - **FK Mappen UM <č.>**: barevná mapa obce (~5600 × 4600 px), stavební parcely černě, pozemky červeně; čísla domů
+    ani jména na ní nejsou.
+  - **FK Prot UM <č.>** (protokol stavebních parcel): u parcely majitel, stav (Halblehner = půlláník, Häusler = domkář),
+    bydliště a **číslo domu** – číslo parcely z mapy tak vede k domu a majiteli.
+  - **BG <okresní soud> …**: pozemkové knihy (Grundbuch, Gewährbuch od 18. stol.) a pozůstalostní inventáře
+    (Inventurprotokolle), často naskenované.
+  - Bez prohlížeče (přes `slusne.py`): cookie z `…/php/view.php?link=…`, pak `php/gtpc.php?be_id=<fond>&ve_id=<id>&count=<0..n>`
+    (fond 4092 = mapy, 4091 = Prot, 4094 = Operate; prázdná odpověď = konec nebo bez skenů). `id` vrátí hledání
+    `php/rech_start.php?rech_nr=1` (POST `words=<obec>&max=500&…`, po načtení `main.php`; JSON, signatura v klíči hexadecimálně).
+    Server obrázků `augias.noel.gv.at` je dostupný jen přes `gtpc.php`.
 - **Dnešní adresa domu** podle čísla popisného: RÚIAN (ČÚZK, vrstva AdresniMisto). Pozor, staré centrum mívá od 19. století
   stejná čp., ale předměstí a vesnice čísla přečíslovávaly. Hodí se na „procházku po stopách předků“.
   Stavbu podle obce a čísla popisného najde i nahlizenidokn.cuzk.gov.cz (ověření adresy z dokladu); vlastník je za
