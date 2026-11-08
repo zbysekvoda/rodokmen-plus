@@ -8,7 +8,9 @@ Tady je to tenký obal nad zdravi.py --rychle (bez stahování snímků), takže
 jsou na jednom místě. Databáze obětí a vězňů (holocaust, arolsen, mauthausen, terezin) se
 dotazují jen se souhlasem uživatele (souhlas.py), jinak smoke test ověří jen dostupnost serveru.
 Židovské matriky (vademecum) a SOA Litoměřice (litomerice) jsou bez souhlasu; Litoměřice před vstupem ověřují
-člověka – nástroj to pozná a smoke test to hlásí jako OK s poznámkou (hledání jen v prohlížeči). Každý nástroj jde přes brzdu slusne.py – pouštěj ručně, ne ve smyčce ani z pomocníků.
+člověka – nástroj to pozná a smoke test to hlásí jako OK s poznámkou (hledání jen v prohlížeči).
+Sčítání lidu: Porta fontium (sčítání 1857–1921, okresní civilní matriky) a Slovakiana (hárky 1930; robots.txt
+Crawl-delay 10 → kontrola trvá asi 40 s). Každý nástroj jde přes brzdu slusne.py – pouštěj ručně, ne ve smyčce ani z pomocníků.
 
 Použití:
   smoke_test.py                  všechny portály, jen dotazy (~1–2 min)

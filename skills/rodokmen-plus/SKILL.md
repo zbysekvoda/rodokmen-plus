@@ -206,7 +206,8 @@ domu se stavem `fam`, literatura `lit` se `zdroj` a stranou. Staré mapy a letec
    hned na začátku**: vede i k pramenům (sčítací operáty, indikační skici, literatura).
 
 **Pořadí pramenů pro venkovský dům** (od dneška zpátky): sčítání lidu 1921 → 1857 (celé domácnosti po číslech;
-Morava: sčítací operáty MZA, `tools/scitani_mza.py`, signatury v `data/scitani_mza.json`) → matriky podle čísla domu (1784–1900) → stabilní katastr ~1827–1835
+Morava: sčítací operáty MZA, `tools/scitani_mza.py`, signatury v `data/scitani_mza.json`; západní Čechy:
+`portafontium.py scitani`; Slovensko 1930: `slovakiana.py`) → matriky podle čísla domu (1784–1900) → stabilní katastr ~1827–1835
 → josefský 1785 a tereziánský katastr → gruntovní knihy → berní rula 1654, soupis poddaných 1651, urbáře → literatura.
 Po roce ~1910 pozemková kniha. Městský dům 20. století má vlastní pořadí (`prameny.md`).
 
@@ -349,7 +350,8 @@ Vždy **projektovou kopii**, nikdy `SKILL_DIR/tools/` (zapisovala by do skillu; 
 | `kontrola.py`, `kontrola_domy.py` | kontrola dat osob, domů a křížových odkazů, soukromí, kdy psát příběh |
 | `aron_search.py`, `aron_img.py` | ARON (SOA Zámrsk): matriky, sčítání, gruntovní knihy |
 | `trebon.py` | SOA Třeboň: matriky, rejstříky, sčítání, strom fondů (gruntovní knihy, urbáře) |
-| `portafontium.py`, `ebadatelna.py` | SOA Plzeň; SOA Praha (matriky i archiválie `a-…`) |
+| `portafontium.py`, `ebadatelna.py` | SOA Plzeň (matriky, okresní civilní matriky, sčítání lidu 1857–1921 po domech); SOA Praha (matriky i archiválie `a-…`) |
+| `slovakiana.py` | sčítací hárky 1930 celého Slovenska (Slovakiana, SNA; 1 dotaz za 10 s) |
 | `mza.py` | MZA Brno (Acta Publica) – detail knihy bývá za ALTCHA → `matriky-v-prohlizeci` |
 | `scitani_mza.py` | sčítací operáty MZA (Morava) přes Deepzoom dlaždice |
 | `ahmp_search.sh`, `ahmp_scan.py`, `policie_prihlasky.py` | Praha: matriky, policejní přihlášky |
