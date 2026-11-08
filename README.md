@@ -55,7 +55,16 @@ Nápady z forků původního skillu, přepsané na graf osob (licence MIT):
   domy bez klíče z RÚIAN.
 - portréty osob na webu (klíč obrázku s `portret`, na stránce osoby místo iniciály, mimo galerii dokumentů)
   a nabídka portrétu při zpracování fotografií v `SKILL.md` a `reference/data.md` ze
-  [xkraust/rodokmen-skill@79d3685](https://github.com/xkraust/rodokmen-skill/commit/79d36850afaa080b0ebcf70a368cbbb5237d700e) (xkraust).
+  [xkraust/rodokmen-skill@79d3685](https://github.com/xkraust/rodokmen-skill/commit/79d36850afaa080b0ebcf70a368cbbb5237d700e) (xkraust),
+- vějíř na webu: plynulý posun a přibližování (kolečko, touchpad, pinch) přes sdílený `lib/panzoom.js`
+  s tlačítkem „Zpět na celý vějíř“ podle
+  [jozefizso/rodokmen-skill@72293c5](https://github.com/jozefizso/rodokmen-skill/commit/72293c54770db26e007f6fb477bd8148c2611d9b) (Jozef Izso)
+  a [hnizdiljan/rodokmen-skill@17d6c16](https://github.com/hnizdiljan/rodokmen-skill/commit/17d6c16e5acf2e78521edc72e88ed586c3d113af) (Jan Hnízdil),
+  obrys pod kurzorem s `vector-effect: non-scaling-stroke` z
+  [hnizdiljan/rodokmen-skill@0291562](https://github.com/hnizdiljan/rodokmen-skill/commit/0291562c9ef208dde5af5532c69581c3b28c3744) (Jan Hnízdil),
+- sloučení sdílených předků ve vějíři (`tools/fan_chart.py`: sourozenci se společnými rodiči sdílí jednu dvojnásobnou
+  výseč s přerušovaným obrysem, nesloučitelné opakování je šrafovaná značka „↺ viz č.“) ze
+  [vmi43/rodokmen-skill@5bd5904](https://github.com/vmi43/rodokmen-skill/blob/5bd59042d10714fe914bd6c48c54c7b065dd39ea/skills/rodokmen/tools/fan_chart.py) (Vaclav Miller).
 
 ## Co je v repozitáři
 ```

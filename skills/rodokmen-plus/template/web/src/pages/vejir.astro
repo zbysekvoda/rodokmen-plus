@@ -23,15 +23,16 @@ const names = [...new Set(Object.values(people).filter((p) => p.k > 1).map((p) =
       <button type="submit">Najít</button>
     </form>
     <span class="fan-btns">
-      <button type="button" data-z="1.5" aria-label="Přiblížit">+</button>
-      <button type="button" data-z="0.667" aria-label="Oddálit">−</button>
-      <button type="button" data-z="0">Celý</button>
+      <button type="button" data-pz="in" aria-label="Přiblížit">+</button>
+      <button type="button" data-pz="out" aria-label="Oddálit">−</button>
+      <button type="button" data-pz="reset">Zpět na celý vějíř</button>
     </span>
-    <span class="small muted fan-hint">Kolečkem myši přibližujte, tažením posouvejte, klepnutím na jméno otevřete stránku. Celou rodinu shora dolů ukazuje <a href="/strom-cely/">celý strom</a>.</span>
+    <span class="small muted fan-hint">Kolečkem myši nebo dvěma prsty přibližujte, tažením posouvejte, šrafovaná pole „↺ viz č.“ = předek, který se v rodokmenu opakuje, klepnutím na jméno otevřete stránku. Celou rodinu shora dolů ukazuje <a href="/strom-cely/">celý strom</a>.</span>
   </div>
   {fans.map((f, i) => <div class="fan-stage" data-root={f.id} hidden={i > 0} set:html={f.svg} />)}
 
   <script>
+    import { panZoom, bindButtons } from '../lib/panzoom.js';
     const stages = [...document.querySelectorAll<HTMLElement>('.fan-stage')];
     const want = new URLSearchParams(location.search).get('o');
     const stage = stages.find((s) => s.dataset.root === want) ?? stages[0];
@@ -41,55 +42,18 @@ const names = [...new Set(Object.values(people).filter((p) => p.k > 1).map((p) =
       rootPick.value = stage.dataset.root!;
       rootPick.addEventListener('change', () => { location.search = `?o=${encodeURIComponent(rootPick.value)}`; });
     }
+    // Plynulý posun a přibližování (kolečko, touchpad, pinch) přes sdílený panzoom.js – podle forků
+    // jozefizso 72293c5 / hnizdiljan 17d6c16 („Vějíř: plynulý posun a přibližování“):
+    // https://github.com/jozefizso/rodokmen-skill/blob/72293c54770db26e007f6fb477bd8148c2611d9b/skills/rodokmen/template/web/src/lib/fanview.ts
     const svg = stage.querySelector('svg')!;
-    const full = svg.viewBox.baseVal;
-    const home = { x: full.x, y: full.y, w: full.width, h: full.height };
-    let vb = { ...home };
-    const apply = () => svg.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
-    const toSvg = (cx: number, cy: number) => {
-      const r = svg.getBoundingClientRect();
-      const s = Math.max(vb.w / r.width, vb.h / r.height);
-      const ox = (r.width * s - vb.w) / 2, oy = (r.height * s - vb.h) / 2;
-      return { x: vb.x - ox + (cx - r.left) * s, y: vb.y - oy + (cy - r.top) * s, s };
-    };
-    const zoomAt = (f: number, cx?: number, cy?: number) => {
-      const r = svg.getBoundingClientRect();
-      const p = toSvg(cx ?? r.left + r.width / 2, cy ?? r.top + r.height / 2);
-      const w = Math.min(home.w * 1.2, Math.max(home.w / 40, vb.w / f));
-      const k = w / vb.w;
-      vb = { x: p.x - (p.x - vb.x) * k, y: p.y - (p.y - vb.y) * k, w, h: vb.h * k };
-      apply();
-    };
-    stage.addEventListener('wheel', (e) => { e.preventDefault(); zoomAt(e.deltaY < 0 ? 1.25 : 0.8, e.clientX, e.clientY); }, { passive: false });
-
-    // drag to pan (mouse + one finger), pinch to zoom (two fingers)
-    const pts = new Map<number, { x: number; y: number }>();
-    let moved = 0, pinch = 0;
-    stage.addEventListener('pointerdown', (e) => { pts.set(e.pointerId, { x: e.clientX, y: e.clientY }); moved = 0; });
-    stage.addEventListener('pointermove', (e) => {
-      const prev = pts.get(e.pointerId);
-      if (!prev) return;
-      pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
-      if (pts.size === 2) {
-        const [a, b] = [...pts.values()];
-        const d = Math.hypot(a.x - b.x, a.y - b.y);
-        if (pinch) zoomAt(d / pinch, (a.x + b.x) / 2, (a.y + b.y) / 2);
-        pinch = d; moved += 10;
-        return;
-      }
-      const { s } = toSvg(e.clientX, e.clientY);
-      const dx = e.clientX - prev.x, dy = e.clientY - prev.y;
-      moved += Math.abs(dx) + Math.abs(dy);
-      if (moved > 4) { stage.setPointerCapture(e.pointerId); vb.x -= dx * s; vb.y -= dy * s; apply(); }
+    const pz = panZoom(stage, svg, { maxZoom: 40, minZoom: 1 / 1.2 });
+    bindButtons(document.querySelector('.fan-btns')!, pz);
+    // sdílený předek: najetí na značku „↺ viz č.“ zvýrazní první výskyt
+    svg.querySelectorAll<SVGAElement>('.fan-links a[data-same]').forEach((a) => {
+      const orig = svg.querySelector(`.fan-links a[data-k="${a.dataset.same}"]`);
+      a.addEventListener('pointerenter', () => orig?.classList.add('hit'));
+      a.addEventListener('pointerleave', () => orig?.classList.remove('hit'));
     });
-    const up = (e: PointerEvent) => { pts.delete(e.pointerId); if (pts.size < 2) pinch = 0; };
-    stage.addEventListener('pointerup', up);
-    stage.addEventListener('pointercancel', up);
-    stage.addEventListener('click', (e) => { if (moved > 4) { e.preventDefault(); e.stopPropagation(); } }, true);
-
-    document.querySelectorAll<HTMLButtonElement>('.fan-btns button').forEach((b) =>
-      b.addEventListener('click', () => { const z = Number(b.dataset.z); if (z) zoomAt(z); else { vb = { ...home }; apply(); } })
-    );
 
     // search: zoom to the ancestor's segment and highlight it
     const norm = (t: string) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
@@ -103,8 +67,7 @@ const names = [...new Set(Object.values(people).filter((p) => p.k > 1).map((p) =
       hits.forEach((a) => a.classList.add('hit'));
       const bb = (hits[0].lastElementChild as SVGGraphicsElement).getBBox();
       const w = Math.max(bb.width, bb.height) * 7;
-      vb = { x: bb.x + bb.width / 2 - w / 2, y: bb.y + bb.height / 2 - w / 2, w, h: w };
-      apply();
+      pz.focus(bb.x + bb.width / 2 - w / 2, bb.y + bb.height / 2 - w / 2, w, w);
     });
   </script>
 </Base>

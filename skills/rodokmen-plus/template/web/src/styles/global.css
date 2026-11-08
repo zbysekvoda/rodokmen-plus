@@ -122,7 +122,9 @@ th { font-weight: 600; color: var(--text-quiet); background: var(--surface-sunke
 .fan-inner { width: 100%; margin: 0 auto; transition: width 0.2s; }
 .fan-inner svg { display: block; width: 100%; height: auto; }
 .fan-links a path, .fan-links a circle { fill: transparent; cursor: pointer; }
-.fan-links a:hover path, .fan-links a:hover circle { fill: rgba(255, 255, 255, 0.35); stroke: var(--text); stroke-width: 3; }
+/* obrys pod kurzorem stejně silný při jakémkoli přiblížení – podle forku hnizdiljan 0291562 */
+.fan-links a:hover path, .fan-links a:hover circle { fill: rgba(255, 255, 255, 0.35); stroke: var(--text); stroke-width: 2; vector-effect: non-scaling-stroke; }
+.fan-links a.fan-repeat-link:hover path { fill: rgba(255, 214, 0, 0.25); }
 .fan-tools { position: sticky; top: 0.5rem; left: 0.5rem; z-index: 2; display: inline-flex; gap: 0.3rem; margin: 0.5rem; }
 .fan-tools button { font: inherit; border: 1px solid var(--line); background: var(--surface-raised); color: var(--text); border-radius: 6px; padding: 0.2rem 0.65rem; cursor: pointer; }
 

@@ -2,7 +2,7 @@
 """Vějíř předků (360°) z data/osoby.py jako SVG.
 Použití: fan_chart.py <out_dir> [--koren <klíč>]                       (plakát: SVG + HTML s nadpisem a legendou, PNG přes Chrome, je-li k dispozici)
          fan_chart.py <out_file.svg> --web <hrefs.json>  (holé klikací SVG pro web – volá ho export_web.py)"""
-import html, json, math, os, re, subprocess, sys
+import html, itertools, json, math, os, re, subprocess, sys
 for _s in (sys.stdout, sys.stderr):   # UTF-8 výstup i na Windows bez -X utf8 (cp1250 neumí třeba „→“)
     if hasattr(_s, "reconfigure"):
         _s.reconfigure(encoding="utf-8", errors="replace")
@@ -21,7 +21,7 @@ CHROME = next((c for c in ("/Applications/Google Chrome.app/Contents/MacOS/Googl
 
 ns = {}
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import graf; ns.update(graf.nacti_legacy(KOREN))
-P, LINES = ns["P"], ns.get("LINES", {})
+P, LINES, SAME = ns["P"], ns.get("LINES", {}), ns.get("SAME", {})
 # rody leží v jedné generaci (obvykle pradědečci 8–15; při kořeni dítěti 16–31) – barvy podle pořadí rodů
 LG = (min(LINES).bit_length() - 1) if LINES else 3
 WEBCFG = json.load(open(os.path.join(ROOT, "data", "web.json"), encoding="utf-8")) if os.path.exists(os.path.join(ROOT, "data", "web.json")) else {}
@@ -84,14 +84,91 @@ def gen(k):
     return k.bit_length() - 1
 
 
-def angles(k):
-    g = gen(k); n = 2 ** g; i = k - n
-    span = 360 / n
-    return 180 + i * span, 180 + (i + 1) * span
+# Sloučení sdílených předků (pedigree collapse) převzato z forku vmi43 (Vaclav Miller), commit 5bd5904:
+# https://github.com/vmi43/rodokmen-skill/blob/5bd59042d10714fe914bd6c48c54c7b065dd39ea/skills/rodokmen/tools/fan_chart.py
+# Úprava rodokmen-plus: výskyt, který sloučit nejde, se nekreslí znovu se jménem a větví, ale jako šrafovaná
+# značka „↺ viz č. N“ až k okraji vějíře – opakování je vidět, osoba se nevykreslí dvakrát.
+def canon(k):
+    """Slot → kanonický slot: předek (a celá jeho větev výš) vícekrát v rodokmenu se bere z prvního výskytu (SAME)."""
+    for j in range(gen(k) + 1):
+        if (k >> j) in SAME:
+            return canon((SAME[k >> j] << j) | (k & ((1 << j) - 1)))
+    return k
+
+
+def parents_of(k, flags):
+    return (2 * k + 1, 2 * k) if flags.get(k) else (2 * k, 2 * k + 1)
+
+
+def pos(k, flags):
+    """Pořadí slotu v jeho prstenci (zleva doprava) při daném otočení rodičů."""
+    g, idx = gen(k), 0
+    for lev in range(1, g + 1):
+        node = k >> (g - lev)
+        idx = idx * 2 + ((node & 1) ^ (1 if flags.get(node >> 1) else 0))
+    return idx
+
+
+def sibling_pairs():
+    """Dvojice slotů (pa, pb) téhož prstence, jejichž oba rodiče jsou táž dvojice osob (SAME) – sourozenci."""
+    out = set()
+    for b, a in SAME.items():
+        pa, pb = a // 2, b // 2
+        if pa != pb and gen(pa) == gen(pb) and canon(pa) in P and canon(pb) in P \
+                and canon(2 * pa) == canon(2 * pb) and canon(2 * pa + 1) == canon(2 * pb + 1):
+            out.add((min(pa, pb), max(pa, pb)))
+    return sorted(out)
+
+
+def solve_flags():
+    """Které páry rodičů otočit (muž ↔ žena), aby sourozenci stáli vedle sebe; co nejméně otočení."""
+    flags, locked = {}, set()
+    for pa, pb in sibling_pairs():
+        var, x, y = set(), pa, pb
+        while x != y:
+            x >>= 1; y >>= 1
+            var |= {x, y}
+        var.discard(1)
+        free = sorted(var - locked)
+        for r in range(min(len(free), 6) + 1):
+            hit = next((c for c in itertools.combinations(free, r)
+                        if abs(pos(pa, {**flags, **dict.fromkeys(c, True)}) - pos(pb, {**flags, **dict.fromkeys(c, True)})) == 1), None)
+            if hit is not None:
+                flags.update(dict.fromkeys(hit, True))
+                locked |= var
+                break
+    return flags
+
+
+def build_cells(flags):
+    """Buňky po prstencích; úhel jako podíl 0–1. Sourozenci vedle sebe sdílejí rodiče: ti dostanou dvojnásobnou šířku
+    (merged=True). Opakovaný předek, kterého sloučit nejde, je buňka repeat=True bez rodičů."""
+    rings = {0: [dict(k=1, f0=0.0, f1=1.0)]}
+    for g in range(0, len(RINGS) - 1):
+        out = []
+        cells, i = rings[g], 0
+        while i < len(cells):
+            c = cells[i]; i += 1
+            if c.get("repeat") or canon(c["k"]) not in P:
+                continue
+            k, nxt = c["k"], cells[i] if i < len(cells) else None
+            f1, merged = c["f1"], False
+            if (nxt and not nxt.get("repeat") and abs(c["f1"] - nxt["f0"]) < 1e-9 and canon(nxt["k"]) in P
+                    and canon(2 * k) in P and canon(2 * k + 1) in P
+                    and (canon(2 * k), canon(2 * k + 1)) == (canon(2 * nxt["k"]), canon(2 * nxt["k"] + 1))):
+                f1, merged = nxt["f1"], True; i += 1
+            half = (f1 - c["f0"]) / 2
+            for j, pk in enumerate(parents_of(k, flags) if g else (2, 3)):
+                cell = dict(k=pk, f0=c["f0"] + j * half, f1=c["f0"] + (j + 1) * half, merged=merged)
+                if not merged and pk in SAME:
+                    cell["repeat"] = SAME[pk]
+                out.append(cell)
+        rings[g + 1] = out
+    return [c for g in sorted(rings) for c in rings[g]]
 
 
 def fill(k):
-    g = gen(k); p = P.get(k)
+    g = gen(k); p = P.get(canon(k))
     if p is None or p.get("st") == "unk":
         return EMPTY
     if g == 0:
@@ -107,23 +184,53 @@ def fit(text, avail, fmax, fmin):
 
 
 paths, defs, texts, links = [], [], [], []
-slots = sorted({k for k in P if gen(k) < len(RINGS)} |   # vějíř má 11 prstenců (generace 0–10); starší předky vynech
-               {c for k in P for c in (2 * k, 2 * k + 1) if gen(c) <= 10 and k in P})
-for k in slots:
+REPEAT_COL = "#D9D2C6"
+defs.append('<pattern id="fan-repeat" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">'
+            f'<rect width="14" height="14" fill="{REPEAT_COL}"/><rect width="5" height="14" fill="#C4BBAD"/></pattern>')
+n_merged = n_repeat = 0
+for cell in build_cells(solve_flags()):
+    k = cell["k"]
     g = gen(k)
     r0, r1 = RINGS[g]
-    a0, a1 = (0, 360) if g == 0 else angles(k)
+    a0, a1 = (0, 360) if g == 0 else (180 + cell["f0"] * 360, 180 + cell["f1"] * 360)
+    ck = canon(k)
+    if cell.get("repeat"):   # opakovaný předek: šrafovaná značka přes zbytek vějíře, žádné jméno ani větev
+        n_repeat += 1
+        rr = RINGS[-1][1]
+        d = sector(r0, rr, a0, a1)
+        paths.append(f'<path class="fan-repeat" d="{d}" fill="url(#fan-repeat)" stroke="#8A7F70" stroke-width="2" '
+                     f'stroke-dasharray="10 6" vector-effect="non-scaling-stroke"/>')
+        p = P.get(ck, {})
+        lab = f"↺ viz č. {ck}"
+        am, rm = (a0 + a1) / 2, (r0 + r1) / 2
+        f1 = min(40, max(7, math.radians(a1 - a0) * rm / 1.4), (r1 - r0) / (0.56 * len(lab)) if g > 4 else 40)
+        rot = am - 90 if (am % 360) < 180 else am + 90
+        if g <= 4:
+            rot = am if (am % 360) <= 90 or (am % 360) >= 270 else am + 180
+        x, y = pt(rm, am)
+        texts.append(f'<text transform="translate({x:.1f},{y:.1f}) rotate({rot:.2f})" y="{f1 * 0.35:.1f}" text-anchor="middle" '
+                     f'font-size="{f1:.1f}" font-style="italic" fill="#4A4036">{html.escape(lab)}</text>')
+        if ck in HREFS:
+            links.append(f'<a href="{HREFS[ck]}" class="fan-repeat-link" data-same="{ck}"><title>{html.escape(p.get("n", ""))} – '
+                         f'v rodokmenu znovu (sdílený předek), větev viz č. {ck}</title><path d="{d}"/></a>')
+        continue
     if g == 0:
         paths.append(f'<circle cx="{CX}" cy="{CY}" r="{r1}" fill="{fill(k)}" stroke="#fff" stroke-width="3"/>')
     else:
         paths.append(f'<path d="{sector(r0, r1, a0, a1)}" fill="{fill(k)}" stroke="#FBF8F2" stroke-width="{3 if g < 6 else 1.6}"/>')
-    p = P.get(k)
+    if cell.get("merged") and ck in P:   # sloučení předci sourozenců: přerušovaný obrys = sdílení více liniemi
+        n_merged += 1
+        paths.append(f'<path class="fan-merged" d="{sector(r0, r1, a0, a1)}" fill="none" stroke="#7A5C3E" stroke-width="2" '
+                     f'stroke-dasharray="8 5" vector-effect="non-scaling-stroke"/>')
+    p = P.get(ck)
     if not p:
         continue
+    k = ck   # LINES a odkazy podle kanonického čísla
     name, yrs, st = p["n"], years(p.get("y")), p.get("st")
     if k in HREFS:
         shape = (f'<circle cx="{CX}" cy="{CY}" r="{r1}"/>' if g == 0 else f'<path d="{sector(r0, r1, a0, a1)}"/>')
-        links.append(f'<a href="{HREFS[k]}"><title>{html.escape(name)} {html.escape(yrs)}</title>{shape}</a>')
+        note = " (sdílený předek – společný více liniím)" if cell.get("merged") else ""
+        links.append(f'<a href="{HREFS[k]}" data-k="{k}"><title>{html.escape(name)} {html.escape(yrs)}{note}</title>{shape}</a>')
     unknown = st == "unk"
     style = 'font-style="italic" fill="#8A8278"' if unknown else ('font-style="italic" fill="#2B2620"' if st in ("prob", "mh") else 'fill="#1F1A15"')
     if g == 0:
@@ -152,7 +259,7 @@ for k in slots:
             radii = [o[3] for o in order][::-1]
             order = [(t, s, a, r + s * 0.55) for (t, s, a, _), r in zip(order, radii)]
         for j, (t, s, a, r) in enumerate(order):
-            pid = f"p{k}_{j}"
+            pid = f"p{cell['k']}_{j}"
             pad = min(3.0, (a1 - a0) * 0.04)
             b0, b1 = a0 + pad, a1 - pad
             arc_len = math.radians(b1 - b0) * r
@@ -222,7 +329,7 @@ if WEB:
     open(OUT, "w", encoding="utf-8", newline="\n").write(
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" font-family="{FONT}" class="fan">'
         f'<defs>{"".join(defs)}</defs>{"".join(paths)}{"".join(texts)}<g class="fan-links">{"".join(links)}</g></svg>')
-    print(OUT, len(links), "odkazů")
+    print(OUT, len(links), "odkazů,", n_merged, "sloučených sdílených předků,", n_repeat, "opakování")
     sys.exit(0)
 os.makedirs(OUT, exist_ok=True)
 svg_path = os.path.join(OUT, "rodokmen_vejir.svg")
