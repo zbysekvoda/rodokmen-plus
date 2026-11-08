@@ -7,7 +7,7 @@ import MobileTree from '../../components/MobileTree.astro';
 import RecLinks from '../../components/RecLinks.astro';
 import Mentions from '../../components/Mentions.astro';
 import ViewSwitch from '../../components/ViewSwitch.astro';
-import { issues, people, families, lineByK, records, dateKey, href, statusClass, houses, houseTitle, span } from '../../lib/data.js';
+import { issues, people, families, lineByK, records, dateKey, href, statusClass, houses, houseTitle, span, birthOf, factWithAge } from '../../lib/data.js';
 
 export function getStaticPaths() {
   return Object.keys(people).map((slug) => ({ params: { slug } }));
@@ -55,7 +55,7 @@ const fmt = (v) => Array.isArray(v) ? v.join(', ') : typeof v === 'object' ? JSO
       Podruhé jako {p.also.map((a) => a.rel).join(', ')}.</p>
   )}
   <h2 class="life-h">Život</h2>
-  {p.facts.length > 0 && <ul class="facts">{p.facts.map((f) => <li>{f}</li>)}</ul>}
+  {p.facts.length > 0 && <ul class="facts">{p.facts.map((f) => <li>{factWithAge(f, birthOf(p))}</li>)}</ul>}
   {p.note && <p class="note">{p.note}</p>}
   {extra.length > 0 && (
     <table class="extra">{extra.map(([k, v]) => <tr><th scope="row">{k}</th><td>{fmt(v)}</td></tr>)}</table>

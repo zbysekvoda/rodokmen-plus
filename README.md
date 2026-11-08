@@ -123,6 +123,8 @@ Nápady a kód z forků původního skillu (MIT):
   [sarsonj/rodokmen-skill@f0f8337](https://github.com/sarsonj/rodokmen-skill/blob/f0f833745d0456dd8644803e1c8708c3e9817f66/skills/rodokmen/tools/kontrola.py#L154-L188)
   (Jindřich Šaršon, pavelzbornik); automatické kontroly dat jako směr podle
   [xsigik/rodokmen-skill@9d4df44](https://github.com/xsigik/rodokmen-skill/commit/9d4df4466fdc6741612675bb5aeb2fd694f39c22) (Jakub Valenta)
+- věk osoby u sňatku a úmrtí na stránce osoby a rodiny (`web/src/lib/data.js`: `ageAt`, `factWithAge`, verze 0.7.1):
+  [xkraust/rodokmen-skill@79d3685](https://github.com/xkraust/rodokmen-skill/blob/79d36850afaa080b0ebcf70a368cbbb5237d700e/skills/rodokmen/template/web/src/lib/data.js) (xkraust)
 
 ## Zpětná vazba
 Chyby a nápady (bez údajů o rodině) zakládejte jako issue v tomto repozitáři. Týká-li se věc převzatých částí,

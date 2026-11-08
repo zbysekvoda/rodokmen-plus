@@ -62,3 +62,55 @@ export const genName = (g) =>
   ['výchozí osoba', 'rodiče', 'prarodiče', 'praprarodiče'][g] ?? `${g}. generace (${'pra'.repeat(g - 1)}rodiče)`;
 
 export const statusClass = (st) => ({ doc: 'st-doc', lit: 'st-fam', prob: 'st-prob', fam: 'st-fam', mh: 'st-mh' })[st] ?? 'st-unk';
+
+// ---- Věk osoby k datu události („× 20. 6. 1919 (29 let) Holice …“) ----
+// Převzato a upraveno z xkraust/rodokmen-skill@79d3685 (MIT):
+// https://github.com/xkraust/rodokmen-skill/blob/79d36850afaa080b0ebcf70a368cbbb5237d700e/skills/rodokmen/template/web/src/lib/data.js
+const APPROX = /(asi|≈|~|kolem|cca|okolo)\s*$/i;
+const BOUND = /(před|po)\s*$/i;
+
+/** Datum z textu („12. 5. 1811“, „3/1867“, „1797“, „asi 1720“) jako {y, m, d, approx, start, end}; null, když chybí nebo je jen „před/po“. */
+export function parseDate(text) {
+  const mt = /(\d{1,2})\.\s*(\d{1,2})\.\s*(\d{4})|(\d{1,2})\/(\d{4})|(\d{4})/.exec(text ?? '');
+  if (!mt) return null;
+  const before = text.slice(0, mt.index);
+  if (BOUND.test(before)) return null;
+  const [y, m, d] = mt[3] ? [mt[3], mt[2], mt[1]] : mt[5] ? [mt[5], mt[4], 0] : [mt[6], 0, 0];
+  return { y: Number(y), m: Number(m), d: Number(d), approx: APPROX.test(before), start: mt.index, end: mt.index + mt[0].length };
+}
+
+const plural = (n, one, few, many) => `${n} ${n === 1 ? one : n >= 2 && n <= 4 ? few : many}`;
+
+/** Věk mezi narozením a událostí jako text („29 let“, „asi 54 let“, „3 měsíce“) nebo null, když ho nelze rozumně určit. */
+export function ageAt(birth, event) {
+  if (!birth || !event) return null;
+  const exact = birth.d && birth.m && event.d && event.m && !birth.approx && !event.approx;
+  if (!exact) {
+    const years = event.y - birth.y;
+    return years >= 1 && years <= 110 ? `asi ${plural(years, 'rok', 'roky', 'let')}` : null;
+  }
+  const before = event.m < birth.m || (event.m === birth.m && event.d < birth.d);
+  const years = event.y - birth.y - (before ? 1 : 0);
+  if (years < 0 || years > 110) return null;
+  if (years >= 1) return plural(years, 'rok', 'roky', 'let');
+  const months = (event.y - birth.y) * 12 + event.m - birth.m - (event.d < birth.d ? 1 : 0);
+  if (months >= 1) return plural(months, 'měsíc', 'měsíce', 'měsíců');
+  const days = Math.round((Date.UTC(event.y, event.m - 1, event.d) - Date.UTC(birth.y, birth.m - 1, birth.d)) / 86400000);
+  if (days < 0) return null;
+  return days === 0 ? 'v den narození' : plural(days, 'den', 'dny', 'dní');
+}
+
+/** Datum narození osoby z faktu „* …“ (jinak z doloženého roku); u nejistých údajů (prob, mh) jen přibližně. */
+export function birthOf(p) {
+  let b = parseDate(p?.facts?.find((f) => f.trimStart().startsWith('*'))?.replace(/^\s*\*/, ''));
+  if (!b && p?.birth?.q === 'doc' && p.birth.y) b = { y: p.birth.y, m: 0, d: 0, approx: false };
+  return b && ['prob', 'mh'].includes(p.st) ? { ...b, approx: true } : b;
+}
+
+/** Fakt sňatku nebo úmrtí s věkem za datem: „× 20. 6. 1919 (29 let) Holice …“. Ostatní fakta beze změny. */
+export function factWithAge(fact, birth) {
+  if (!birth || !/^\s*[×†]/.test(fact)) return fact;
+  const ev = parseDate(fact);
+  const age = ageAt(birth, ev);
+  return age ? `${fact.slice(0, ev.end)} (${age})${fact.slice(ev.end)}` : fact;
+}
