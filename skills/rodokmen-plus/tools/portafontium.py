@@ -22,6 +22,7 @@ for _s in (sys.stdout, sys.stderr):   # UTF-8 výstup i na Windows bez -X utf8 (
         _s.reconfigure(encoding="utf-8", errors="replace")
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))   # -I nepřidá složku skriptu sama
 import slusne; slusne.instaluj()   # společný limit rychlosti k webům archivů (slusne.py)
+import cache   # sdílená mezipaměť snímků (cache.py) – stejný snímek se stáhne jen jednou
 
 BASE = "https://www.portafontium.eu"
 ARCHIV = "soap-pn"
@@ -163,7 +164,8 @@ def snimek(kniha, n, out, nahled=False, crop=None):
             sys.exit("výřez x0,y0,x1,y1 musí být zlomky 0–1 a x0 < x1, y0 < y1")
         region = "pct:" + ",".join(f"{v * 100:.3f}" for v in (x0, y0, x1 - x0, y1 - y0))
     size = "pct:25" if nahled else "full"
-    data = get(f"/fcgi-bin/iipsrv.fcgi?IIIF={urllib.parse.quote(path)}/{region}/{size}/0/default.jpg", binary=True)
+    url = f"{BASE}/fcgi-bin/iipsrv.fcgi?IIIF={urllib.parse.quote(path)}/{region}/{size}/0/default.jpg"
+    data = cache.ziskej(url, lambda u: get(u, binary=True))
     if not data.startswith(b"\xff\xd8"):
         sys.exit("Porta fontium nevrátil obrázek JPEG (zkus to později)")
     os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)

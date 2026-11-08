@@ -23,6 +23,7 @@ for _s in (sys.stdout, sys.stderr):   # UTF-8 výstup i na Windows bez -X utf8 (
         _s.reconfigure(encoding="utf-8", errors="replace")
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))   # -I nepřidá složku skriptu sama
 import slusne; slusne.instaluj()   # společný limit rychlosti k webům archivů (slusne.py)
+import cache   # sdílená mezipaměť snímků (cache.py) – stejný snímek se stáhne jen jednou
 
 BASE = "https://www.mza.cz/actapublica/"
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -166,16 +167,21 @@ def snimek(mid, n, out, nahled=False, crop=None):
     if not shutil.which("curl"):
         sys.exit("chybí curl – obrázkový server MZA bere jen HTTP/2, které Python neumí (curl je ve Windows 10+, macOS i Linuxu)")
     os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
-    p = slusne.curl(["-s", "-f", "--http2", "-m", "180", "-A", UA, "-o", out, f"{iiif}/{region}/{size}/0/default.jpg"],
-                    stdout=subprocess.PIPE, text=True)
-    ok = p.returncode == 0 and os.path.exists(out)
+    url = f"{iiif}/{region}/{size}/0/default.jpg"
+    p = None
+
+    def stahni_do(cil):
+        nonlocal p
+        p = slusne.curl(["-s", "-f", "--http2", "-m", "180", "-A", UA, "-o", cil, url], stdout=subprocess.PIPE, text=True)
+        return p.returncode == 0 and os.path.exists(cil)
+    ok = cache.do_souboru(url, out, stahni_do)
     if ok:
         with open(out, "rb") as f:
             ok = f.read(2) == b"\xff\xd8"
     if not ok:
         if os.path.exists(out):
             os.remove(out)
-        sys.exit(f"MZA nevrátila obrázek (curl {p.returncode}{', ' + p.stderr.strip() if p.stderr.strip() else ''}). "
+        sys.exit(f"MZA nevrátila obrázek (curl {p.returncode if p else '?'}{', ' + p.stderr.strip() if p and p.stderr.strip() else ''}). "
                  "Kód 1 nebo 16 = curl neumí HTTP/2 (starý curl) – nainstaluj novější; jinak zkus později.")
     print(out, f"{os.path.getsize(out) // 1024} kB", "odkaz:", odkaz(mid, n))
 

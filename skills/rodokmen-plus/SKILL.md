@@ -138,7 +138,11 @@ Podrobně `reference/matriky.md`, portály `reference/portaly.md`.
 4. **Index dřív než listování.** Než začneš listovat, zjisti, jestli farnost nemá samostatný rejstřík (index N/O/Z)
    – bývá to jiná kniha než matrika. Před listováním **ověř druh a rozsah knihy** (N/O/Z, roky, obce oddílu) na prvních
    snímcích; popis v katalogu se plete a rejstřík bývá zapsaný jako matrika. Dva snímky v indexu ušetří dvacet v matrice.
-5. **Stáhni snímek** do `pracovni/<svazek>/` (nejdřív se podívej, jestli ho už nemáš) a **přečti ho sám** v plném
+   **Skoč rovnou na rok:** `python3 -I tools/mapa_knihy.py rok <klíč svazku> <rok>` vrátí rozsah snímků z pole
+   `orientace` svazku. Kotvy zatím nejsou → mapa knihy `mapa_knihy.py <aron|pf|mza|ahmp> <kniha> <od> <do> [krok]`
+   (záhlaví po každém n-tém snímku), ověřené kotvy rok → snímek zapiš do `orientace` (`reference/data.md`).
+5. **Stáhni snímek** do `pracovni/<svazek>/` (nástroje archivů berou snímek ze sdílené mezipaměti `tools/cache.py`,
+   když už byl jednou stažen – i v jiném projektu) a **přečti ho sám** v plném
    rozlišení. Vybledlé nebo skvrnité místo → `python3 -I tools/vylepsi_snimek.py pracovni/<stránka>.jpg [x0,y0,x1,y1]`
    a čti ze všech variant (v přepisu poznamenej ze které). Nečitelné místo obce či příjmení → skill `ztotozneni-mist` a slovníky `data/mista_nazvy.json`,
    `data/prijmeni_varianty.json`.
