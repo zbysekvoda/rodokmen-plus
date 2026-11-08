@@ -47,7 +47,12 @@ Nápady z forků původního skillu, přepsané na graf osob (licence MIT):
   [xsigik/rodokmen-skill@6a62def](https://github.com/xsigik/rodokmen-skill/blob/6a62def5e10ab169018282a124f033fe4280be71/skills/rodokmen/tools/nahledy.py) (Jakub Valenta, xsigik, #10),
 - `tools/sito.py` – síto pro knihy bez rejstříku (dávky náhledů s deníkem prošlých snímků), myšlenka „Síta Jev“ ze
   [xsigik/rodokmen-skill@9aa2c18](https://github.com/xsigik/rodokmen-skill/blob/9aa2c189892885f579df3043a2da04ed245f23e6/skills/rodokmen/tools/sito.py) (xsigik, #21–#24; fork ve verzi
-  [c262de7](https://github.com/xsigik/rodokmen-skill/tree/c262de702464b9743d4782abe1b296aa77bd34d4)).
+  [c262de7](https://github.com/xsigik/rodokmen-skill/tree/c262de702464b9743d4782abe1b296aa77bd34d4)),
+- `tools/mista.py` – geokódování obcí a čísel popisných z faktů osob: Mapy.com s klíčem `MAPY_API_KEY` ze
+  [vmi43/rodokmen-skill@99e238e](https://github.com/vmi43/rodokmen-skill/blob/99e238ed18636f9a9fca481071761fefd7dbec66/skills/rodokmen/tools/mista.py) (Vasek M.),
+  bez klíče Nominatim jen sídla a varování na vzdálenou obec ze
+  [hackra76/rodokmen-skill@59ba1e6](https://github.com/hackra76/rodokmen-skill/blob/59ba1e666208af7888f6dd4dd5dc54e7c2706807/skills/rodokmen/tools/mista.py) (hackra76, 0.8.1),
+  domy bez klíče z RÚIAN.
 
 ## Co je v repozitáři
 ```
