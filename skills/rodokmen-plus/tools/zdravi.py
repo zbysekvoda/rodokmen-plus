@@ -54,8 +54,18 @@ KONTROLY = [
     ("holocaust", "databáze obětí", ["obeti.py", "hledat", "--prijmeni", "Novák", "--stran", "1"], r"holocaust\.cz/databaze-obeti/", None),
     ("arolsen", "hledání osob", ["arolsen.py", "hledat", "Novák", "--max", "1"], r"arolsen-archives\.org/en/document/\d+", None),
     ("mauthausen", "Raum der Namen", ["mauthausen.py", "hledat", "Novak", "--stran", "1"], r"\| nar\. ", None),
+    # židovské matriky (Národní archiv, VadeMeCum) a SOA Litoměřice
+    ("vademecum", "hledání matrik obce", ["vademecum.py", "hledat", "Dambořice", "--stran", "1"],
+     r"^81034f69-dfc6-4de8-ac9c-de097a9bf81f \|", None),
+    ("vademecum", "info svazku", ["vademecum.py", "info", "81034f69-dfc6-4de8-ac9c-de097a9bf81f"], r"Snímků: 75", None),
+    ("vademecum", "snímek", ["vademecum.py", "snimek", "81034f69-dfc6-4de8-ac9c-de097a9bf81f", "2", "{out}", "nahled"],
+     r"permalink\?xid=81034f69", "vm.jpg"),
+    ("litomerice", "hledání knih obce", ["litomerice.py", "hledat", "Úštěk"], r"^\S+ \| \d+ \|", None),
     ("terezin", "databáze vězňů", ["vezni.py", "hledat", "--prijmeni", "Novák", "--stran", "1"], r"pamatnik-terezin\.cz/vezen/", None),
 ]
+# Portály, které před vstupem ověřují člověka (výpočet v prohlížeči). Nástroj to neobchází a skončí tímto kódem;
+# kontrola pak hlásí OK s poznámkou – server žije, nástroj ověření poznal, hledání jde jen v prohlížeči.
+OVERENI_CLOVEKA = {"litomerice": 5}
 # Nástroje, které bez souhlasu uživatele (souhlas.py) nedotazují portál: bez souhlasu se kontroluje jen dostupnost serveru.
 SOUHLAS = {"holocaust": ("obeti", "https://www.holocaust.cz/databaze-obeti/"),
            "arolsen": ("arolsen", "https://collections.arolsen-archives.org/"),
@@ -136,6 +146,9 @@ def main():
                                    errors="replace", timeout=180)
                 vystup = p.stdout + p.stderr
                 ok = p.returncode == 0 and re.search(vzor, p.stdout, re.M) is not None
+                if not ok and OVERENI_CLOVEKA.get(portal) == p.returncode:
+                    print(f"OK    {portal:13} {popis:28} (portál ověřuje člověka – jen prohlížeč)")
+                    continue
                 if ok and obr and not je_jpeg(os.path.join(tmp, out)):
                     ok, vystup = False, f"obrázek {obr} chybí nebo není JPEG\n" + vystup
             except subprocess.TimeoutExpired:

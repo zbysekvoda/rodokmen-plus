@@ -6,7 +6,9 @@ Nápad a tvar výstupu převzaty z forků (MIT):
   https://github.com/srameko/rodokmen-skill/blob/5f25edb9a201f8ac03b79293bbcb79b5109d022e/skills/rodokmen/tools/smoke_test.py
 Tady je to tenký obal nad zdravi.py --rychle (bez stahování snímků), takže kontroly (pevné svazky, očekávaný výstup)
 jsou na jednom místě. Databáze obětí a vězňů (holocaust, arolsen, mauthausen, terezin) se
-dotazují jen se souhlasem uživatele (souhlas.py), jinak smoke test ověří jen dostupnost serveru. Každý nástroj jde přes brzdu slusne.py – pouštěj ručně, ne ve smyčce ani z pomocníků.
+dotazují jen se souhlasem uživatele (souhlas.py), jinak smoke test ověří jen dostupnost serveru.
+Židovské matriky (vademecum) a SOA Litoměřice (litomerice) jsou bez souhlasu; Litoměřice před vstupem ověřují
+člověka – nástroj to pozná a smoke test to hlásí jako OK s poznámkou (hledání jen v prohlížeči). Každý nástroj jde přes brzdu slusne.py – pouštěj ručně, ne ve smyčce ani z pomocníků.
 
 Použití:
   smoke_test.py                  všechny portály, jen dotazy (~1–2 min)

@@ -8,11 +8,11 @@ Matriky jsou online u osmi státních archivů – podle toho, **kde předci ži
 | SOA Praha | střední Čechy | eBadatelna – ebadatelna.soapraha.cz | **ano – nástroj `ebadatelna.py`** (i urbáře a gruntovní knihy) |
 | SOA Plzeň | západní Čechy | Porta fontium – portafontium.eu | **ano – nástroj `portafontium.py`** |
 | SOA Třeboň | jižní Čechy | digi.ceskearchivy.cz | **ano – nástroj `trebon.py`** |
-| SOA Litoměřice | severní Čechy | Digitální badatelna – digi.soalitomerice.cz | **částečně – `soal_zoomify.py`** (knihu najdi v prohlížeči) |
+| SOA Litoměřice | severní Čechy | Digitální badatelna – digi.soalitomerice.cz | **částečně – `litomerice.py`, `soal_zoomify.py`** (portál ověřuje člověka → knihu najdi v prohlížeči) |
 | AHMP | hl. m. Praha | katalog.ahmp.cz (Pragapublica) | **ano – `ahmp_search.sh`, `ahmp_scan.py`** |
 | MZA Brno | jižní Morava, Vysočina z části | Acta Publica – www.mza.cz/actapublica | částečně – v prohlížeči (postup níže) |
 | ZA Opava | severní Morava a Slezsko, Olomoucko a Litovelsko | Digitální badatelna – digi.archives.cz/da/ | **částečně – `soal_zoomify.py`** (jen s prohlížečem, CAPTCHU řeší uživatel) |
-| Národní archiv | židovské matriky (HBMa), soupisy; pražské policejní přihlášky 1850–1914 | badatelna.eu; digi.nacr.cz/prihlasky2 | přihlášky **ano – `policie_prihlasky.py`** |
+| Národní archiv | židovské matriky (HBMa), soupisy; pražské policejní přihlášky 1850–1914 | badatelna.eu; digi.nacr.cz/prihlasky2 | židovské matriky **ano – `vademecum.py`**; přihlášky **ano – `policie_prihlasky.py`** |
 
 Adresy u nevyzkoušených portálů ověř při prvním použití (portály se mění). Pro pohraničí a mimo ČR viz `playbook.md` §2
 (Matricula pro Rakousko/Německo, Geneteka pro Polsko, FamilySearch pro Slovensko) a níže.
@@ -94,7 +94,17 @@ Adresy u nevyzkoušených portálů ověř při prvním použití (portály se m
 - Nový portál digi.ahmp.cz má ochranu proti robotům – nepoužívat. Pražské matriky 1890–1940 většinou **nemají rejstříky**
   a farností je mnoho – bez přesného data a farnosti (z úmrtí/sňatku nebo od rodiny) je hledání velmi drahé.
 
-## SOA Litoměřice (severní Čechy) – `tools/soal_zoomify.py`
+## Národní archiv – židovské matriky (Archivní VadeMeCum) – `tools/vademecum.py`
+- vademecum.nacr.cz: fondy HBMa / Židovské kontrolní matriky 1784–1949. **Nejsou indexované po jménech** – hledá se podle obce
+  (kniha je po židovských obcích a letech; rejstříková hesla v `info` vyjmenují všechny obce, které kniha pokrývá).
+- `python3 -I tools/vademecum.py hledat "Dambořice" [--stran N] [--jen-snimky]` → xid | druh | název | NAD | roky | popis | snímků
+- `vademecum.py info <xid>`, `snimek <xid> <n> pracovni/x.jpg [nahled]` (Zoomify přes `soal_zoomify.py`, sdílená cache),
+  `link <xid> <n>` (trvalý odkaz do `zaznamy.json`), `svazek <xid>` (klíč `nacvm_<xid8>` v `svazky.json`).
+- Podmínky: veřejně přístupné bez registrace; lhůty 100/75/30 let jako u církevních matrik. Síť jde přes `slusne.py`.
+
+## SOA Litoměřice (severní Čechy) – `tools/litomerice.py`, `tools/soal_zoomify.py`
+- `litomerice.py hledat "Obec" [slovo …]` / `info` / `snimek` / `link` / `svazek` – knihy Sbírky matrik podle obce.
+  Dokud portál ověřuje člověka (proof-of-work v prohlížeči), nástroj skončí kódem 5 a nic neobchází – postupuj níže.
 - Digitální badatelna digi.soalitomerice.cz má na vstupu automatické ověření (asi 15 s „počítání“) → knihu a snímek
   najdi v prohlížeči. V síťovém provozu pak najdi adresu `…/zoomify/cz/archives/CZ-214000010/matriky/<cesta>/ImageProperties.xml`.
 - Snímky stahuj nástrojem: `python3 -I tools/soal_zoomify.py <cesta> 0 pracovni/x.jpg` (0 = plné rozlišení, 1 = poloviční).
