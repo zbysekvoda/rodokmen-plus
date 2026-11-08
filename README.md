@@ -77,7 +77,10 @@ Nápady z forků původního skillu, přepsané na graf osob (licence MIT):
   [srameko/rodokmen-skill@5f25edb](https://github.com/srameko/rodokmen-skill/blob/5f25edb9a201f8ac03b79293bbcb79b5109d022e/skills/rodokmen/tools/souhlas.py) (srameko),
 - návody k Těšínsku (ZA Opava, polská a slovenská strana, evangelíci a. v.) a k FamilySearch v Chromu uživatele
   (slovenské a uherské matriky) v `reference/portaly.md` ze
-  [xsigik/rodokmen-skill@c262de7](https://github.com/xsigik/rodokmen-skill/blob/c262de702464b9743d4782abe1b296aa77bd34d4/skills/rodokmen/reference/portaly.md) (Jakub Valenta, xsigik).
+  [xsigik/rodokmen-skill@c262de7](https://github.com/xsigik/rodokmen-skill/blob/c262de702464b9743d4782abe1b296aa77bd34d4/skills/rodokmen/reference/portaly.md) (Jakub Valenta, xsigik),
+- návody k odsunu Němců 1945–1946 (transportní listiny, spisy ONV, Lastenausgleichsarchiv) a k Encyklopedii dějin
+  města Brna v `reference/portaly.md` ze
+  [srameko/rodokmen-skill@5f25edb](https://github.com/srameko/rodokmen-skill/blob/5f25edb9a201f8ac03b79293bbcb79b5109d022e/skills/rodokmen/reference/portaly.md) (Ondrej Sramek, srameko).
 
 ## Co je v repozitáři
 ```

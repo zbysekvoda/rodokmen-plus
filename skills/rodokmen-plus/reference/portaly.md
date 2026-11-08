@@ -184,6 +184,14 @@ Adresy u nevyzkoušených portálů ověř při prvním použití (portály se m
   sídla sboru (a obcí, které sbor výslovně uvádí), ne u vsi, kde evangelík bydlel. `mza.py matriky "<obec>"` ukáže
   jen katolické → hledej sbory podle původce „evangelická církev …“ a podle literatury (sbory h. v. na Vysočině).
 
+## Encyklopedie dějin města Brna (`https://encyklopedie.brna.cz/home-mmb/`) – bez nástroje
+- Fulltext přes osobnosti, ulice, objekty a spolky; portál vrací jen první stránku (~30 zásahů), proto zužuj dalšími
+  slovy (příjmení, ulice, povolání: „Novák klempíř Králova“). Heslo osobnosti uvádí narození, úmrtí, **bydliště
+  s adresou**, vzdělání, zaměstnání a **hrob (hřbitov, skupina, číslo)**. Bez prohlížeče jen přes `slusne.py curl`.
+- Je to encyklopedie významných osob a míst, ne evidence obyvatel – běžní předkové tu být nemusí. U brněnských řemeslníků
+  a úředníků ale často dá adresu, povolání a hrob na Ústředním hřbitově; dál matriky MZA (`mza.py`). Zdroj cituj jako
+  „Encyklopedie dějin města Brna“ (zdroj `J`).
+
 ## Pražské policejní přihlášky 1850–1914 (Národní archiv) – `tools/policie_prihlasky.py`
 - Karty pražských rodin: hlava rodiny, manželka s rokem a místem narození, děti s roky, adresy, někdy místo sňatku.
   Výborné, když rodina žila v Praze a nevíš farnost (pražské matriky nemají rejstříky).
@@ -374,6 +382,39 @@ za uživatele, ani přes `SOUHLAS_STAV`. Platí 30 dní na počítači a jen pro
 Všechny jdou přes brzdu `slusne.py`; neprocházej databáze hromadně. Shoda jména není ztotožnění – ověř datum a místo
 narození v matrice a v rodině. Nalezené údaje jsou citlivé: do dat projektu ano, na web jen se souhlasem rodiny (`soukromi.md`).
 Kdyby portál začal vyžadovat přihlášení, captchu nebo vracel 403, nástroj to ohlásí – hledej ručně v prohlížeči, neobcházej to.
+
+## Odsun Němců z pohraničí 1945–1946 a Češi vysídlení v roce 1938
+Pro předky z pohraničí (Sudety, Slezsko, jižní Morava, Šumava), kteří byli Němci a po válce museli odejít, a pro Čechy,
+kteří odešli z pohraničí po záboru 1938. **Bez nástroje – dopisy, prohlížeč a návštěva archivu; skriptem se nic nestahuje.**
+- **Dvě fáze.** Léto 1945 = takzvaný divoký odsun (vyhánění bez seznamů, zápisy chybí nebo jsou neúplné). 1946 =
+  organizovaný odsun v transportech do americké a sovětské okupační zóny. Zachované **transportní listiny** (kdo odjel,
+  kterým transportem a kdy) jsou **z roku 1946, ne z roku 1945**.
+- **Matriky zůstaly v českých archivech** (SOA Litoměřice, SOA Plzeň, ZA Opava – oddíly výše). Narození, sňatky a úmrtí
+  do odsunu tam najdeš, **odsun sám a osud po něm ne**. Po 1945 se místa přejmenovala – hledej německý i český název obce
+  i farnosti (pomůže GOV, `https://gov.genealogy.net/`, jen v prohlížeči – kontrola Anubis).
+- **Transportní listiny 1946** – Sudetendeutsches Museum (Mnichov) má kopie asi 1290 listin s kolem milionem jmen
+  (55–60 % transportů, asi 80 % transportů do americké zóny; originály ve Vojenském ústředním archivu v Praze):
+  `https://www.sudetendeutsches-archiv.de/transportlisten-der-vertreibung-1946/`. **Chybí** transporty do sovětské zóny
+  a divoký odsun 1945. **Hledání podle jména jen na přístroji v muzeu** (z právních důvodů ne online). Muzeum za vás
+  nehledá; na písemný dotaz (přesné datum a místo transportu, příjmení, jméno, věk, poslední bydliště, poštovní adresa
+  odesílatele) pošle sken jednoho vagonu – kontakt na stránce výše. Datum a nakládací stanici zjistíš z přehledu
+  transportů 1946 (W. Jun, nekompletní):
+  `https://sudetendeutsche-familienforscher.de/wp-content/uploads/2020/05/Verzeichnis_Vertreibungstransporte_1946_V9.pdf`.
+  **Skoro úplné listy bývají v okresních archivech podle místa odjezdu** (adresy `https://www.cesarch.cz/archivnictvi/adresar-archivu/`).
+- **České úřední spisy o odsunu a konfiskacích**: fondy ONV a MNV 1945–1948 (referáty pro odsun, konfiskace,
+  osídlování), např. dílčí inventář „Okresní národní výbor Ústí nad Labem (odsun Němců), 1945–1948“ (SOA Litoměřice).
+  Seznamy Němců podle transportů a čísel domů hledej v inventáři okresního archivu podle obce → `archivni_dotazy.md`.
+  Archiv bezpečnostních složek (`https://www.abscr.cz/`) má regionální spisy „Odsun Němců 1946“ (obsah neprověřen).
+  Část Němců z odsunu vyňali (smíšená manželství, specialisté, antifašisté) – ti jsou v matrikách i po 1946.
+- **Německá strana**: Lastenausgleichsarchiv Bayreuth (Bundesarchiv, `https://www.bundesarchiv.de/`) – akta o vyrovnání
+  škod vyhnanců, Ostdokumentation, Heimatortskartei. Jen písemně; **od 16. 1. 2026 do 31. 12. 2027 vyřizuje jen naléhavé
+  dotazy, rodinné bádání ne** (znovu od 1. 1. 2028). Dál Arolsen (`arolsen.py`), matriky nové obce v Německu/Rakousku,
+  Suchdienst Červeného kříže (nevyzkoušeno).
+- **Češi a odpůrci nacismu, kteří odešli z pohraničí 1938–1939** (nevyzkoušeno): uprchlické spisy v okresních archivech,
+  policejní spisy (Národní archiv, Policejní ředitelství Praha), literatura J. Benda, *Útěky a vyhánění z pohraničí
+  českých zemí 1938–1939*, a M. Frankl, *Občané země nikoho*. Nejdřív se zeptej rodiny na doklady (uprchlická legitimace).
+- **Rodina:** doklady z odsunu (seznam zavazadel, odsunový list, Vertriebenenausweis) bývají doma; číslo transportu
+  a stanice nakládky (Verladestation) zkrátí hledání. Údaje jsou citlivé – na web jen se souhlasem rodiny (`soukromi.md`).
 
 ## Příjmení dnes a DNA
 - **Rozšíření příjmení dnes**: kdejsme.cz (počty nositelů po okresech). Rychle ukáže, jestli je příjmení vzácné a kde
