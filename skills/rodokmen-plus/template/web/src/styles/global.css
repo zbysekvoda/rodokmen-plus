@@ -307,6 +307,11 @@ tr.anc td { background: var(--accent-soft); }
 /* stránka osoby */
 .person-card { display: flex; flex-wrap: wrap; gap: 1rem 1.2rem; align-items: center; background: var(--surface-raised); border: 1px solid var(--rule); border-top: 5px solid var(--c, var(--line-ostatni)); border-radius: var(--radius); padding: 1rem 1.2rem; margin: 0.6rem 0 1rem; }
 .person-card .initial { width: 4rem; height: 4rem; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--c, var(--line-ostatni)); color: var(--text-head); font: 600 2rem/1 var(--serif); }
+.person-card .portrait { margin: 0; flex: none; width: 8rem; }
+.person-card .portrait a { display: block; border-radius: var(--radius); }
+.person-card .portrait a:focus-visible { outline: 3px solid var(--c, var(--line-ostatni)); outline-offset: 3px; }
+.person-card .portrait img { display: block; width: 100%; height: auto; max-height: 11rem; object-fit: cover; border-radius: var(--radius); border: 1px solid var(--rule); }
+.person-card .portrait figcaption { margin-top: 0.3rem; font-size: 0.8rem; color: var(--muted); }
 .person-card h1 { margin: 0; }
 .person-card .big-years { font: 1.6rem/1.2 var(--serif); color: var(--text-head); }
 .person-card .chips { margin: 0.5rem 0 0; }

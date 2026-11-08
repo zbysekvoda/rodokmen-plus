@@ -53,6 +53,9 @@ Nápady z forků původního skillu, přepsané na graf osob (licence MIT):
   bez klíče Nominatim jen sídla a varování na vzdálenou obec ze
   [hackra76/rodokmen-skill@59ba1e6](https://github.com/hackra76/rodokmen-skill/blob/59ba1e666208af7888f6dd4dd5dc54e7c2706807/skills/rodokmen/tools/mista.py) (hackra76, 0.8.1),
   domy bez klíče z RÚIAN.
+- portréty osob na webu (klíč obrázku s `portret`, na stránce osoby místo iniciály, mimo galerii dokumentů)
+  a nabídka portrétu při zpracování fotografií v `SKILL.md` a `reference/data.md` ze
+  [xkraust/rodokmen-skill@79d3685](https://github.com/xkraust/rodokmen-skill/commit/79d36850afaa080b0ebcf70a368cbbb5237d700e) (xkraust).
 
 ## Co je v repozitáři
 ```
