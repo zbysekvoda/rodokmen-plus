@@ -137,6 +137,25 @@ Adresy u nevyzkoušených portálů ověř při prvním použití (portály se m
   po hledání a stránky výsledků neprocházej za sebou. Delší smyčku pusť v prohlížeči na pozadí, výsledky ukládej do
   `window` nebo `localStorage` a vyzvedávej po částech (nástroj pro JavaScript má limit asi 45 s). Pomocníkům to napiš do zadání.
 
+## Těšínsko (Jablunkovsko, Třinecko, Karvinsko) – ZA Opava a prameny za hranicí
+- **Katolické matriky** české části jsou v ZA Opava (postup výše: prohlížeč, CAPTCHU řeší uživatel). Stejné knihy uvádí
+  i katalog FamilySearch ve sbírce „Czech Republic, Church Books, 1552-1981“ (např. Jablunkov 1617–1937) – když
+  digi.archives.cz blokuje, zkus je tam v uživatelově přihlášeném prohlížeči (nevyzkoušeno).
+- **Evangelíci a. v.** tu tvořili velkou část obyvatel: k jejich zápisům hledej vždy i evangelický sbor. Po toleranci
+  (1781) vedly vlastní matriky toleranční sbory (u Jablunkova Návsí). Do té doby (1709–1781) byl pro luterány celého
+  Těšínského knížectví i okolních panství jediný sbor – Ježíšův kostel v Cieszyně; kde jsou jeho matriky online, neověřeno.
+- **Hranice se měnila** (1920 rozdělení Těšínska, 1938 polský zábor, 1939–1945 německá správa) a fara či sbor mohou
+  být za dnešní hranicí: filiální sbor v Istebné patřil k Návsí do roku 1932.
+- **Polská strana** (Istebna, Jaworzynka, Wisła, Cieszyn): Geneteka, vojvodství `12sl` (slezské), má indexy farností
+  včetně evangelických sborů a u řady zápisů odkaz na sken (dotaz viz Polsko – Geneteka níže). Archivní skeny:
+  `https://szukajwarchiwach.gov.pl/` (Archiwum Państwowe w Katowicach).
+- **Slovenská strana** (Kysuce: Čadca, Svrčinovec, Čierne, Skalité, Turzovka): uherské matriky na FamilySearch – oddíl
+  „FamilySearch v Chromu uživatele“ níže.
+- **1939–1945** (neověřeno): muži z Těšínska často s Deutsche Volksliste a ve Wehrmachtu. Stopy jsou v poválečných
+  spisech o vrácení československého občanství a u mimořádných lidových soudů (ZA Opava, fondy Okresní úřad Těšín,
+  Landrát Těšín, ONV) a v agendě DVL v archivu v Katovicích (szukajwarchiwach, německý i polský název obce
+  a „Volksliste“). Jsou to citlivé údaje – na web jen se souhlasem rodiny (`soukromi.md`).
+
 ## MZA Brno (jižní Morava, Acta Publica) – bez nástroje
 - Portál `https://www.mza.cz/actapublica/`, bez přihlášení. Adresa actapublica.eu bývá za Cloudflare zablokovaná
   („Sorry, you have been blocked“ – podle IP, i v běžném prohlížeči); když blokuje i mza.cz, ať uživatel vypne VPN
@@ -206,6 +225,32 @@ Adresy u nevyzkoušených portálů ověř při prvním použití (portály se m
   (`images[]` = ARK). Snímek: `https://www.familysearch.org/service/records/storage/deepzoomcloud/dz/v1/<ARK 3:1:…>/$dist`
   (plné rozlišení), malé náhledy `…/image_files/8/0_0.jpg`. **Po ~1000 rychlých požadavcích přijde HTTP 429** a blokace
   na desítky minut – stahuj jen konkrétní snímky, nanejvýš pár za sekundu, hromadné procházení knih nedělej.
+
+## FamilySearch v Chromu uživatele (slovenské a uherské matriky)
+Ověřený postup pro sbírku „Slovakia Church and Synagogue Books, 1592–1935“ a jiné uherské matriky v uživatelově
+skutečném Chromu s rozšířením Claude in Chrome. Automatizovaný prohlížeč (Playwright, chrome-devtools) i dotazy mimo
+prohlížeč (curl, i na veřejný katalog) dostanou „Access Denied – Error 15“ nebo HTTP 403 a každý pokus se zapisuje k IP
+uživatele – nezkoušej je. Bez takového Chromu hledá uživatel sám a posílá snímky obrazovky.
+**Předem, jednou:** uživatel je ve FamilySearch přihlášený a složku stahování v Chromu má nastavenou do projektu
+(`pracovni/familysearch/`) – na macOS Terminál do `~/Downloads` bez plného přístupu k disku nevidí.
+1. **Rejstřík napřed, listování až nakonec.** Hledej adresou
+   `https://www.familysearch.org/search/record/results?q.surname=…&q.givenName=…&q.birthLikePlace=…&q.birthLikeDate.from=…&q.birthLikeDate.to=…&count=100`
+   (podle potřeby i `q.fatherGivenName`, `q.spouseSurname`, `q.marriageLikePlace`), s přesnou shodou i bez ní – křty
+   i sňatky bývají zindexované i tam, kde to nečekáš. Odkaz „Zobrazit původní dokument“ v detailu záznamu vede rovnou
+   na snímek (dál bod 4). Ke katalogu (bod 3) přejdi, až obě hledání nic nenajdou – typicky úmrtí po ~1852.
+   Index slovenských křtů uvádí jako místo jen faru („Raková, Čadca“), obec a dům jsou až na snímku:
+   `q.birthLikePlace=<obec>` vrátí celou faru i cizí podobné záznamy – výsledky filtruj podle příjmení a fary.
+2. **Výsledky čti levně:** JavaScriptem z řádků tabulky (`javascript_tool`) místo snímků obrazovky:
+   `[...document.querySelectorAll('tr')].map(r => [r.innerText.replace(/\s+/g, ' ').trim(), r.querySelector('a[href*="1:1:"]')?.href]).filter(r => r[1])`
+   → jméno, událost, datum, rodiče a odkaz na záznam (`…/1:1:…`).
+3. **Katalog:** místo hledej v uherské podobě („Turzovka, Trencsén, Maďarsko“). Film otevřeš adresou
+   `https://www.familysearch.org/search/film/<číslo DGS>`, číslo doplněné nulami zleva na 9 číslic (`004567890`).
+4. **Prohlížeč snímků:** po otevření zavři spodní panel a dej „přizpůsobit“ (jinak vidíš jen horní část dvoustrany).
+   Na snímek skoč polem „Snímek“ vlevo nahoře: trojklik, číslo, Enter a počkej, až se snímek načte (~5 s). Šipky po
+   stranách = další / předchozí. Parametr `?i=N` v adrese snímek nezmění.
+5. **Stažení:** ikona stažení v liště prohlížeče → **„Pouze JPG“** (výchozí je PDF se zvýrazněním) → Stáhnout. Soubor
+   (ark-id nebo `image.jpg`) hned přejmenuj na `<DGS>_<snímek>.jpg`; obě čísla patří i do zápisu.
+6. **Čtení:** zápis čti ze staženého JPG v plném rozlišení. Limit HTTP 429 z oddílu výše platí i tady.
 
 ## Hroby a hřbitovy
 - Kde jsou předci pohřbeni, víš z rozhovoru s rodinou (Fáze 1). Fotky náhrobků (jména, data, rodná příjmení) jsou

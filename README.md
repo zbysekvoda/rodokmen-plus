@@ -74,7 +74,10 @@ Nápady z forků původního skillu, přepsané na graf osob (licence MIT):
   varianty v [hnizdiljan/rodokmen-skill@d172316](https://github.com/hnizdiljan/rodokmen-skill/blob/d172316bc190d0f44894fa67115505729d587c6a/skills/rodokmen/tools/arolsen.py) (hnizdiljan);
   `tools/vezni.py` (Památník Terezín) z [hnizdiljan/rodokmen-skill@d172316](https://github.com/hnizdiljan/rodokmen-skill/blob/d172316bc190d0f44894fa67115505729d587c6a/skills/rodokmen/tools/vezni.py) (hnizdiljan),
 - `tools/souhlas.py` – uložený souhlas s podmínkami portálů, bez něj nástroje nedotazují ze
-  [srameko/rodokmen-skill@5f25edb](https://github.com/srameko/rodokmen-skill/blob/5f25edb9a201f8ac03b79293bbcb79b5109d022e/skills/rodokmen/tools/souhlas.py) (srameko).
+  [srameko/rodokmen-skill@5f25edb](https://github.com/srameko/rodokmen-skill/blob/5f25edb9a201f8ac03b79293bbcb79b5109d022e/skills/rodokmen/tools/souhlas.py) (srameko),
+- návody k Těšínsku (ZA Opava, polská a slovenská strana, evangelíci a. v.) a k FamilySearch v Chromu uživatele
+  (slovenské a uherské matriky) v `reference/portaly.md` ze
+  [xsigik/rodokmen-skill@c262de7](https://github.com/xsigik/rodokmen-skill/blob/c262de702464b9743d4782abe1b296aa77bd34d4/skills/rodokmen/reference/portaly.md) (Jakub Valenta, xsigik).
 
 ## Co je v repozitáři
 ```
