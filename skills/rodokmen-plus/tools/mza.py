@@ -202,7 +202,8 @@ def svazek(mid):
     d = detail(mid)
     path = os.path.join(ROOT, "data", "svazky.json")
     sv = json.load(open(path, encoding="utf-8")) if os.path.exists(path) else {}
-    sv[f"mza_{mid}"] = {"archiv": "Moravský zemský archiv v Brně – Sbírka matrik", "portal": "Acta Publica",
+    sv[f"mza_{mid}"] = {**sv.get(f"mza_{mid}", {}),   # ruční pole (orientace) zůstanou
+                        "archiv": "Moravský zemský archiv v Brně – Sbírka matrik", "portal": "Acta Publica",
                         "svazek": nazev_svazku(d["pole"]), "popis": zkrat("; ".join(d["obce"])),
                         "snimku": len(d["dzi"]), "url": f"{BASE}matrika/detail/{mid}"}
     with open(path, "w", encoding="utf-8", newline="\n") as f:

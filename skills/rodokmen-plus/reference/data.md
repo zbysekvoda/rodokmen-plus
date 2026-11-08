@@ -52,7 +52,14 @@ P = {
 
 ## `svazky.json`
 `{"1a0b2337": {"archiv": "SOA Zámrsk – Sbírka matrik…", "portal": "ARON", "svazek": "N Holice 1880–1900, sign. …",
-"popis": "obce", "url": "odkaz na svazek"}}` – u ARON zapisuje `aron_img.py <apu> svazek`.
+"popis": "obce", "url": "odkaz na svazek", "orientace": {…}}}` – u ARON zapisuje `aron_img.py <apu> svazek`.
+- `orientace` (nepovinné, jen pro tebe a pomocníky, web ho neukazuje): rozvržení knihy ověřené na snímku –
+  `{"popis": "N 1884–1891 po obcích; Cheznovice fol. 290–338; snímek ≈ fol + 3 (ověřeno fol. 290–338); rejstřík na konci",
+  "roky": {"1884": 3, "1885": 41}}`. `roky` jsou kotvy rok → první snímek roku; `mapa_knihy.py rok <klíč> <rok>` z nich
+  vrátí rozsah snímků. Posun snímek ↔ folio se v knize mění – každý zapiš s rozsahem, kde jsi ho ověřil. Starší
+  textová `orientace` (řetězec) platí dál, jen z ní nejde skočit na rok.
+  Jediné místo pravdy o rozvržení: svazek nejdřív zapiš nástrojem `… svazek` (ruční pole jako `orientace` nechá),
+  pak doplň `zapis.py svazky <klíč> pracovni/x.json --sloucit` (v `x.json` jen `{"orientace": …}`); deník odkazuje sem.
 
 ## `prepisy.json`
 `{"<klic>": {"orig": "[Datum] 14. února 1890\n[Dům] 112\n[Otec] …", "cs": "Český překlad celou větou…"}}`

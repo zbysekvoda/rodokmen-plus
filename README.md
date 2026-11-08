@@ -106,6 +106,12 @@ Nápady a kód z forků původního skillu (MIT):
   a [srameko/rodokmen-skill@5f25edb](https://github.com/srameko/rodokmen-skill/blob/5f25edb9a201f8ac03b79293bbcb79b5109d022e/skills/rodokmen/tools/smoke_test.py) (Ondrej Sramek)
 - vlastní pole osoby (`p.extra`) a doplňky webu ve `web/src/local`, které aktualizace nepřepíše:
   [xsigik/rodokmen-skill@318a965](https://github.com/xsigik/rodokmen-skill/commit/318a965d6a5df9a5078657747377f16ccc83f345) (Jakub Valenta, xsigik)
+- sdílená mezipaměť snímků `tools/cache.py` a mapa knihy `tools/mapa_knihy.py`:
+  [sarsonj/rodokmen-skill@f0f8337](https://github.com/sarsonj/rodokmen-skill/tree/f0f833745d0456dd8644803e1c8708c3e9817f66) (Jindřich Šaršon, sarsonj);
+  kontrola integrity mezipaměti (verze 0.8.1):
+  [hackra76/rodokmen-skill@59ba1e6](https://github.com/hackra76/rodokmen-skill/commit/59ba1e666208af7888f6dd4dd5dc54e7c2706807) (hackra76)
+- orientace v knize u svazku (`svazky.json` → `orientace`, #6):
+  [xsigik/rodokmen-skill@bca63e4](https://github.com/xsigik/rodokmen-skill/commit/bca63e401b02bde5e4ea644930292f547189d63f) (Jakub Valenta, xsigik)
 
 ## Zpětná vazba
 Chyby a nápady (bez údajů o rodině) zakládejte jako issue v tomto repozitáři. Týká-li se věc převzatých částí,

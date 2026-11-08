@@ -206,7 +206,8 @@ def svazek(bid):
     archiv += (f", fond {fond}" if fond else "") + (f", inv. č. {k['Inventory number']}" if k.get("Inventory number") else "")
     path = os.path.join(ROOT, "data", "svazky.json")
     d = json.load(open(path, encoding="utf-8")) if os.path.exists(path) else {}
-    d[f"trebon_{bid}"] = {"archiv": archiv, "portal": "digi.ceskearchivy.cz",
+    d[f"trebon_{bid}"] = {**d.get(f"trebon_{bid}", {}),   # ruční pole (orientace) zůstanou
+                          "archiv": archiv, "portal": "digi.ceskearchivy.cz",
                           "svazek": nazev, "popis": "", "url": f"{BASE}/{bid}"}
     json.dump(d, open(path, "w", encoding="utf-8", newline="\n"), ensure_ascii=False, indent=1)
     print(f"trebon_{bid} -> {nazev}")

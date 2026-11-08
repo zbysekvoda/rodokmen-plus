@@ -4,7 +4,12 @@
   "portal": "ARON",
   "svazek": "N Holice 1880–1900 (UKÁZKA)",
   "popis": "vymyšlený svazek pro ukázku",
-  "url": "https://aron.vychodoceskearchivy.cz/"
+  "url": "https://aron.vychodoceskearchivy.cz/",
+  "snimku": 240,
+  "orientace": {
+   "popis": "N 1880–1900 po letech (vymyšlené pro ukázku, Novákovi); rejstřík na konci po písmenech",
+   "roky": {"1880": 3, "1885": 61, "1890": 118, "1895": 176}
+  }
  },
  "ukazka02": {
   "archiv": "Státní oblastní archiv v Hradci Králové",
