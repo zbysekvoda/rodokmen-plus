@@ -50,7 +50,26 @@ KONTROLY = [
     ("kramerius", "fulltext", ["kramerius.py", 'text_ocr:"Chyšky"', "1"], r"^found [1-9]", None),
     ("dnnt", "hledání v tisku", ["dnnt.py", "hledej", 'text_ocr:"Chyšky"', "--max", "1"], r"nalezeno [1-9]", None),
     ("anno", "rakouské noviny", ["anno.py", "Chischka", "1880", "1890", "1"], r"ANNOP_", None),
+    # databáze obětí a vězňů 2. sv. války: obecné příjmení, kontroluje se jen tvar odkazu, ne osobní údaje
+    ("holocaust", "databáze obětí", ["obeti.py", "hledat", "--prijmeni", "Novák", "--stran", "1"], r"holocaust\.cz/databaze-obeti/", None),
+    ("arolsen", "hledání osob", ["arolsen.py", "hledat", "Novák", "--max", "1"], r"arolsen-archives\.org/en/document/\d+", None),
+    ("mauthausen", "Raum der Namen", ["mauthausen.py", "hledat", "Novak", "--stran", "1"], r"\| nar\. ", None),
+    ("terezin", "databáze vězňů", ["vezni.py", "hledat", "--prijmeni", "Novák", "--stran", "1"], r"pamatnik-terezin\.cz/vezen/", None),
 ]
+# Nástroje, které bez souhlasu uživatele (souhlas.py) nedotazují portál: bez souhlasu se kontroluje jen dostupnost serveru.
+SOUHLAS = {"holocaust": ("obeti", "https://www.holocaust.cz/databaze-obeti/"),
+           "arolsen": ("arolsen", "https://collections.arolsen-archives.org/"),
+           "mauthausen": ("mauthausen", "https://raumdernamen.mauthausen-memorial.org/"),
+           "terezin": ("vezni", "https://www.pamatnik-terezin.cz/databaze")}
+
+
+def ma_souhlas(modul):
+    import importlib, souhlas
+    try:
+        m = importlib.import_module(modul)
+    except (ImportError, SystemExit):
+        return False
+    return souhlas.ma_souhlas(m.SOUHLAS_KLIC, m.SOUHLAS_ZNENI)
 # Portály bez pevného svazku (cestu k obrázku dává jen prohlížeč): jen „server odpovídá“
 DOSTUPNOST = [
     ("soal", "obrázkový server SOA Litoměřice", "https://images.soalitomerice.cz/ximage/matriky/zoomify/"),
@@ -102,6 +121,11 @@ def main():
         os.makedirs(os.path.join(tmp, "out"))
         for portal, popis, cmd, vzor, obr in KONTROLY:
             if (jen is not None and portal not in jen) or (rychle and obr):
+                continue
+            if portal in SOUHLAS and not ma_souhlas(SOUHLAS[portal][0]):
+                ok, kod = server_odpovida(SOUHLAS[portal][1])
+                print(f"{'OK   ' if ok else 'CHYBA'} {portal:13} {popis:28} (bez souhlasu jen dostupnost, {kod})")
+                selhalo += not ok
                 continue
             out = os.path.join("out", obr) if obr and "/" not in obr else obr
             cmd = [c.replace("{out}", out or "") for c in cmd]
