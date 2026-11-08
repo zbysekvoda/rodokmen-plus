@@ -112,6 +112,10 @@ Nápady a kód z forků původního skillu (MIT):
   [hackra76/rodokmen-skill@59ba1e6](https://github.com/hackra76/rodokmen-skill/commit/59ba1e666208af7888f6dd4dd5dc54e7c2706807) (hackra76)
 - orientace v knize u svazku (`svazky.json` → `orientace`, #6):
   [xsigik/rodokmen-skill@bca63e4](https://github.com/xsigik/rodokmen-skill/commit/bca63e401b02bde5e4ea644930292f547189d63f) (Jakub Valenta, xsigik)
+- `tools/kontrola.py` – čísla domů ve faktech a bydlištích proti citovaným zápisům podle
+  [sarsonj/rodokmen-skill@f0f8337](https://github.com/sarsonj/rodokmen-skill/blob/f0f833745d0456dd8644803e1c8708c3e9817f66/skills/rodokmen/tools/kontrola.py#L154-L188)
+  (Jindřich Šaršon, pavelzbornik); automatické kontroly dat jako směr podle
+  [xsigik/rodokmen-skill@9d4df44](https://github.com/xsigik/rodokmen-skill/commit/9d4df4466fdc6741612675bb5aeb2fd694f39c22) (Jakub Valenta)
 
 ## Zpětná vazba
 Chyby a nápady (bez údajů o rodině) zakládejte jako issue v tomto repozitáři. Týká-li se věc převzatých částí,
