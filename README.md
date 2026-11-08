@@ -74,7 +74,22 @@ Nápady z forků původního skillu, přepsané na graf osob (licence MIT):
   varianty v [hnizdiljan/rodokmen-skill@d172316](https://github.com/hnizdiljan/rodokmen-skill/blob/d172316bc190d0f44894fa67115505729d587c6a/skills/rodokmen/tools/arolsen.py) (hnizdiljan);
   `tools/vezni.py` (Památník Terezín) z [hnizdiljan/rodokmen-skill@d172316](https://github.com/hnizdiljan/rodokmen-skill/blob/d172316bc190d0f44894fa67115505729d587c6a/skills/rodokmen/tools/vezni.py) (hnizdiljan),
 - `tools/souhlas.py` – uložený souhlas s podmínkami portálů, bez něj nástroje nedotazují ze
-  [srameko/rodokmen-skill@5f25edb](https://github.com/srameko/rodokmen-skill/blob/5f25edb9a201f8ac03b79293bbcb79b5109d022e/skills/rodokmen/tools/souhlas.py) (srameko).
+  [srameko/rodokmen-skill@5f25edb](https://github.com/srameko/rodokmen-skill/blob/5f25edb9a201f8ac03b79293bbcb79b5109d022e/skills/rodokmen/tools/souhlas.py) (srameko),
+- návody k Těšínsku (ZA Opava, polská a slovenská strana, evangelíci a. v.) a k FamilySearch v Chromu uživatele
+  (slovenské a uherské matriky) v `reference/portaly.md` ze
+  [xsigik/rodokmen-skill@c262de7](https://github.com/xsigik/rodokmen-skill/blob/c262de702464b9743d4782abe1b296aa77bd34d4/skills/rodokmen/reference/portaly.md) (Jakub Valenta, xsigik),
+- návody k odsunu Němců 1945–1946 (transportní listiny, spisy ONV, Lastenausgleichsarchiv) a k Encyklopedii dějin
+  města Brna v `reference/portaly.md` ze
+  [srameko/rodokmen-skill@5f25edb](https://github.com/srameko/rodokmen-skill/blob/5f25edb9a201f8ac03b79293bbcb79b5109d022e/skills/rodokmen/reference/portaly.md) (Ondrej Sramek, srameko),
+- `tools/kramerius.py --server` (jiná knihovna s Kramerius v5, např. Digitální studovna MO) ze
+  [hnizdiljan/rodokmen-skill@d172316](https://github.com/hnizdiljan/rodokmen-skill/blob/d172316bc190d0f44894fa67115505729d587c6a/skills/rodokmen/tools/kramerius.py) (hnizdiljan),
+- návody k Vídni (Matricula, GenTeam, WStLA), ke Slovensku, Maďarsku a Banátu a k vojákům 1. sv. války
+  (seznamy ztrát podle obce, vojenské úmrtní matriky MO, Kriegsarchiv, pomníky) v `reference/portaly.md` ze
+  [hnizdiljan/rodokmen-skill@d172316](https://github.com/hnizdiljan/rodokmen-skill/blob/d172316bc190d0f44894fa67115505729d587c6a/skills/rodokmen/reference/portaly.md) (hnizdiljan),
+- návod k Franziscejskému katastru Dolních Rakous (Valticko, Vitorazsko; NÖ Landesarchiv) v `reference/portaly.md` ze
+  [vlastimilvasek/rodokmen-skill@e04b220](https://github.com/vlastimilvasek/rodokmen-skill/blob/e04b220e8188cac1353a9ba02cf675671098eb27/skills/rodokmen/reference/portaly.md) (vlastimilvasek),
+- návody k zemským deskám a k databázi mlýnů vodnimlyny.cz v `reference/portaly.md` ze
+  [jozefizso/rodokmen-skill@38850a5](https://github.com/jozefizso/rodokmen-skill/blob/38850a5aa4dbebe3faf1eb6ed5c5e8c9007c2d68/skills/rodokmen/reference/portaly.md) (Jozef Izso).
 
 ## Co je v repozitáři
 ```

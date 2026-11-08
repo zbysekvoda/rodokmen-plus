@@ -137,6 +137,25 @@ Adresy u nevyzkoušených portálů ověř při prvním použití (portály se m
   po hledání a stránky výsledků neprocházej za sebou. Delší smyčku pusť v prohlížeči na pozadí, výsledky ukládej do
   `window` nebo `localStorage` a vyzvedávej po částech (nástroj pro JavaScript má limit asi 45 s). Pomocníkům to napiš do zadání.
 
+## Těšínsko (Jablunkovsko, Třinecko, Karvinsko) – ZA Opava a prameny za hranicí
+- **Katolické matriky** české části jsou v ZA Opava (postup výše: prohlížeč, CAPTCHU řeší uživatel). Stejné knihy uvádí
+  i katalog FamilySearch ve sbírce „Czech Republic, Church Books, 1552-1981“ (např. Jablunkov 1617–1937) – když
+  digi.archives.cz blokuje, zkus je tam v uživatelově přihlášeném prohlížeči (nevyzkoušeno).
+- **Evangelíci a. v.** tu tvořili velkou část obyvatel: k jejich zápisům hledej vždy i evangelický sbor. Po toleranci
+  (1781) vedly vlastní matriky toleranční sbory (u Jablunkova Návsí). Do té doby (1709–1781) byl pro luterány celého
+  Těšínského knížectví i okolních panství jediný sbor – Ježíšův kostel v Cieszyně; kde jsou jeho matriky online, neověřeno.
+- **Hranice se měnila** (1920 rozdělení Těšínska, 1938 polský zábor, 1939–1945 německá správa) a fara či sbor mohou
+  být za dnešní hranicí: filiální sbor v Istebné patřil k Návsí do roku 1932.
+- **Polská strana** (Istebna, Jaworzynka, Wisła, Cieszyn): Geneteka, vojvodství `12sl` (slezské), má indexy farností
+  včetně evangelických sborů a u řady zápisů odkaz na sken (dotaz viz Polsko – Geneteka níže). Archivní skeny:
+  `https://szukajwarchiwach.gov.pl/` (Archiwum Państwowe w Katowicach).
+- **Slovenská strana** (Kysuce: Čadca, Svrčinovec, Čierne, Skalité, Turzovka): uherské matriky na FamilySearch – oddíl
+  „FamilySearch v Chromu uživatele“ níže.
+- **1939–1945** (neověřeno): muži z Těšínska často s Deutsche Volksliste a ve Wehrmachtu. Stopy jsou v poválečných
+  spisech o vrácení československého občanství a u mimořádných lidových soudů (ZA Opava, fondy Okresní úřad Těšín,
+  Landrát Těšín, ONV) a v agendě DVL v archivu v Katovicích (szukajwarchiwach, německý i polský název obce
+  a „Volksliste“). Jsou to citlivé údaje – na web jen se souhlasem rodiny (`soukromi.md`).
+
 ## MZA Brno (jižní Morava, Acta Publica) – bez nástroje
 - Portál `https://www.mza.cz/actapublica/`, bez přihlášení. Adresa actapublica.eu bývá za Cloudflare zablokovaná
   („Sorry, you have been blocked“ – podle IP, i v běžném prohlížeči); když blokuje i mza.cz, ať uživatel vypne VPN
@@ -165,6 +184,14 @@ Adresy u nevyzkoušených portálů ověř při prvním použití (portály se m
   sídla sboru (a obcí, které sbor výslovně uvádí), ne u vsi, kde evangelík bydlel. `mza.py matriky "<obec>"` ukáže
   jen katolické → hledej sbory podle původce „evangelická církev …“ a podle literatury (sbory h. v. na Vysočině).
 
+## Encyklopedie dějin města Brna (`https://encyklopedie.brna.cz/home-mmb/`) – bez nástroje
+- Fulltext přes osobnosti, ulice, objekty a spolky; portál vrací jen první stránku (~30 zásahů), proto zužuj dalšími
+  slovy (příjmení, ulice, povolání: „Novák klempíř Králova“). Heslo osobnosti uvádí narození, úmrtí, **bydliště
+  s adresou**, vzdělání, zaměstnání a **hrob (hřbitov, skupina, číslo)**. Bez prohlížeče jen přes `slusne.py curl`.
+- Je to encyklopedie významných osob a míst, ne evidence obyvatel – běžní předkové tu být nemusí. U brněnských řemeslníků
+  a úředníků ale často dá adresu, povolání a hrob na Ústředním hřbitově; dál matriky MZA (`mza.py`). Zdroj cituj jako
+  „Encyklopedie dějin města Brna“ (zdroj `J`).
+
 ## Pražské policejní přihlášky 1850–1914 (Národní archiv) – `tools/policie_prihlasky.py`
 - Karty pražských rodin: hlava rodiny, manželka s rokem a místem narození, děti s roky, adresy, někdy místo sňatku.
   Výborné, když rodina žila v Praze a nevíš farnost (pražské matriky nemají rejstříky).
@@ -182,6 +209,39 @@ Adresy u nevyzkoušených portálů ověř při prvním použití (portály se m
   a stáhni `bash tools/matricula_dl.sh "<url>" pracovni/x.jpg`. Víc stránek: soubor řádků „<snímek> <url>“ → `matricula_batch.sh`.
 - Rejstřík najdeš bez prohlížeče: HTML stránky knihy má seznam `labels` s popisky snímků („04-Index Taufe_0001“).
 - Vojenské matriky (např. Štýrský Hradec) tam nejsou – jsou v Kriegsarchivu ve Vídni (offline).
+- **Vídeň:** 567 farností pod `https://data.matricula-online.eu/de/oesterreich/wien/` (`<obvod>-<farnost>`, např.
+  `01-am-hof`). Oddací a úmrtní knihy bývají online do 1938, křty do 1922 (mladší se otevírají – ověř na portálu).
+  Židovské matriky Vídně: Israelitische Kultusgemeinde a mikrofilmy ve Wiener Stadt- und Landesarchiv (WStLA);
+  bydliště 1904–1975 (Meldezettel) jen placeným písemným dotazem na WStLA. Hroby: `https://www.friedhoefewien.at/`
+  → Verstorbenensuche, jen v prohlížeči (brána vyžaduje přihlášení – neobcházet). Vídeňští Češi se často „ztratí“
+  ve Vídni – hledej křty dětí a sňatek ve farnosti bydliště.
+- **GenTeam** (`https://www.genteam.at/`, zdarma po registraci – účet zakládá uživatel sám): jmenný rejstřík vídeňských
+  katolických křtů, sňatků a úmrtí a dalších rakouských pramenů; najde i další děti téže matky. Zápis pak ověř na
+  Matricule. Aktivační odkaz z e-mailu otevřený přes Outlook (Safe Links) se „spotřebuje“ – ať ho uživatel zkopíruje
+  do prohlížeče.
+
+## Slovensko, Maďarsko, Rumunsko (Banát, Sedmihradsko) – bez nástroje, jen návod
+Slovenské, maďarské a rumunské archivní servery bývají pro skripty nedostupné nebo za Cloudflare (ověřeno 11/2026:
+hungaricana.hu HTTP 403, arhivelenationale.ro HTTP 503) – neobcházej, hledej v prohlížeči uživatele.
+- **FamilySearch** je hlavní cesta (postup „FamilySearch v Chromu uživatele“ níže): katalog podle místa → „Church Books /
+  Anyakönyvek / Cirkevná matrika“. Kolekce Slovakia Church and Synagogue Books má zindexované i sňatky a úmrtí
+  (`q.spouseSurname`, datum úmrtí); sňatek najde index i ve farnosti nevěsty. Slovenské vesnice často nemají vlastní faru –
+  katalog podle obce ukáže jen fary se sídlem v obci; faru poznáš ze sloupce bydliště v knihách okolních far.
+- **Rozsah:** Slovensko – církevní matriky zhruba 1590–1895 (snímky online), jména často maďarsky nebo latinsky.
+  Maďarsko – církevní matriky do 1895, občanské od 1895. Rumunský Banát a Sedmihradsko – farní matriky Banátu
+  mikrofilmované 1939–40 (zhruba 1760–1850), latinsky a německy.
+- **Maďarské matriky (1850–1895):** Lakhely = bydliště, zsellér = domkář bez půdy, földész = rolník, telkes = sedlák,
+  árva = sirotek, néhai = zesnulý, törv. = manželské, H. H. = reformovaný; Mihály = Michal, Pál = Pavel, Erzsébet = Alžběta,
+  Borbála = Barbora, András = Ondřej, Ferenc = František, József = Josef, János = Jan.
+- **Hranice a jména:** do 1918 bylo Slovensko, Banát i Sedmihradsko v Uhrách – obce mají **maďarské názvy** (i německé,
+  rumunské); hledej pod tím, co platilo v době zápisu.
+- **Státní archivy** (Slovenský národný archív a štátne archívy; Magyar Nemzeti Levéltár `https://mnl.gov.hu/`;
+  Arhivele Naționale – pobočka Timiș má občanské matriky 1717–1951; adatbazisokonline.hu `https://adatbazisokonline.hu/`):
+  většina knih není online, žádost o výpis podle obce a roku → `archivni_dotazy.md`. Mladší matriky jen na matričním úřadě.
+- **Čeští reemigranti z Banátu** (Svatá Helena, Gerník, Eibentál, Bígr, Rovensko…) se po 1945 vraceli hlavně 1946–1950
+  a usazovali v pohraničí. Zapiš obec v Banátu, vyznání a jméno rodiny tam; cesta: rodina → FamilySearch (farní matriky
+  obce) → spisy o osídlení a reemigraci v okresním archivu nového bydliště.
+- Zápisy v maďarštině, slovenštině a latině čti pomalu; nejistá místa označ „(?)“.
 
 ## Polsko – Geneteka (geneteka.genealodzy.pl)
 - Zdarma dobrovolnické indexy křtů, sňatků a úmrtí po farnostech; hledej ve webovém rozhraní (vojvodství → farnost →
@@ -206,6 +266,32 @@ Adresy u nevyzkoušených portálů ověř při prvním použití (portály se m
   (`images[]` = ARK). Snímek: `https://www.familysearch.org/service/records/storage/deepzoomcloud/dz/v1/<ARK 3:1:…>/$dist`
   (plné rozlišení), malé náhledy `…/image_files/8/0_0.jpg`. **Po ~1000 rychlých požadavcích přijde HTTP 429** a blokace
   na desítky minut – stahuj jen konkrétní snímky, nanejvýš pár za sekundu, hromadné procházení knih nedělej.
+
+## FamilySearch v Chromu uživatele (slovenské a uherské matriky)
+Ověřený postup pro sbírku „Slovakia Church and Synagogue Books, 1592–1935“ a jiné uherské matriky v uživatelově
+skutečném Chromu s rozšířením Claude in Chrome. Automatizovaný prohlížeč (Playwright, chrome-devtools) i dotazy mimo
+prohlížeč (curl, i na veřejný katalog) dostanou „Access Denied – Error 15“ nebo HTTP 403 a každý pokus se zapisuje k IP
+uživatele – nezkoušej je. Bez takového Chromu hledá uživatel sám a posílá snímky obrazovky.
+**Předem, jednou:** uživatel je ve FamilySearch přihlášený a složku stahování v Chromu má nastavenou do projektu
+(`pracovni/familysearch/`) – na macOS Terminál do `~/Downloads` bez plného přístupu k disku nevidí.
+1. **Rejstřík napřed, listování až nakonec.** Hledej adresou
+   `https://www.familysearch.org/search/record/results?q.surname=…&q.givenName=…&q.birthLikePlace=…&q.birthLikeDate.from=…&q.birthLikeDate.to=…&count=100`
+   (podle potřeby i `q.fatherGivenName`, `q.spouseSurname`, `q.marriageLikePlace`), s přesnou shodou i bez ní – křty
+   i sňatky bývají zindexované i tam, kde to nečekáš. Odkaz „Zobrazit původní dokument“ v detailu záznamu vede rovnou
+   na snímek (dál bod 4). Ke katalogu (bod 3) přejdi, až obě hledání nic nenajdou – typicky úmrtí po ~1852.
+   Index slovenských křtů uvádí jako místo jen faru („Raková, Čadca“), obec a dům jsou až na snímku:
+   `q.birthLikePlace=<obec>` vrátí celou faru i cizí podobné záznamy – výsledky filtruj podle příjmení a fary.
+2. **Výsledky čti levně:** JavaScriptem z řádků tabulky (`javascript_tool`) místo snímků obrazovky:
+   `[...document.querySelectorAll('tr')].map(r => [r.innerText.replace(/\s+/g, ' ').trim(), r.querySelector('a[href*="1:1:"]')?.href]).filter(r => r[1])`
+   → jméno, událost, datum, rodiče a odkaz na záznam (`…/1:1:…`).
+3. **Katalog:** místo hledej v uherské podobě („Turzovka, Trencsén, Maďarsko“). Film otevřeš adresou
+   `https://www.familysearch.org/search/film/<číslo DGS>`, číslo doplněné nulami zleva na 9 číslic (`004567890`).
+4. **Prohlížeč snímků:** po otevření zavři spodní panel a dej „přizpůsobit“ (jinak vidíš jen horní část dvoustrany).
+   Na snímek skoč polem „Snímek“ vlevo nahoře: trojklik, číslo, Enter a počkej, až se snímek načte (~5 s). Šipky po
+   stranách = další / předchozí. Parametr `?i=N` v adrese snímek nezmění.
+5. **Stažení:** ikona stažení v liště prohlížeče → **„Pouze JPG“** (výchozí je PDF se zvýrazněním) → Stáhnout. Soubor
+   (ark-id nebo `image.jpg`) hned přejmenuj na `<DGS>_<snímek>.jpg`; obě čísla patří i do zápisu.
+6. **Čtení:** zápis čti ze staženého JPG v plném rozlišení. Limit HTTP 429 z oddílu výše platí i tady.
 
 ## Hroby a hřbitovy
 - Kde jsou předci pohřbeni, víš z rozhovoru s rodinou (Fáze 1). Fotky náhrobků (jména, data, rodná příjmení) jsou
@@ -276,10 +362,36 @@ Nástroje pro ně hotové nejsou. Postupuj takto a výsledek zapiš do `STAV.md`
 - **Berní rula 1654** – jen hospodáři s půdou; edice a rejstříky v knihovnách (Kramerius/DNNT).
 - **Gruntovní (pozemkové) knihy** – převody domů z otce na syna; online jen část (SOA Plzeň téměř vše, SOA Praha část,
   ostatní spíš badatelna). Fond „Velkostatek <panství>“.
+- **Zemské desky** (Národní archiv; Morava MZA Brno) – evidence **deskových statků**: šlechta, svobodníci, majitelé
+  deskových dvorů a některá města. Poddaní sedláci a chalupníci v nich nejsou (ti jsou v gruntovních knihách).
+  Vyplatí se jen u předka-svobodníka nebo majitele statku; středověké a raně novověké zápisy částečně jako edice
+  v Czech Medieval Sources (`https://sources.cms.flu.cas.cz/`, kategorie „Desky zemské“). Originály jen v badatelně.
+- **Mlýny a mlynáři – vodnimlyny.cz** (`https://www.vodnimlyny.cz/mlyny/objekty/`; `databaze.vodnimlyny.cz` neexistuje).
+  Karta mlýna má sekci **Historie** s držiteli mlýna v chronologickém sledu (z gruntovních knih, urbářů, katastrů),
+  prameny a fotky. Vyplatí se, když je předek mlynář nebo se narodil „ve mlýně“: rod na mlýně přes generace, příběh
+  a obrázky na web. Hledá se podle obce, katastru, toku i jména mlynáře (pole jsou dobrovolná – „nenalezeno“ nic
+  nedokazuje). Bez prohlížeče (přes `slusne.py`): GET `/mlyny/objekty/` (cookies), pak POST tamtéž s hlavičkou
+  `X-Requested-With: XMLHttpRequest` a poli `_do=filter-form-submit`, `city=<Obec>` (nebo `miller=<Příjmení>`),
+  `send=Filtrovat` → JSON, výsledky v `snippets["snippet--items"]`; přesný název obce dá `?do=citySuggestions&q=<Obec>`.
+  Údaje z karty jsou odkaz na pramen, ne doklad – předka ověř v matrice nebo gruntovní knize.
 - **Mapy stabilního katastru (1824–43)** – kde stál dům s číslem popisným: archivnimapy.cuzk.cz (Archiv ČÚZK).
   Na **císařských otiscích** chybí u části listů barvy a čísla domů. Lepší jsou **indikační skici**: mají čísla domů
   a u pozemků jméno majitele („N. 13“ = patří k domu čp. 13). Dům bez pozemků mimo ves = domkář bez polí.
   Jméno majitele samotného domu bývá jen v písemném operátu (archiv, ne online). Výřezy map patří na web k rodině.
+- **Obce, které byly do roku 1920 v Dolních Rakousích** (Valticko: Valtice/Feldsberg, Hlohovec/Bischofswarth,
+  Poštorná/Unter-Themenau, Charvátská Nová Ves/Ober-Themenau, Úvaly/Garschönthal…, i část Vitorazska) indikační skici
+  v MZA nemají. Rakouský stabilní katastr („Franziszeischer Kataster“, kolem 1821) je online v NÖ Landesarchiv:
+  `https://www.noela.findbuch.net/` (hledej německý název obce):
+  - **FK Mappen UM <č.>**: barevná mapa obce (~5600 × 4600 px), stavební parcely černě, pozemky červeně; čísla domů
+    ani jména na ní nejsou.
+  - **FK Prot UM <č.>** (protokol stavebních parcel): u parcely majitel, stav (Halblehner = půlláník, Häusler = domkář),
+    bydliště a **číslo domu** – číslo parcely z mapy tak vede k domu a majiteli.
+  - **BG <okresní soud> …**: pozemkové knihy (Grundbuch, Gewährbuch od 18. stol.) a pozůstalostní inventáře
+    (Inventurprotokolle), často naskenované.
+  - Bez prohlížeče (přes `slusne.py`): cookie z `…/php/view.php?link=…`, pak `php/gtpc.php?be_id=<fond>&ve_id=<id>&count=<0..n>`
+    (fond 4092 = mapy, 4091 = Prot, 4094 = Operate; prázdná odpověď = konec nebo bez skenů). `id` vrátí hledání
+    `php/rech_start.php?rech_nr=1` (POST `words=<obec>&max=500&…`, po načtení `main.php`; JSON, signatura v klíči hexadecimálně).
+    Server obrázků `augias.noel.gv.at` je dostupný jen přes `gtpc.php`.
 - **Dnešní adresa domu** podle čísla popisného: RÚIAN (ČÚZK, vrstva AdresniMisto). Pozor, staré centrum mívá od 19. století
   stejná čp., ale předměstí a vesnice čísla přečíslovávaly. Hodí se na „procházku po stopách předků“.
   Stavbu podle obce a čísla popisného najde i nahlizenidokn.cuzk.gov.cz (ověření adresy z dokladu); vlastník je za
@@ -301,6 +413,21 @@ Pro muže narozené ~1865–1900. Starší: matriky, Musterlisten, Kriegsarchiv 
   pluk zjisti ze seznamu ztrát.
 - **Kmenové listy** (VHA Praha) online nejsou, jen placená rešerše (jméno + rok narození). **Ročníky 1887–1900
   a 1903–1910 jsou skartované** – smysl mají pro ročníky 1865–1886.
+- **Seznamy ztrát v ANNO** hledej podle **domovské obce v německém tvaru** – účinnější než příjmení:
+  `ANNO_TITLE=vll python3 -I tools/anno.py '"Oberdorf"' 1914 1919 3 --snip` (zkratky titulů `vll`, `vlv`, `nvv`).
+  Přehled všech digitalizací dává VHÚ (`https://www.vhu.cz/`, knihovna → „Seznamy ztrát rakousko-uherské armády“).
+- **Vojenské úmrtní matriky 1. sv. války** (podle VHÚ přes 160 000 padlých) jsou v Digitální studovně MO
+  (`https://digitalnistudovna.mo.gov.cz/`), mj. „Matriky pěšího pluku N“ (N = číslo čs. pluku, který převzal c. a k. pluk).
+  Fulltext přes Kramerius v5: `python3 -I tools/kramerius.py 'text_ocr:"Horní Lhota"' 10 --server https://kramerius.army.cz`.
+  Když Python neověří certifikát serveru (CERTIFICATE_VERIFY_FAILED), **kontrolu nevypínej** – stejný dotaz pusť přes
+  `slusne.py curl` (systémové certifikáty) nebo hledej v prohlížeči.
+- **Kriegsarchiv Vídeň** (offline): Grundbuchblätter starších ročníků, vojenské matriky po plucích, kartotéky ztrát
+  a zajatců. Do `archivni_dotazy.md` jméno, datum a místo narození, **domovskou obec** (Heimatrecht ≠ rodiště) a pluk –
+  bez pluku se vojenská matrika hledat nedá.
+- **Pomníky a hroby** (nevyzkoušeno): pomník padlých v obci bývá jediný záznam o nezvěstném – `https://www.vets.cz/`
+  (pietní místa, pamětní desky s fotografiemi), Centrální evidence válečných hrobů `https://valecnehroby.army.cz/`;
+  příběhy legionářů `https://www.legie100.com/`. V datech pluk, hodnost a osud slovy („voják c. a k. pěšího pluku 28,
+  padl 1915 v Haliči“), zdroj `J`; jména padlých na web se souhlasem rodiny.
 
 ## Oběti a vězni 2. světové války – `tools/obeti.py`, `arolsen.py`, `mauthausen.py`, `vezni.py`
 Kdy: předek (nebo sourozenec) zmizí z pramenů 1939–1945, rodina mluví o deportaci, koncentráku, gestapu, Terezíně či
@@ -329,6 +456,39 @@ za uživatele, ani přes `SOUHLAS_STAV`. Platí 30 dní na počítači a jen pro
 Všechny jdou přes brzdu `slusne.py`; neprocházej databáze hromadně. Shoda jména není ztotožnění – ověř datum a místo
 narození v matrice a v rodině. Nalezené údaje jsou citlivé: do dat projektu ano, na web jen se souhlasem rodiny (`soukromi.md`).
 Kdyby portál začal vyžadovat přihlášení, captchu nebo vracel 403, nástroj to ohlásí – hledej ručně v prohlížeči, neobcházej to.
+
+## Odsun Němců z pohraničí 1945–1946 a Češi vysídlení v roce 1938
+Pro předky z pohraničí (Sudety, Slezsko, jižní Morava, Šumava), kteří byli Němci a po válce museli odejít, a pro Čechy,
+kteří odešli z pohraničí po záboru 1938. **Bez nástroje – dopisy, prohlížeč a návštěva archivu; skriptem se nic nestahuje.**
+- **Dvě fáze.** Léto 1945 = takzvaný divoký odsun (vyhánění bez seznamů, zápisy chybí nebo jsou neúplné). 1946 =
+  organizovaný odsun v transportech do americké a sovětské okupační zóny. Zachované **transportní listiny** (kdo odjel,
+  kterým transportem a kdy) jsou **z roku 1946, ne z roku 1945**.
+- **Matriky zůstaly v českých archivech** (SOA Litoměřice, SOA Plzeň, ZA Opava – oddíly výše). Narození, sňatky a úmrtí
+  do odsunu tam najdeš, **odsun sám a osud po něm ne**. Po 1945 se místa přejmenovala – hledej německý i český název obce
+  i farnosti (pomůže GOV, `https://gov.genealogy.net/`, jen v prohlížeči – kontrola Anubis).
+- **Transportní listiny 1946** – Sudetendeutsches Museum (Mnichov) má kopie asi 1290 listin s kolem milionem jmen
+  (55–60 % transportů, asi 80 % transportů do americké zóny; originály ve Vojenském ústředním archivu v Praze):
+  `https://www.sudetendeutsches-archiv.de/transportlisten-der-vertreibung-1946/`. **Chybí** transporty do sovětské zóny
+  a divoký odsun 1945. **Hledání podle jména jen na přístroji v muzeu** (z právních důvodů ne online). Muzeum za vás
+  nehledá; na písemný dotaz (přesné datum a místo transportu, příjmení, jméno, věk, poslední bydliště, poštovní adresa
+  odesílatele) pošle sken jednoho vagonu – kontakt na stránce výše. Datum a nakládací stanici zjistíš z přehledu
+  transportů 1946 (W. Jun, nekompletní):
+  `https://sudetendeutsche-familienforscher.de/wp-content/uploads/2020/05/Verzeichnis_Vertreibungstransporte_1946_V9.pdf`.
+  **Skoro úplné listy bývají v okresních archivech podle místa odjezdu** (adresy `https://www.cesarch.cz/archivnictvi/adresar-archivu/`).
+- **České úřední spisy o odsunu a konfiskacích**: fondy ONV a MNV 1945–1948 (referáty pro odsun, konfiskace,
+  osídlování), např. dílčí inventář „Okresní národní výbor Ústí nad Labem (odsun Němců), 1945–1948“ (SOA Litoměřice).
+  Seznamy Němců podle transportů a čísel domů hledej v inventáři okresního archivu podle obce → `archivni_dotazy.md`.
+  Archiv bezpečnostních složek (`https://www.abscr.cz/`) má regionální spisy „Odsun Němců 1946“ (obsah neprověřen).
+  Část Němců z odsunu vyňali (smíšená manželství, specialisté, antifašisté) – ti jsou v matrikách i po 1946.
+- **Německá strana**: Lastenausgleichsarchiv Bayreuth (Bundesarchiv, `https://www.bundesarchiv.de/`) – akta o vyrovnání
+  škod vyhnanců, Ostdokumentation, Heimatortskartei. Jen písemně; **od 16. 1. 2026 do 31. 12. 2027 vyřizuje jen naléhavé
+  dotazy, rodinné bádání ne** (znovu od 1. 1. 2028). Dál Arolsen (`arolsen.py`), matriky nové obce v Německu/Rakousku,
+  Suchdienst Červeného kříže (nevyzkoušeno).
+- **Češi a odpůrci nacismu, kteří odešli z pohraničí 1938–1939** (nevyzkoušeno): uprchlické spisy v okresních archivech,
+  policejní spisy (Národní archiv, Policejní ředitelství Praha), literatura J. Benda, *Útěky a vyhánění z pohraničí
+  českých zemí 1938–1939*, a M. Frankl, *Občané země nikoho*. Nejdřív se zeptej rodiny na doklady (uprchlická legitimace).
+- **Rodina:** doklady z odsunu (seznam zavazadel, odsunový list, Vertriebenenausweis) bývají doma; číslo transportu
+  a stanice nakládky (Verladestation) zkrátí hledání. Údaje jsou citlivé – na web jen se souhlasem rodiny (`soukromi.md`).
 
 ## Příjmení dnes a DNA
 - **Rozšíření příjmení dnes**: kdejsme.cz (počty nositelů po okresech). Rychle ukáže, jestli je příjmení vzácné a kde

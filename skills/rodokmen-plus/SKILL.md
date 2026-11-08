@@ -253,6 +253,9 @@ Pravidla navíc:
 - **Rodina přes čísla domů**: stejné číslo a řemeslo přes generace je silná stopa; hledej celé domácnosti.
 - **Ztotožnění míst ověř** podle farnosti, panství a kraje (skill `ztotozneni-mist`).
 - U úředníků, vojáků, učitelů, farářů zkus noviny a ročenky (`reference/portaly.md` → Noviny).
+- Mimo běžné matriky má `reference/portaly.md` návody: Těšínsko, Vídeň, Slovensko/Maďarsko/Banát (FamilySearch
+  v Chromu uživatele), odsun Němců 1945–1946, vojáci 1. sv. války, Encyklopedie dějin města Brna, zemské desky, mlýny
+  a Franziscejský katastr Dolních Rakous (Valticko).
 - **Sporné věci** ukaž uživateli s výřezem a nech ho rozhodnout. Desítky sporných najednou sesbírej do
   `pracovni/sporna_cteni.json` a udělej z nich jednu stránku s odpověďmi na kliknutí (artefakt nebo HTML se stažením).
 - Pro 17. století: soupis poddaných 1651, berní rula 1654, lánové rejstříky, gruntovní knihy.
@@ -358,7 +361,7 @@ Vždy **projektovou kopii**, nikdy `SKILL_DIR/tools/` (zapisovala by do skillu; 
 | `vademecum.py`, `litomerice.py` | židovské matriky 1784–1949 (Národní archiv, VadeMeCum – hledá se podle obce); SOA Litoměřice (portál ověřuje člověka → kód 5, pak prohlížeč + `soal_zoomify.py`) – `reference/portaly.md` |
 | `cuzk_archiv.py listy / rastry / export / mapa` | Archiv ČÚZK: stabilní a pozemkový katastr, indikační skici (Čechy) |
 | `ipr_praha.py`, `dnnt.py` | Praha: staré plány a letecké snímky; tisk 20. století (DNNT) |
-| `anno.py`, `anno_snap.py`, `kramerius.py` | noviny a knihy (ANNO, Kramerius – Hosák–Šrámek, vlastivědy) |
+| `anno.py`, `anno_snap.py`, `kramerius.py` | noviny a knihy (ANNO, Kramerius – Hosák–Šrámek, vlastivědy); `kramerius.py --server` jiná knihovna (Digitální studovna MO) |
 | `ged_import.py`, `ftb_export.py` | GEDCOM a záloha MyHeritage → kostra osob a fronta zápisů |
 | `ged_export.py [vystup.ged]` | graf osob → GEDCOM 5.5.1 (osoby, narození/úmrtí/sňatky, rodiny FAM, zdroje) pro jiné programy |
 | `prosle_knihy.py [příjmení]` | přehled prošlých knih ze `svazky.json`, `zaznamy.json` a deníku – podívej se před čtením knihy |
