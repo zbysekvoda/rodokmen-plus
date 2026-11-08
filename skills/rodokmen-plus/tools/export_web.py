@@ -238,6 +238,7 @@ def login_files(cfg):
 def main():
     sys.path.insert(0, TOOLS)
     import graf
+    from osobnosti import zarad as osobnost   # stránka „Osobnosti“: kategorie podle faktů (tools/osobnosti.py)
     g = graf.nacti()
     O = g.osoby
     global ROOT_KEY
@@ -327,6 +328,13 @@ def main():
         except (TypeError, ValueError) as e:
             sys.exit(f"CHYBA: data/osoby.py: {i}: extra nejde uložit do JSON ({e})")
 
+    def vyz_of(i, d):
+        """Ruční popis významnosti osoby (vyz="…") → p.vyz; prázdný řetězec, když chybí."""
+        x = d.get("vyz") or ""
+        if not isinstance(x, str):
+            sys.exit(f"CHYBA: data/osoby.py: {i}: vyz musí být text (str), je {type(x).__name__}")
+        return x.strip()
+
     people = {}
     for i in byorder(slugs):
         d, k = O[i], first.get(i)
@@ -362,7 +370,10 @@ def main():
             children=kids,
             also=[dict(k=a, rel=relation(a), line=line_of(a), child=kslug.get(a // 2)) for a in al],
             extra=extra_of(i, d),
+            vyz=vyz_of(i, d),
         )
+        # stránka „Osobnosti“: ruční vyz má přednost, jinak první silná kategorie podle faktů
+        people[i]["osobnost"] = None if people[i]["vyz"] or d.get("st") == "unk" else osobnost(facts)
 
     # rodiny = rodičovské páry (hrany rodic) + manželé bez dětí (hrany manzele)
     families = {}

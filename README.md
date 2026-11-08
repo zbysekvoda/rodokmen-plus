@@ -105,6 +105,11 @@ Vydání (správce): `scripts/release.sh X.Y.Z` – kontrola, že v repu nejsou 
 
 ## Převzato z forků
 Nápady a kód z forků původního skillu (MIT):
+- významné osobnosti `tools/osobnosti.py` (pole `vyz`, stránka `/osobnosti/`) a stránka Statistiky (`/statistiky/`,
+  výpočet přepsaný do `web/src/lib/statistiky.js`):
+  [hnizdiljan/rodokmen-skill@d172316](https://github.com/hnizdiljan/rodokmen-skill/tree/d172316bc190d0f44894fa67115505729d587c6a/skills/rodokmen) (hnizdiljan),
+  starší varianta [Brunobeee/rodokmen-skill@7ad48a8](https://github.com/Brunobeee/rodokmen-skill/blob/7ad48a869981282ab815520bfa295ee534290b3b/skills/rodokmen/tools/osobnosti.py) (Brunobeee),
+  původně PR #23 od oskar-stierand v sarsonj/rodokmen-skill
 - brzda `tools/slusne.py` – Retry-After (sekundy i datum HTTP) a hlavičky RateLimit-*/X-RateLimit-*:
   [jozefizso/rodokmen-skill@38850a5](https://github.com/jozefizso/rodokmen-skill/blob/38850a5aa4dbebe3faf1eb6ed5c5e8c9007c2d68/skills/rodokmen/tools/slusne.py) (Jozef Izso);
   sdílený limit pro všechny síťové nástroje a dlaždice sekvenčně podle

@@ -22,6 +22,9 @@
 #        Klíč (obec, cp) propojuje rodokmen s dějinami domů (tools/domy_rodiny.py).
 #   extra  volitelně: slovník vlastních polí projektu, např. extra=dict(prezdivka="Kovář", vojna="1866") – na webu
 #        tabulka u osoby (klíče s „_“ jen pro komponenty ve web/src/local/osoba/), v datech webu p.extra
+#   vyz  volitelně: krátký popis, proč osoba vyčnívá (kněz, starosta, legionář…) – na webu nahoře na stránce
+#        „Osobnosti“ (/osobnosti/). Bez vyz tam osobu zařadí tools/osobnosti.py podle slov ve faktech f.
+#        Návrhy: python3 -I tools/osobnosti.py; vyz doplň až po ověření v zápisu. Jde na web (soukromí).
 #   druh "bocni" = souhrnný záznam o bočních příbuzných (dřív SIDE): n = nadpis, t = text; na webu
 #        se ukáže u osoby, ke které vede vztah t="pribuzny". Lepší je zakládat boční příbuzné jako
 #        normální osoby s hranami rodic/manzele (sourozenec = stejní rodiče).

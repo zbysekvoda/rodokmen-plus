@@ -1,0 +1,54 @@
+---
+// Významné osobnosti rodokmenu: předci a příbuzní s výjimečným povoláním nebo postavením.
+// Kategorii určuje tools/osobnosti.py při exportu (export_web.py → p.osobnost); ruční popis v osoby.py (pole vyz)
+// má přednost a jde nahoru. Slabé shody (sedlák, mlynář, mistr) na web nejdou.
+// Převzato z hnizdiljan/rodokmen-skill@d172316 (MIT):
+// https://github.com/hnizdiljan/rodokmen-skill/blob/d172316bc190d0f44894fa67115505729d587c6a/skills/rodokmen/template/web/src/pages/osobnosti.astro
+import Base from '../layouts/Base.astro';
+import { people, href, statusClass } from '../lib/data.js';
+
+const all = Object.values(people);
+const order = (a, b) => (a.k ?? 1e12) - (b.k ?? 1e12);
+const rucne = all.filter((p) => p.vyz).sort(order);
+const skupiny = new Map();
+for (const p of all.filter((x) => !x.vyz && x.osobnost).sort((a, b) => a.osobnost.poradi - b.osobnost.poradi || order(a, b))) {
+  if (!skupiny.has(p.osobnost.kat)) skupiny.set(p.osobnost.kat, []);
+  skupiny.get(p.osobnost.kat).push(p);
+}
+const nikdo = !rucne.length && !skupiny.size;
+---
+<Base title="Významné osobnosti">
+  <h1>Významné osobnosti rodokmenu</h1>
+  <p class="lead">Předci, kteří vyčnívali – vzdělanci a duchovní, umělci, funkcionáři, vojáci, sportovci, vědci i podnikatelé.</p>
+
+  {rucne.length > 0 && (
+    <section>
+      <h2>Nejvýznamnější</h2>
+      <ul class="osobnosti">
+        {rucne.map((p) => (
+          <li><a class={statusClass(p.st)} href={href.person(p.slug)}>{p.name}</a> <span class="muted">{p.years} · {p.rel}</span><br />{p.vyz}</li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  {[...skupiny].map(([nazev, lidi]) => (
+    <section>
+      <h2>{nazev}</h2>
+      <ul class="osobnosti">
+        {lidi.map((p) => (
+          <li><a class={statusClass(p.st)} href={href.person(p.slug)}>{p.name}</a> <span class="muted">{p.years} · {p.rel}</span><br /><span class="small">{p.osobnost.fakt}</span></li>
+        ))}
+      </ul>
+    </section>
+  ))}
+
+  {nikdo && <p>Mezi dosud nalezenými předky zatím nikdo takový není – byli to většinou rolníci a řemeslníci. Stránka se doplní sama, jak budeme hledat dál.</p>}
+
+  <p class="small muted">Seznam vzniká automaticky podle povolání a údajů u předků, proto v něm může být i někdo, kdo nijak nevyčníval (třeba obecní správce).</p>
+</Base>
+
+<style>
+  .osobnosti { list-style: none; padding: 0; }
+  .osobnosti li { margin: 0 0 0.9em; }
+</style>
