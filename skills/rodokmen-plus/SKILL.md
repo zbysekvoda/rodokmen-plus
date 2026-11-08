@@ -157,6 +157,13 @@ Podrobně `reference/matriky.md`, portály `reference/portaly.md`.
    - **Kmotři a svědci jsou stopy.** Čti celý zápis včetně kmotrů, svědků, porodní báby a okrajů, ne jen
      hledanou osobu. Opakuje-li se kmotr nebo příjmení rodu či vsi (stejní Novákové z Lhoty u několika křtů),
      je to stopa k příbuzenství a místu; přehled dá `tools/kmotri.py`. Osobou je jen ztotožněný (Datový model).
+   **Kniha bez rejstříku:** krátký úsek (najít oddíl, začátek roku, ověřit pořadí stran, do ~20 snímků) →
+   mřížka náhledů `nahledy.py <archiv> <kniha> <od> <do>` nebo `--rok <klíč svazku> <rok>` (celé snímky po 6
+   v obrázku, `--vyrez` jen sloupec se jmény). Hledání osoby přes dlouhý rozsah (desítky let, celá kniha) → **síto**:
+   `sito.py zaloz <hledání> <archiv> <kniha> <od> <do> --otazka "…"`, pak opakovaně `sito.py dalsi <hledání>`,
+   přečti mřížku, `sito.py proslo <hledání> <od> <do>` a kandidáty `sito.py nalez <hledání> <snímek> "…"`;
+   `sito.py stav` ukáže díry. Po přerušení pokračuj `dalsi`. „Nenalezeno“ do `research_log.md` piš jen pro rozsah,
+   který `stav` hlásí jako úplný; nález vždy přečti v plném rozlišení. Oba nástroje stahují přes `cache.py` a brzdu.
 5. **Stáhni snímek** do `pracovni/<svazek>/` (nástroje archivů berou snímek ze sdílené mezipaměti `tools/cache.py`,
    když už byl jednou stažen – i v jiném projektu) a **přečti ho sám** v plném
    rozlišení. Vybledlé nebo skvrnité místo → `python3 -I tools/vylepsi_snimek.py pracovni/<stránka>.jpg [x0,y0,x1,y1]`

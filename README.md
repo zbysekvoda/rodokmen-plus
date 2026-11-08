@@ -39,7 +39,12 @@ Nápady z forků původního skillu, přepsané na graf osob (licence MIT):
   původně z [micl79/rodokmen-skill@11cf9ba](https://github.com/micl79/rodokmen-skill/blob/11cf9bad06c454f8415625a23a7b9e49d13c75e3/skills/rodokmen/tools/kmotri.py) (micl79),
 - pravidla hledání (víc předků jedním průchodem, okno ±5 let, sourozenci, kmotři jako stopy, ručně stažené knihy
   s `obsah.txt`) v `SKILL.md` a `reference/portaly.md` ze
-  [vmi43/rodokmen-skill@b89d5c9](https://github.com/vmi43/rodokmen-skill/blob/b89d5c91d78e61b8e20b9f2eab8b20d2f8e02e06/skills/rodokmen/SKILL.md) (Vasek M.).
+  [vmi43/rodokmen-skill@b89d5c9](https://github.com/vmi43/rodokmen-skill/blob/b89d5c91d78e61b8e20b9f2eab8b20d2f8e02e06/skills/rodokmen/SKILL.md) (Vasek M.),
+- `tools/nahledy.py` – mřížka náhledů pro rychlé procházení rozsahu snímků ze
+  [xsigik/rodokmen-skill@6a62def](https://github.com/xsigik/rodokmen-skill/blob/6a62def5e10ab169018282a124f033fe4280be71/skills/rodokmen/tools/nahledy.py) (Jakub Valenta, xsigik, #10),
+- `tools/sito.py` – síto pro knihy bez rejstříku (dávky náhledů s deníkem prošlých snímků), myšlenka „Síta Jev“ ze
+  [xsigik/rodokmen-skill@9aa2c18](https://github.com/xsigik/rodokmen-skill/blob/9aa2c189892885f579df3043a2da04ed245f23e6/skills/rodokmen/tools/sito.py) (xsigik, #21–#24; fork ve verzi
+  [c262de7](https://github.com/xsigik/rodokmen-skill/tree/c262de702464b9743d4782abe1b296aa77bd34d4)).
 
 ## Co je v repozitáři
 ```
