@@ -356,7 +356,7 @@ Vždy **projektovou kopii**, nikdy `SKILL_DIR/tools/` (zapisovala by do skillu; 
 | `vyrez.py`, `ramecek.py`, `overit.py` | výřez, rámeček čteného místa, ověření čtení na dvou polovinách |
 | `vylepsi_snimek.py` | špatně čitelný snímek → varianty vedle sebe (kontrast, CLAHE, odečtené pozadí, kanál) |
 | `zapis.py <soubor> <klíč> <vstup.json> [--sloucit]` | změna jedné položky v JSON datech beze změny formátu |
-| `mista.py`, `mista_domy.py ruian / okoli / hledej / pridej` | místa na mapu (OSM); dům v RÚIAN (obec, parcela, k. ú., poloha) |
+| `mista.py [pridej / znovu]`, `mista_domy.py ruian / okoli / hledej / pridej` | obce a domy (čp. z faktů osob) na mapu – Mapy.com s `MAPY_API_KEY` v prostředí, jinak OSM + RÚIAN, varuje na místa bez souřadnic; dům v RÚIAN (obec, parcela, k. ú., poloha) |
 | `napady.py` | náměty na zajímavosti z dat |
 | `slusne.py`, `hlidac.py`, `zdravi.py` | společný limit k archivům, hook proti obcházení, test nástrojů proti portálům |
 | `export_web.py`, `export_web_domy.py`, `fan_chart.py` | data → web (osoby i domy); vějíř předků k tisku |
