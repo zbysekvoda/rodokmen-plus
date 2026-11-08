@@ -33,6 +33,9 @@ P = {
 - `r` klíče zápisů ze `zaznamy.json`. `st` viz `matriky.md`: `doc` přečteno v matrice, `prob` pravděpodobné,
   `fam` od rodiny (i strom, který si rodina vede sama, např. GEDCOM z jejího MyHeritage), `mh` cizí strom z internetu, `unk`.
 - `LINES = {8: ("Novákové", "Kováři z Holic…"), …}` – všechna čísla v jedné generaci (obvykle 8–15); název rodu = příjmení v množném čísle.
+- `vyz` (volitelné) – krátký popis, proč osoba vyčnívá; web ji ukáže nahoře na stránce „Osobnosti“ (`/osobnosti/`).
+  Bez `vyz` ji tam zařadí `tools/osobnosti.py` podle slov ve faktech (farář, starosta, legionář…; sedlák a mistr ne).
+  V datech webu `p.vyz` a `p.osobnost` (`{kat, poradi, fakt}` nebo `null`). Kontroluje `tools/kontrola.py` (musí být text).
 - `SIDE` – sourozenci a další příbuzní: `dict(k=<číslo předka>, n="Josef Novák (1865–1920)", t="text", r=[klíče])`.
 - `ISSUES` – dvojice `("Otázka", "Vyřešeno: … / Hypotéza: … / Otevřené: …")` → stránka „Co hledáme“ (vyřešené se skryjí).
   Jde na web – nepiš sem citlivé věci (příčiny úmrtí, rodinné spory) bez souhlasu.

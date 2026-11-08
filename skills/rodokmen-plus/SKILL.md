@@ -276,6 +276,9 @@ jako `doc`; před velkým kolem si nech plán schválit (kredity).
 Podrobně `reference/pribehy.md` (rod), `reference-dum/pribehy.md` (dům), texty pro web `reference-dum/texty.md`.
 - **Zajímavosti** sbírej průběžně do `data/zajimavosti.md` a říkej je uživateli. Po kole `python3 -I tools/napady.py`
   (svatby krátce před porodem, rod v jednom domě, sňatky příbuzných, dlouhověkost, epidemie).
+- **Osobnosti:** po kole spusť i `python3 -I tools/osobnosti.py` – vybere předky s výjimečným povoláním nebo
+  postavením (kněz, starosta, důstojník…) s tipy, kde hledat víc. Potvrzené označ v `osoby.py` polem `vyz="krátký popis"`;
+  web je ukáže nahoře na stránce „Osobnosti“. Stránka „Statistiky“ (`/statistiky/`) se počítá sama z dat.
 - **Příběh rodu** nabídni, když má hlavní rod ~5 doložených generací; **příběh domu** při ~4 doložených držitelích
   nebo ~150 letech historie. Koncept do chatu ke schválení, pak `data/pribeh*.md` a `web.json`.
 - Víc příběhů najednou a jejich archivní ověření ve vlnách: skill `paralelni-badani`. Ověření námět často vyvrátí –
@@ -336,6 +339,7 @@ Vždy **projektovou kopii**, nikdy `SKILL_DIR/tools/` (zapisovala by do skillu; 
 | `domy_rodiny.py` | fronta domů rodiny z `bydliste` |
 | `fronta.py [koren] [--vse]` | co hledat dál: předci bez rodiče seřazení podle šance a neuzavřené rody (`web.json` `fronta_uzavrene`) |
 | `audit.py zadani <klic…> / nacti <odpoved.json>` | podklad pro nezávislý audit zápisu subagentem (přepis × výřez × graf, jiné výklady, kde hledat) a načtení jeho JSON; postup ve skillu `paralelni-badani` → Audit |
+| `osobnosti.py [--vse]` | významné osobnosti podle povolání ve faktech a pole `vyz` (stránka /osobnosti/) |
 | `kmotri.py [--min N]` | kmotři a svědci jako stopy: hrany `kmotr`/`svedek` + jména ze `shrnuti` zápisů, opakovaná příjmení |
 | `kontrola.py`, `kontrola_domy.py` | kontrola dat osob, domů a křížových odkazů, soukromí, kdy psát příběh |
 | `aron_search.py`, `aron_img.py` | ARON (SOA Zámrsk): matriky, sčítání, gruntovní knihy |

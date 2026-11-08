@@ -235,6 +235,8 @@ def main():
 
     for k, p in O.items():
         st = p.get("st", "unk")
+        if "vyz" in p and not isinstance(p["vyz"], str):
+            err.append(f"osoba {k}: 'vyz' (popis významnosti pro stránku Osobnosti) musí být text")
         bydliste = p.get("bydliste", [])
         if not isinstance(bydliste, list):
             err.append(f"osoba {k}: 'bydliste' musí být seznam")
@@ -393,9 +395,9 @@ def main():
     blizci = {i for k, i in kek.items() if k < 8} | set(g.koreny.values())
     for k, p in O.items():
         if p.get("druh") == "bocni":
-            texty.append((f"boční příbuzný {p.get('n')}", p.get("n", "") + " " + p.get("t", "")))
+            texty.append((f"boční příbuzný {p.get('n')}", p.get("n", "") + " " + p.get("t", "") + " " + str(p.get("vyz") or "")))
             continue
-        text = " ".join(p.get("f", [])) + " " + p.get("note", "") + " " + json.dumps(p.get("extra") or {}, ensure_ascii=False)   # i vlastní pole extra
+        text = " ".join(p.get("f", [])) + " " + p.get("note", "") + " " + str(p.get("vyz") or "") + " " + json.dumps(p.get("extra") or {}, ensure_ascii=False)   # i vlastní pole extra
         roky = [int(y) for y in re.findall(r"\b1[5-9]\d\d|20\d\d\b", p.get("y", "") + " " + text)]
         texty.append((f"osoba {k}", text + (f" {hranice}" if roky and min(roky) >= 1870 or k in blizci else "")))
     for f in ("zajimavosti.md", "pribeh.md", "pribeh_domy.md", *(x.get("soubor", "") for x in cfg.get("pribehy", []))):

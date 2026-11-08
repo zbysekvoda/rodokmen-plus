@@ -9,6 +9,8 @@ const items = [
   ...(config.pribehDomuStranka ? [['/pribeh-domu/', pribehDomu.title, pribehDomu.lead]] : []),
   ...(config.pribehy ?? []).map((p) => [`/pribeh/${p.slug}/`, p.titulek, '']),
   ['/zajimavosti/', 'Zajímavosti z rodokmenu', 'Co nás při hledání nejvíc překvapilo – nejstarší předek, spojené větve, řemesla a osudy.'],
+  ['/osobnosti/', 'Významné osobnosti', 'Předci, kteří vyčnívali – kněží a učitelé, starostové, vojáci, umělci, podnikatelé.'],
+  ['/statistiky/', 'Rodokmen v číslech', 'Řemesla, věk při svatbě, délka života, nejčastější jména a odkud to víme.'],
 ];
 ---
 <Base title="Příběhy" wide>
