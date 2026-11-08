@@ -209,6 +209,39 @@ Adresy u nevyzkoušených portálů ověř při prvním použití (portály se m
   a stáhni `bash tools/matricula_dl.sh "<url>" pracovni/x.jpg`. Víc stránek: soubor řádků „<snímek> <url>“ → `matricula_batch.sh`.
 - Rejstřík najdeš bez prohlížeče: HTML stránky knihy má seznam `labels` s popisky snímků („04-Index Taufe_0001“).
 - Vojenské matriky (např. Štýrský Hradec) tam nejsou – jsou v Kriegsarchivu ve Vídni (offline).
+- **Vídeň:** 567 farností pod `https://data.matricula-online.eu/de/oesterreich/wien/` (`<obvod>-<farnost>`, např.
+  `01-am-hof`). Oddací a úmrtní knihy bývají online do 1938, křty do 1922 (mladší se otevírají – ověř na portálu).
+  Židovské matriky Vídně: Israelitische Kultusgemeinde a mikrofilmy ve Wiener Stadt- und Landesarchiv (WStLA);
+  bydliště 1904–1975 (Meldezettel) jen placeným písemným dotazem na WStLA. Hroby: `https://www.friedhoefewien.at/`
+  → Verstorbenensuche, jen v prohlížeči (brána vyžaduje přihlášení – neobcházet). Vídeňští Češi se často „ztratí“
+  ve Vídni – hledej křty dětí a sňatek ve farnosti bydliště.
+- **GenTeam** (`https://www.genteam.at/`, zdarma po registraci – účet zakládá uživatel sám): jmenný rejstřík vídeňských
+  katolických křtů, sňatků a úmrtí a dalších rakouských pramenů; najde i další děti téže matky. Zápis pak ověř na
+  Matricule. Aktivační odkaz z e-mailu otevřený přes Outlook (Safe Links) se „spotřebuje“ – ať ho uživatel zkopíruje
+  do prohlížeče.
+
+## Slovensko, Maďarsko, Rumunsko (Banát, Sedmihradsko) – bez nástroje, jen návod
+Slovenské, maďarské a rumunské archivní servery bývají pro skripty nedostupné nebo za Cloudflare (ověřeno 11/2026:
+hungaricana.hu HTTP 403, arhivelenationale.ro HTTP 503) – neobcházej, hledej v prohlížeči uživatele.
+- **FamilySearch** je hlavní cesta (postup „FamilySearch v Chromu uživatele“ níže): katalog podle místa → „Church Books /
+  Anyakönyvek / Cirkevná matrika“. Kolekce Slovakia Church and Synagogue Books má zindexované i sňatky a úmrtí
+  (`q.spouseSurname`, datum úmrtí); sňatek najde index i ve farnosti nevěsty. Slovenské vesnice často nemají vlastní faru –
+  katalog podle obce ukáže jen fary se sídlem v obci; faru poznáš ze sloupce bydliště v knihách okolních far.
+- **Rozsah:** Slovensko – církevní matriky zhruba 1590–1895 (snímky online), jména často maďarsky nebo latinsky.
+  Maďarsko – církevní matriky do 1895, občanské od 1895. Rumunský Banát a Sedmihradsko – farní matriky Banátu
+  mikrofilmované 1939–40 (zhruba 1760–1850), latinsky a německy.
+- **Maďarské matriky (1850–1895):** Lakhely = bydliště, zsellér = domkář bez půdy, földész = rolník, telkes = sedlák,
+  árva = sirotek, néhai = zesnulý, törv. = manželské, H. H. = reformovaný; Mihály = Michal, Pál = Pavel, Erzsébet = Alžběta,
+  Borbála = Barbora, András = Ondřej, Ferenc = František, József = Josef, János = Jan.
+- **Hranice a jména:** do 1918 bylo Slovensko, Banát i Sedmihradsko v Uhrách – obce mají **maďarské názvy** (i německé,
+  rumunské); hledej pod tím, co platilo v době zápisu.
+- **Státní archivy** (Slovenský národný archív a štátne archívy; Magyar Nemzeti Levéltár `https://mnl.gov.hu/`;
+  Arhivele Naționale – pobočka Timiș má občanské matriky 1717–1951; adatbazisokonline.hu `https://adatbazisokonline.hu/`):
+  většina knih není online, žádost o výpis podle obce a roku → `archivni_dotazy.md`. Mladší matriky jen na matričním úřadě.
+- **Čeští reemigranti z Banátu** (Svatá Helena, Gerník, Eibentál, Bígr, Rovensko…) se po 1945 vraceli hlavně 1946–1950
+  a usazovali v pohraničí. Zapiš obec v Banátu, vyznání a jméno rodiny tam; cesta: rodina → FamilySearch (farní matriky
+  obce) → spisy o osídlení a reemigraci v okresním archivu nového bydliště.
+- Zápisy v maďarštině, slovenštině a latině čti pomalu; nejistá místa označ „(?)“.
 
 ## Polsko – Geneteka (geneteka.genealodzy.pl)
 - Zdarma dobrovolnické indexy křtů, sňatků a úmrtí po farnostech; hledej ve webovém rozhraní (vojvodství → farnost →
@@ -354,6 +387,21 @@ Pro muže narozené ~1865–1900. Starší: matriky, Musterlisten, Kriegsarchiv 
   pluk zjisti ze seznamu ztrát.
 - **Kmenové listy** (VHA Praha) online nejsou, jen placená rešerše (jméno + rok narození). **Ročníky 1887–1900
   a 1903–1910 jsou skartované** – smysl mají pro ročníky 1865–1886.
+- **Seznamy ztrát v ANNO** hledej podle **domovské obce v německém tvaru** – účinnější než příjmení:
+  `ANNO_TITLE=vll python3 -I tools/anno.py '"Oberdorf"' 1914 1919 3 --snip` (zkratky titulů `vll`, `vlv`, `nvv`).
+  Přehled všech digitalizací dává VHÚ (`https://www.vhu.cz/`, knihovna → „Seznamy ztrát rakousko-uherské armády“).
+- **Vojenské úmrtní matriky 1. sv. války** (podle VHÚ přes 160 000 padlých) jsou v Digitální studovně MO
+  (`https://digitalnistudovna.mo.gov.cz/`), mj. „Matriky pěšího pluku N“ (N = číslo čs. pluku, který převzal c. a k. pluk).
+  Fulltext přes Kramerius v5: `python3 -I tools/kramerius.py 'text_ocr:"Horní Lhota"' 10 --server https://kramerius.army.cz`.
+  Když Python neověří certifikát serveru (CERTIFICATE_VERIFY_FAILED), **kontrolu nevypínej** – stejný dotaz pusť přes
+  `slusne.py curl` (systémové certifikáty) nebo hledej v prohlížeči.
+- **Kriegsarchiv Vídeň** (offline): Grundbuchblätter starších ročníků, vojenské matriky po plucích, kartotéky ztrát
+  a zajatců. Do `archivni_dotazy.md` jméno, datum a místo narození, **domovskou obec** (Heimatrecht ≠ rodiště) a pluk –
+  bez pluku se vojenská matrika hledat nedá.
+- **Pomníky a hroby** (nevyzkoušeno): pomník padlých v obci bývá jediný záznam o nezvěstném – `https://www.vets.cz/`
+  (pietní místa, pamětní desky s fotografiemi), Centrální evidence válečných hrobů `https://valecnehroby.army.cz/`;
+  příběhy legionářů `https://www.legie100.com/`. V datech pluk, hodnost a osud slovy („voják c. a k. pěšího pluku 28,
+  padl 1915 v Haliči“), zdroj `J`; jména padlých na web se souhlasem rodiny.
 
 ## Oběti a vězni 2. světové války – `tools/obeti.py`, `arolsen.py`, `mauthausen.py`, `vezni.py`
 Kdy: předek (nebo sourozenec) zmizí z pramenů 1939–1945, rodina mluví o deportaci, koncentráku, gestapu, Terezíně či

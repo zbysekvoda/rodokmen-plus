@@ -82,7 +82,10 @@ Nápady z forků původního skillu, přepsané na graf osob (licence MIT):
   města Brna v `reference/portaly.md` ze
   [srameko/rodokmen-skill@5f25edb](https://github.com/srameko/rodokmen-skill/blob/5f25edb9a201f8ac03b79293bbcb79b5109d022e/skills/rodokmen/reference/portaly.md) (Ondrej Sramek, srameko),
 - `tools/kramerius.py --server` (jiná knihovna s Kramerius v5, např. Digitální studovna MO) ze
-  [hnizdiljan/rodokmen-skill@d172316](https://github.com/hnizdiljan/rodokmen-skill/blob/d172316bc190d0f44894fa67115505729d587c6a/skills/rodokmen/tools/kramerius.py) (hnizdiljan).
+  [hnizdiljan/rodokmen-skill@d172316](https://github.com/hnizdiljan/rodokmen-skill/blob/d172316bc190d0f44894fa67115505729d587c6a/skills/rodokmen/tools/kramerius.py) (hnizdiljan),
+- návody k Vídni (Matricula, GenTeam, WStLA), ke Slovensku, Maďarsku a Banátu a k vojákům 1. sv. války
+  (seznamy ztrát podle obce, vojenské úmrtní matriky MO, Kriegsarchiv, pomníky) v `reference/portaly.md` ze
+  [hnizdiljan/rodokmen-skill@d172316](https://github.com/hnizdiljan/rodokmen-skill/blob/d172316bc190d0f44894fa67115505729d587c6a/skills/rodokmen/reference/portaly.md) (hnizdiljan).
 
 ## Co je v repozitáři
 ```
