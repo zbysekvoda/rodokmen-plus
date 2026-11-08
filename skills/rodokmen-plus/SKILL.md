@@ -305,6 +305,8 @@ Vždy **projektovou kopii**, nikdy `SKILL_DIR/tools/` (zapisovala by do skillu; 
 | `graf.py cisla / osoba / kontrola / prolog` | graf osob: Kekulé čísla, detail osoby, kontrola, fakta pro Prolog (`graf_pravidla.pl`) |
 | `migrace_graf.py`, `prevod_odkazu_id.py` | převod starého `osoby.py` (P/LINES/SIDE/SAME) na graf; číselné `o=` v domech → id |
 | `domy_rodiny.py` | fronta domů rodiny z `bydliste` |
+| `fronta.py [koren] [--vse]` | co hledat dál: předci bez rodiče seřazení podle šance a neuzavřené rody (`web.json` `fronta_uzavrene`) |
+| `kmotri.py [--min N]` | kmotři a svědci jako stopy: hrany `kmotr`/`svedek` + jména ze `shrnuti` zápisů, opakovaná příjmení |
 | `kontrola.py`, `kontrola_domy.py` | kontrola dat osob, domů a křížových odkazů, soukromí, kdy psát příběh |
 | `aron_search.py`, `aron_img.py` | ARON (SOA Zámrsk): matriky, sčítání, gruntovní knihy |
 | `trebon.py` | SOA Třeboň: matriky, rejstříky, sčítání, strom fondů (gruntovní knihy, urbáře) |

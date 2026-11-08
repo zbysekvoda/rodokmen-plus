@@ -30,6 +30,14 @@ Pokud vám stačí jen rodokmen, nebo jen dějiny jednoho domu, použijte klidn�
 - **Web v2** – strom po generacích i celý strom, rodové pásy, časová osa, odkazy mezi osobami se zpětnými zmínkami,
   příběhy, stránky domů, světlý i tmavý vzhled, přihlášení jen pro rodinu.
 
+### Převzato z forků
+Nápady z forků původního skillu, přepsané na graf osob (licence MIT):
+- `tools/fronta.py` – fronta hledání (chybějící rodiče, neuzavřené rody) ze
+  [srameko/rodokmen-skill@5f25edb](https://github.com/srameko/rodokmen-skill/blob/5f25edb9a201f8ac03b79293bbcb79b5109d022e/skills/rodokmen/tools/fronta.py) (srameko),
+- `tools/kmotri.py` – kmotři a svědci jako stopy ze
+  [srameko/rodokmen-skill@5f25edb](https://github.com/srameko/rodokmen-skill/blob/5f25edb9a201f8ac03b79293bbcb79b5109d022e/skills/rodokmen/tools/kmotri.py),
+  původně z [micl79/rodokmen-skill@11cf9ba](https://github.com/micl79/rodokmen-skill/blob/11cf9bad06c454f8415625a23a7b9e49d13c75e3/skills/rodokmen/tools/kmotri.py) (micl79).
+
 ## Co je v repozitáři
 ```
 .claude-plugin/                 instalace jako plugin
