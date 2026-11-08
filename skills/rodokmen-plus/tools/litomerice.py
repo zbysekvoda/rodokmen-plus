@@ -18,7 +18,7 @@ POZOR: portál od 2026 před vstupem ověřuje člověka (výpočet v prohlíže
 pak najdi knihu v prohlížeči a snímek stáhni přes soal_zoomify.py. Portál po zhruba 100 rychlých požadavcích na své stránky zablokuje přístup na 30 minut. Každé `snimek`/`info`/`link` je
 ~4 požadavky; nástroj dělá pauzy, ale nestahuj desítky snímků za sebou (obrázkový server limit nemá). Pomocníkům to napiš do zadání.
 
-Převzato a upraveno z forku (licence MIT, © Jan Hnízdil / hnizdiljan):
+Převzato a upraveno z forku (licence MIT, © hnizdiljan):
   https://github.com/hnizdiljan/rodokmen-skill/blob/d172316bc190d0f44894fa67115505729d587c6a/skills/rodokmen/tools/litomerice.py
 Rozdíly: síť jen přes slusne.py (žádné vlastní pauzy a opakování), snímky přes soal_zoomify.py a cache.py,
 běží jen v projektu (data/STAV.md), svazek zachová ruční pole v svazky.json.

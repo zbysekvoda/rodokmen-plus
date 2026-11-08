@@ -18,7 +18,7 @@ Použití (z kořene projektu):
 Židovské matriky nejsou po jménech indexované – hledá se podle obce (kniha je po židovských obcích a letech).
 Pro studium matrik mladších než 100/75/30 let platí stejné lhůty jako u církevních matrik.
 
-Převzato a upraveno z forku (licence MIT, © Jan Hnízdil / hnizdiljan):
+Převzato a upraveno z forku (licence MIT, © hnizdiljan):
   https://github.com/hnizdiljan/rodokmen-skill/blob/d172316bc190d0f44894fa67115505729d587c6a/skills/rodokmen/tools/vademecum.py
 Rozdíly: síť jen přes slusne.py (žádné vlastní pauzy a opakování), snímky přes soal_zoomify.py a cache.py,
 běží jen v projektu (data/STAV.md), svazek zachová ruční pole v svazky.json.
