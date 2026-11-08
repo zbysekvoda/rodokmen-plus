@@ -104,6 +104,10 @@ Nápady a kód z forků původního skillu (MIT):
   [jozefizso/rodokmen-skill@38850a5](https://github.com/jozefizso/rodokmen-skill/blob/38850a5aa4dbebe3faf1eb6ed5c5e8c9007c2d68/skills/rodokmen/tools/slusne.py) (Jozef Izso);
   sdílený limit pro všechny síťové nástroje a dlaždice sekvenčně podle
   [vmi43/rodokmen-skill@b89d5c9](https://github.com/vmi43/rodokmen-skill/blob/b89d5c91d78e61b8e20b9f2eab8b20d2f8e02e06/skills/rodokmen/tools/slusne.py) (Vasek M.)
+- nezávislý audit zápisu `tools/audit.py` (podklad pro auditora-subagenta Claude místo Codexu) a postup
+  „čtenář na levnějším modelu + auditor“ v `paralelni-badani` podle verze 0.11:
+  [jozefizso/rodokmen-skill@38850a5](https://github.com/jozefizso/rodokmen-skill/blob/38850a5aa4dbebe3faf1eb6ed5c5e8c9007c2d68/skills/rodokmen/tools/audit.py)
+  a [rodokmen-orchestrace](https://github.com/jozefizso/rodokmen-skill/blob/38850a5aa4dbebe3faf1eb6ed5c5e8c9007c2d68/skills/rodokmen-orchestrace/SKILL.md) (Jozef Izso)
 - `tools/smoke_test.py` – podle
   [hnizdiljan/rodokmen-skill@d172316](https://github.com/hnizdiljan/rodokmen-skill/blob/d172316bc190d0f44894fa67115505729d587c6a/skills/rodokmen/tools/smoke_test.py) (hnizdiljan)
   a [srameko/rodokmen-skill@5f25edb](https://github.com/srameko/rodokmen-skill/blob/5f25edb9a201f8ac03b79293bbcb79b5109d022e/skills/rodokmen/tools/smoke_test.py) (Ondrej Sramek)

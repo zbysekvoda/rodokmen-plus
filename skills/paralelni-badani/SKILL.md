@@ -1,6 +1,6 @@
 ---
 name: paralelni-badani
-description: Orchestrace víc pomocníků (subagentů) při bádání v archivech pro rodokmen a dějiny domů – fronta úkolů, levnější model pro pomocníky, každý na vlastní git větvi s integrační větví, deník s předem přidělenými čísly řádků, šablona briefu (doloženo vs. hypotéza, limity portálů), ověřovací vlna, hledání příběhů ve vlnách a hledání skrytých vazeb z hotových přepisů (kmotři, svědci, sousedé). Použij, když chce uživatel „velké kolo“, pustit víc agentů najednou, projít víc svazků nebo rodů souběžně, autonomní noční bádání, najít příběhy pro web nebo skryté příbuzenské vazby. Spouštěcí fráze: „pusť pomocníky“, „paralelně“, „velké kolo“, „projdi všechny“, „najdi příběhy“, „kdo byl kmotr“, „skryté vazby“.
+description: Orchestrace víc pomocníků (subagentů) při bádání v archivech pro rodokmen a dějiny domů – fronta úkolů, levnější model pro pomocníky, každý na vlastní git větvi s integrační větví, deník s předem přidělenými čísly řádků, šablona briefu (doloženo vs. hypotéza, limity portálů), ověřovací vlna, hledání příběhů ve vlnách a hledání skrytých vazeb z hotových přepisů (kmotři, svědci, sousedé) a nezávislý audit zápisů subagentem (tools/audit.py). Použij, když chce uživatel „velké kolo“, pustit víc agentů najednou, projít víc svazků nebo rodů souběžně, autonomní noční bádání, najít příběhy pro web nebo skryté příbuzenské vazby. Spouštěcí fráze: „pusť pomocníky“, „paralelně“, „velké kolo“, „projdi všechny“, „najdi příběhy“, „kdo byl kmotr“, „skryté vazby“, „audit“, „druhý pohled“.
 ---
 
 # Paralelní bádání s pomocníky
@@ -83,6 +83,42 @@ koordinátor.
 2. Zkontroluj rámeček (jen kolem zápisu), správnost svazku a snímku, a že ztotožnění osoby není jen shoda jména.
 3. Co nesedí, sniž na `prob` s poznámkou nebo vrať pomocníkovi (nový brief s přesným snímkem).
 4. Do deníku zapiš „ověřeno koordinátorem“ s datem.
+
+## Audit – nezávislý druhý pohled
+Po ověřovací vlně (nebo po kole, které přineslo nové `doc` údaje) pusť **auditora**: subagenta s čistým kontextem,
+který dostane jen podklad z `tools/audit.py`. Hlídá přepis proti výřezu, nabízí jiné výklady a radí, kde hledat dál.
+Koordinátor i pomocník mají kontext a závěry, které je ukotví; auditor ne. (Převzato z `tools/audit.py` forku
+jozefizso/rodokmen-skill 0.11, kde audit dělá Codex; tady je to subagent Claude – viz README „Převzato z forků“.)
+
+**Kdy:** po kole s novými `doc` zápisy; u sporného ztotožnění (dvě rodiny stejného jména); než se staví další
+generace na jednom zápisu; u kurentu a německých formulářů, kde čtenáři chybují. Ne u každého drobného zápisu –
+stačí každé druhé kolo nebo jen klíčové zápisy linie.
+
+**Modely:**
+| role | model / effort | proč |
+|---|---|---|
+| čtenář (hledání, první čtení) | levnější – `model: "sonnet"`, běžný effort | stačí na hledání a první čtení; Haiku na rukopis ne |
+| koordinátor (ověření, zápis) | hlavní model | ověřuje na výřezu a píše do `data/` |
+| auditor | **jiný model, než který zápis četl**, vyšší effort (`opus` po čtenáři na Sonnetu; `sonnet` po čtení koordinátorem na Opusu), vždy čistý kontext | nezávislost = jiný model + žádný kontext koordinátora |
+
+**Postup:**
+1. Změny kola ulož do gitu (ať audit vidí uložený stav).
+2. `python3 -I tools/audit.py zadani <klic> [<klic> …] [--kolo N]` → `pracovni/audit/<jméno>_zadani.md`
+   (zápis, přepis, svazek, cesty k výřezům, osoby z grafu s rodiči a manželi, kontrolní seznam, schéma odpovědi).
+3. Pusť subagenta (Agent, `model` podle tabulky): „Přečti `pracovni/audit/<jméno>_zadani.md` a splň ho. Jen čtení,
+   výřezy otevři nástrojem Read, žádná síť. Odpověď (jen JSON) zapiš do `pracovni/audit/odpoved_<jméno>.json`.“
+   Do briefu nepiš svůj názor na zápis – zadání stačí.
+4. `python3 -I tools/audit.py nacti pracovni/audit/odpoved_<jméno>.json --nazev <jméno>` – zkontroluje schéma,
+   uloží `pracovni/audit/<jméno>.json` a vypíše shrnutí.
+
+**Jak naložit s výsledkem** (pole `rozhodnuti`):
+- `v_poradku` → pokračuj; `kde_hledat` zařaď do `data/fronta_ukolu.md`.
+- `opravit` → oprav po vlastním ověření na výřezu, ne slepě podle auditora.
+- `overit_znovu` → přečti zápis znovu sám (`tools/overit.py`); do té doby údaj na `prob`.
+- `zeptat_se_uzivatele` → otázky z `otazky_pro_uzivatele` polož uživateli.
+- `jine_vyklady` → do `HYPOTEZY` (s tím, čím je ověřit), ne do grafu. Auditor nic nedokládá – je to další čtenář,
+  ne zdroj. Do deníku zapiš: audit <jméno>, rozhodnutí, co se s ním udělalo.
+- Auditor bez otevřeného výřezu (prázdné `overeno`) = audit jen nad texty; řekni to a nepovažuj přepis za ověřený.
 
 ## Hledání příběhů ve vlnách
 Pro web (příběh rodu, domu, zajímavosti):
