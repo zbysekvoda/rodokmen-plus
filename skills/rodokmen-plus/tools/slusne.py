@@ -31,6 +31,8 @@ LIMITY = {
     "kramerius5.nkp.cz": (1.0, 0.05), "anno.onb.ac.at": (1.0, 0.05),
     "nominatim.openstreetmap.org": (1.1, 1.1),                       # pravidla OSM: nejvýš 1 dotaz za s
     "gs-pub.praha.eu": (0.5, 0.05),
+    # Slovakiana (SNA): robots.txt „Crawl-delay: 10“ – platí pro web, API wcm.… i snímky content.… (podle jozefizso 0.10.0)
+    "slovakiana.sk": (10.0, 10.0), "wcm.slovakiana.sk": (10.0, 10.0), "content.slovakiana.sk": (10.0, 10.0),
 }
 BLOKACE = 30 * 60
 OBRAZEK = re.compile(r"\.(jpe?g|png|gif|webp|tiff?|jp2|dzi)(\?|$)|_files/|iipsrv|IIIF=|Deepzoom=|ximage|zoomify|"
