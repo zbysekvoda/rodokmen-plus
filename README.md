@@ -87,7 +87,9 @@ Nápady z forků původního skillu, přepsané na graf osob (licence MIT):
   (seznamy ztrát podle obce, vojenské úmrtní matriky MO, Kriegsarchiv, pomníky) v `reference/portaly.md` ze
   [hnizdiljan/rodokmen-skill@d172316](https://github.com/hnizdiljan/rodokmen-skill/blob/d172316bc190d0f44894fa67115505729d587c6a/skills/rodokmen/reference/portaly.md) (hnizdiljan),
 - návod k Franziscejskému katastru Dolních Rakous (Valticko, Vitorazsko; NÖ Landesarchiv) v `reference/portaly.md` ze
-  [vlastimilvasek/rodokmen-skill@e04b220](https://github.com/vlastimilvasek/rodokmen-skill/blob/e04b220e8188cac1353a9ba02cf675671098eb27/skills/rodokmen/reference/portaly.md) (vlastimilvasek).
+  [vlastimilvasek/rodokmen-skill@e04b220](https://github.com/vlastimilvasek/rodokmen-skill/blob/e04b220e8188cac1353a9ba02cf675671098eb27/skills/rodokmen/reference/portaly.md) (vlastimilvasek),
+- návody k zemským deskám a k databázi mlýnů vodnimlyny.cz v `reference/portaly.md` ze
+  [jozefizso/rodokmen-skill@38850a5](https://github.com/jozefizso/rodokmen-skill/blob/38850a5aa4dbebe3faf1eb6ed5c5e8c9007c2d68/skills/rodokmen/reference/portaly.md) (Jozef Izso).
 
 ## Co je v repozitáři
 ```

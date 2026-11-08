@@ -362,6 +362,18 @@ Nástroje pro ně hotové nejsou. Postupuj takto a výsledek zapiš do `STAV.md`
 - **Berní rula 1654** – jen hospodáři s půdou; edice a rejstříky v knihovnách (Kramerius/DNNT).
 - **Gruntovní (pozemkové) knihy** – převody domů z otce na syna; online jen část (SOA Plzeň téměř vše, SOA Praha část,
   ostatní spíš badatelna). Fond „Velkostatek <panství>“.
+- **Zemské desky** (Národní archiv; Morava MZA Brno) – evidence **deskových statků**: šlechta, svobodníci, majitelé
+  deskových dvorů a některá města. Poddaní sedláci a chalupníci v nich nejsou (ti jsou v gruntovních knihách).
+  Vyplatí se jen u předka-svobodníka nebo majitele statku; středověké a raně novověké zápisy částečně jako edice
+  v Czech Medieval Sources (`https://sources.cms.flu.cas.cz/`, kategorie „Desky zemské“). Originály jen v badatelně.
+- **Mlýny a mlynáři – vodnimlyny.cz** (`https://www.vodnimlyny.cz/mlyny/objekty/`; `databaze.vodnimlyny.cz` neexistuje).
+  Karta mlýna má sekci **Historie** s držiteli mlýna v chronologickém sledu (z gruntovních knih, urbářů, katastrů),
+  prameny a fotky. Vyplatí se, když je předek mlynář nebo se narodil „ve mlýně“: rod na mlýně přes generace, příběh
+  a obrázky na web. Hledá se podle obce, katastru, toku i jména mlynáře (pole jsou dobrovolná – „nenalezeno“ nic
+  nedokazuje). Bez prohlížeče (přes `slusne.py`): GET `/mlyny/objekty/` (cookies), pak POST tamtéž s hlavičkou
+  `X-Requested-With: XMLHttpRequest` a poli `_do=filter-form-submit`, `city=<Obec>` (nebo `miller=<Příjmení>`),
+  `send=Filtrovat` → JSON, výsledky v `snippets["snippet--items"]`; přesný název obce dá `?do=citySuggestions&q=<Obec>`.
+  Údaje z karty jsou odkaz na pramen, ne doklad – předka ověř v matrice nebo gruntovní knize.
 - **Mapy stabilního katastru (1824–43)** – kde stál dům s číslem popisným: archivnimapy.cuzk.cz (Archiv ČÚZK).
   Na **císařských otiscích** chybí u části listů barvy a čísla domů. Lepší jsou **indikační skici**: mají čísla domů
   a u pozemků jméno majitele („N. 13“ = patří k domu čp. 13). Dům bez pozemků mimo ves = domkář bez polí.
