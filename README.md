@@ -14,11 +14,6 @@ Plugin navazuje na dva skilly a velkou část z nich přebírá. Patří jim za 
 - **[dejiny-domu](https://github.com/vzoha/dejiny-domu-skill)** od Vojtěcha Žohy (verze 0.3.7) – dějiny domu a vsi
   z gruntovních knih, katastrů a sčítání, společný limit rychlosti k archivům (`slusne.py`, `hlidac.py`), RÚIAN, Archiv ČÚZK.
 
-### Převzato z forků
-- [xsigik/rodokmen-skill](https://github.com/xsigik/rodokmen-skill) od Jakuba Valenty (xsigik), commit
-  [318a965](https://github.com/xsigik/rodokmen-skill/commit/318a965d6a5df9a5078657747377f16ccc83f345) (MIT) – vlastní pole
-  osoby (`p.extra`) a doplňky webu ve `web/src/local`, které aktualizace nepřepíše.
-
 Pokud vám stačí jen rodokmen, nebo jen dějiny jednoho domu, použijte klidně původní skilly – jsou jednodušší.
 
 ### Co je tu navíc
@@ -101,6 +96,8 @@ Nápady a kód z forků původního skillu (MIT):
 - `tools/smoke_test.py` – podle
   [hnizdiljan/rodokmen-skill@d172316](https://github.com/hnizdiljan/rodokmen-skill/blob/d172316bc190d0f44894fa67115505729d587c6a/skills/rodokmen/tools/smoke_test.py) (hnizdiljan)
   a [srameko/rodokmen-skill@5f25edb](https://github.com/srameko/rodokmen-skill/blob/5f25edb9a201f8ac03b79293bbcb79b5109d022e/skills/rodokmen/tools/smoke_test.py) (Ondrej Sramek)
+- vlastní pole osoby (`p.extra`) a doplňky webu ve `web/src/local`, které aktualizace nepřepíše:
+  [xsigik/rodokmen-skill@318a965](https://github.com/xsigik/rodokmen-skill/commit/318a965d6a5df9a5078657747377f16ccc83f345) (Jakub Valenta, xsigik)
 
 ## Zpětná vazba
 Chyby a nápady (bez údajů o rodině) zakládejte jako issue v tomto repozitáři. Týká-li se věc převzatých částí,
