@@ -20,6 +20,8 @@
 #   bydliste  volitelně: kde osoba žila – seznam dict(obec, cp, od, do, role, zdroj=[klíče ze zaznamy.json]);
 #        jen z doložených faktů, nejisté s (?); zdroj "rodina" = údaj od rodiny (udaje_od_rodiny.md).
 #        Klíč (obec, cp) propojuje rodokmen s dějinami domů (tools/domy_rodiny.py).
+#   extra  volitelně: slovník vlastních polí projektu, např. extra=dict(prezdivka="Kovář", vojna="1866") – na webu
+#        tabulka u osoby (klíče s „_“ jen pro komponenty ve web/src/local/osoba/), v datech webu p.extra
 #   druh "bocni" = souhrnný záznam o bočních příbuzných (dřív SIDE): n = nadpis, t = text; na webu
 #        se ukáže u osoby, ke které vede vztah t="pribuzny". Lepší je zakládat boční příbuzné jako
 #        normální osoby s hranami rodic/manzele (sourozenec = stejní rodiče).

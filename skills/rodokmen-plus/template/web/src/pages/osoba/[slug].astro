@@ -19,6 +19,11 @@ const path = [...p.path].reverse().filter(Boolean);
 const lineSlug = p.lineSlug ?? null;
 const open = issues.filter((i) => i.people?.includes(p.slug) && !i.text.startsWith('Vyřešeno'));
 const onAxis = p.birth && (p.death || p.alive);
+// rozšiřující bod projektu (po vzoru xsigik/rodokmen-skill@318a965): komponenty web/src/local/osoba/*.astro dostanou `p`;
+// p.extra = volná pole osoby z data/osoby.py (extra=dict(…)); klíče s „_“ na začátku jsou jen pro lokální komponenty
+const doplnky = Object.entries(import.meta.glob('../../local/osoba/*.astro', { eager: true })).sort(([a], [b]) => a.localeCompare(b)).map(([, m]) => m.default);
+const extra = Object.entries(p.extra ?? {}).filter(([k, v]) => !k.startsWith('_') && v !== null && v !== '');
+const fmt = (v) => Array.isArray(v) ? v.join(', ') : typeof v === 'object' ? JSON.stringify(v) : String(v);
 ---
 <Base title={p.name} description={`${p.name} ${p.years} – ${p.rel}`}>
   <div class="crumbs">
@@ -52,6 +57,10 @@ const onAxis = p.birth && (p.death || p.alive);
   <h2 class="life-h">Život</h2>
   {p.facts.length > 0 && <ul class="facts">{p.facts.map((f) => <li>{f}</li>)}</ul>}
   {p.note && <p class="note">{p.note}</p>}
+  {extra.length > 0 && (
+    <table class="extra">{extra.map(([k, v]) => <tr><th scope="row">{k}</th><td>{fmt(v)}</td></tr>)}</table>
+  )}
+  {doplnky.map((Doplnek) => <Doplnek p={p} />)}
 
   {p.homes.length > 0 && (
     <>

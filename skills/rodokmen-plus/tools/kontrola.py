@@ -263,7 +263,7 @@ def main():
         if p.get("druh") == "bocni":
             texty.append((f"boční příbuzný {p.get('n')}", p.get("n", "") + " " + p.get("t", "")))
             continue
-        text = " ".join(p.get("f", [])) + " " + p.get("note", "")
+        text = " ".join(p.get("f", [])) + " " + p.get("note", "") + " " + json.dumps(p.get("extra") or {}, ensure_ascii=False)   # i vlastní pole extra
         roky = [int(y) for y in re.findall(r"\b1[5-9]\d\d|20\d\d\b", p.get("y", "") + " " + text)]
         texty.append((f"osoba {k}", text + (f" {hranice}" if roky and min(roky) >= 1870 or k in blizci else "")))
     for f in ("zajimavosti.md", "pribeh.md", "pribeh_domy.md", *(x.get("soubor", "") for x in cfg.get("pribehy", []))):

@@ -10,6 +10,7 @@ a .claude/launch.json (náhled v Claude desktop).
 Existující data nepřepisuje.
 Aktualizace staršího projektu (znovu spustit na stejnou složku): tools/ se přepíše vždy a soubory webu,
 které se liší od nové šablony, taky – jejich staré verze se nejdřív uloží do pracovni/zaloha_web_<datum>/.
+web/src/local/ (vlastní komponenty, stránky a přesměrování projektu) se nepřepisuje ani nemaže.
 """
 import filecmp, os, shutil, sys, time
 for _s in (sys.stdout, sys.stderr):   # UTF-8 výstup i na Windows bez -X utf8 (cp1250 neumí třeba „→“)
@@ -25,8 +26,17 @@ def copy(src, out):
     shutil.copy2(src, out)
 
 
+# Vlastní doplňky projektu (web/src/local) aktualizace nikdy nepřepisuje ani nemaže – jen doplní chybějící soubory
+# (po vzoru xsigik/rodokmen-skill@318a965)
+CHRANENE = (os.path.join("src", "local"),)
+
+
+def chranene(rel):
+    return any(rel == c or rel.startswith(c + os.sep) for c in CHRANENE)
+
+
 def copy_tree(src, dst, backup=None):
-    """Zkopíruje chybějící soubory. S backup= přepíše i ty, které se liší, a starou verzi uloží do backup/."""
+    """Zkopíruje chybějící soubory. S backup= přepíše i ty, které se liší (mimo CHRANENE), a starou verzi uloží do backup/."""
     changed = []
     for base, dirs, files in os.walk(src):
         dirs[:] = [d for d in dirs if d not in ("node_modules", "dist", ".astro", "__pycache__")]
@@ -36,7 +46,7 @@ def copy_tree(src, dst, backup=None):
             new, out = os.path.join(base, f), os.path.join(dst, rel, f)
             if not os.path.lexists(out):
                 copy(new, out)
-            elif backup and (os.path.islink(out) or not filecmp.cmp(new, out, shallow=False)):
+            elif backup and not chranene(os.path.normpath(rel)) and (os.path.islink(out) or not filecmp.cmp(new, out, shallow=False)):
                 keep = os.path.join(backup, os.path.normpath(os.path.join(rel, f)))
                 os.makedirs(os.path.dirname(keep), exist_ok=True)
                 if not os.path.islink(out):

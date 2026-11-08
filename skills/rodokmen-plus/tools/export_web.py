@@ -317,6 +317,16 @@ def main():
 
     order = {i: (first.get(i, 10 ** 12), n) for n, i in enumerate(O)}   # předci podle Kekulé, ostatní podle osoby.py
     byorder = lambda xs: sorted(xs, key=lambda i: order[i])
+    def extra_of(i, d):
+        """Vlastní pole osoby (dict extra=…) → p.extra beze změny; po vzoru xsigik/rodokmen-skill@318a965."""
+        x = d.get("extra") or {}
+        if not isinstance(x, dict):
+            sys.exit(f"CHYBA: data/osoby.py: {i}: extra musí být slovník (dict), je {type(x).__name__}")
+        try:
+            return json.loads(json.dumps(x, ensure_ascii=False))
+        except (TypeError, ValueError) as e:
+            sys.exit(f"CHYBA: data/osoby.py: {i}: extra nejde uložit do JSON ({e})")
+
     people = {}
     for i in byorder(slugs):
         d, k = O[i], first.get(i)
@@ -351,6 +361,7 @@ def main():
             docs=[dict(img=x["img"], caption=x["popis"]) for x in docs_cfg if i in doc_people(x)],
             children=kids,
             also=[dict(k=a, rel=relation(a), line=line_of(a), child=kslug.get(a // 2)) for a in al],
+            extra=extra_of(i, d),
         )
 
     # rodiny = rodičovské páry (hrany rodic) + manželé bez dětí (hrany manzele)

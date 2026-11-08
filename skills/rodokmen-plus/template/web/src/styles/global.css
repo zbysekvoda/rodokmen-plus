@@ -85,6 +85,9 @@ main.wider { max-width: none; }   /* mapa: přes celou šířku okna (Česko a S
 .facts { margin: 0.3rem 0; padding-left: 1.2rem; }
 .facts li { margin: 0.2rem 0; }
 .note { background: var(--mark-soft); border-left: 3px solid var(--mark); padding: 0.6rem 0.9rem; border-radius: 4px; }
+.extra { border-collapse: collapse; margin: 0.6rem 0; font-size: 0.95rem; }
+.extra th { text-align: left; font-weight: 600; padding: 0.2rem 1rem 0.2rem 0; vertical-align: top; color: var(--muted, inherit); }
+.extra td { padding: 0.2rem 0; }
 
 .person-link { text-decoration: none; }
 .person-link .yrs { color: var(--muted); font-size: 0.88em; margin-left: 0.3em; white-space: nowrap; }

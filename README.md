@@ -14,6 +14,11 @@ Plugin navazuje na dva skilly a velkou část z nich přebírá. Patří jim za 
 - **[dejiny-domu](https://github.com/vzoha/dejiny-domu-skill)** od Vojtěcha Žohy (verze 0.3.7) – dějiny domu a vsi
   z gruntovních knih, katastrů a sčítání, společný limit rychlosti k archivům (`slusne.py`, `hlidac.py`), RÚIAN, Archiv ČÚZK.
 
+### Převzato z forků
+- [xsigik/rodokmen-skill](https://github.com/xsigik/rodokmen-skill) od Jakuba Valenty (xsigik), commit
+  [318a965](https://github.com/xsigik/rodokmen-skill/commit/318a965d6a5df9a5078657747377f16ccc83f345) (MIT) – vlastní pole
+  osoby (`p.extra`) a doplňky webu ve `web/src/local`, které aktualizace nepřepíše.
+
 Pokud vám stačí jen rodokmen, nebo jen dějiny jednoho domu, použijte klidně původní skilly – jsou jednodušší.
 
 ### Co je tu navíc

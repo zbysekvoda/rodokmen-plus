@@ -48,6 +48,8 @@ Uživatel může začít kterýmkoli režimem a přepínat mezi nimi („teď se
    **Verze:** porovnej `.skill_verze` v projektu se `SKILL_DIR/VERZE`. Liší-li se, nabídni aktualizaci
    `python3 -I SKILL_DIR/tools/novy_projekt.py <složka projektu>` (data zůstanou, změněné soubory webu se zazálohují
    do `pracovni/`), pak ve `web/` `npm install`. Převezmi ze zálohy úpravy vzhledu (`reference/web.md`).
+   Vlastní úpravy webu patří do `web/src/local/` a vlastní pole osob do `extra=dict(…)` – aktualizace je nepřepíše
+   (`reference/web.md`, „Vlastní doplňky projektu“).
 2. Projekt ještě není → **Fáze 0**.
 3. Projekt je ve starém formátu skillu `rodokmen` (`P`, `LINES`, `SIDE`, `SAME` v `osoby.py`) → nabídni převod na graf:
    `python3 -I tools/migrace_graf.py` (zálohu udělá git; po převodu `python3 -I tools/graf.py kontrola`).
