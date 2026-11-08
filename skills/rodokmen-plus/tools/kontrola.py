@@ -125,9 +125,12 @@ def main():
                 err.append(f"{kde}: od ({od}) je později než do ({do})")
         if st == "doc" and not p.get("r"):
             warn.append(f"osoba {k} ({p.get('n')}) je 'doc' (doloženo), ale necituje žádný zápis")
+    gen_rodu = {k.bit_length() - 1 for k in LINES}
+    if len(gen_rodu) > 1:
+        err.append(f"LINES: rody {sorted(LINES)} nejsou v jedné generaci – zakladatelé rodů mají být např. všichni pradědečci a prababičky")
     for k in LINES:
-        if k not in range(8, 16):
-            err.append(f"LINES: rod {k} – rody mají čísla 8 až 15 (pradědečci a prababičky)")
+        if k < 4:
+            err.append(f"LINES: rod {k} – zakladatel rodu má být nejméně prarodič výchozí osoby (č. 4 a výš)")
 
     cited = {r for p in O.values() for r in p.get("r", [])} | {r for e in g.vztahy for r in e.get("r", [])}
 

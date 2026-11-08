@@ -4,7 +4,7 @@ import StoryDocs from '../../components/StoryDocs.astro';
 import { config, lineByK, href, houseList, houseTitle } from '../../lib/data.js';
 const house = houseList.find((h) => h.slug === config.pribehDum);
 import { Content, frontmatter } from '../../generated/pribeh.md';
-const line = lineByK[config.pribeh?.rod ?? 8];
+const line = lineByK[config.pribeh?.rod ?? Math.min(...Object.keys(lineByK).map(Number))];
 ---
 <Base title={frontmatter.title}>
   <p class="crumbs">{house && <><a href={href.house(house.slug)}>{houseTitle(house)}</a> · </>}{line && <><a href={href.line(line.slug)}>rod {line.name}</a> · </>}<a href="/pribehy/">další příběhy</a></p>

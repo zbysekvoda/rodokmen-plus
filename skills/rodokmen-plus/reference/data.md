@@ -11,7 +11,7 @@ Kekulého čísla: 1 = výchozí osoba, otec osoby n = 2n, matka = 2n+1.
 | 1 | výchozí osoba (u ženy `sex="F"`) |
 | 2, 3 | otec, matka |
 | 4–7 | prarodiče (4, 5 otcovi rodiče; 6, 7 matčini) |
-| 8–15 | pradědečci a prababičky = **8 rodů** (`LINES`) |
+| 8–15 | pradědečci a prababičky = obvykle **8 rodů** (`LINES`); rody smí být i v jiné generaci (např. 16–31, když je kořenem dítě), ale všechny v jedné |
 | 16–31, 32–63 … | každá další generace dvojnásobek |
 
 Otec předka 22 je 44, matka 45; dítě předka 45 je 22 (45 // 2). Muži mají sudá čísla.
@@ -32,7 +32,7 @@ P = {
   Názvy obcí ve faktech používá mapa (`mista.json` → `re`).
 - `r` klíče zápisů ze `zaznamy.json`. `st` viz `matriky.md`: `doc` přečteno v matrice, `prob` pravděpodobné,
   `fam` od rodiny (i strom, který si rodina vede sama, např. GEDCOM z jejího MyHeritage), `mh` cizí strom z internetu, `unk`.
-- `LINES = {8: ("Novákové", "Kováři z Holic…"), …}` – jen čísla 8–15; název rodu = příjmení v množném čísle.
+- `LINES = {8: ("Novákové", "Kováři z Holic…"), …}` – všechna čísla v jedné generaci (obvykle 8–15); název rodu = příjmení v množném čísle.
 - `SIDE` – sourozenci a další příbuzní: `dict(k=<číslo předka>, n="Josef Novák (1865–1920)", t="text", r=[klíče])`.
 - `ISSUES` – dvojice `("Otázka", "Vyřešeno: … / Hypotéza: … / Otevřené: …")` → stránka „Co hledáme“ (vyřešené se skryjí).
   Jde na web – nepiš sem citlivé věci (příčiny úmrtí, rodinné spory) bez souhlasu.

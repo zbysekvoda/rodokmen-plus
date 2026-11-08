@@ -3,14 +3,16 @@ import Base from '../layouts/Base.astro';
 import PersonLink from '../components/PersonLink.astro';
 import { lines, people, href, linesTitle } from '../lib/data.js';
 const list = Object.values(lines).sort((a, b) => a.k - b.k);
+// strana otce/matky: v generaci g má otcova polovina čísla 2^g … 1,5·2^g − 1
+const poOtci = (k) => k < 3 * 2 ** (Math.floor(Math.log2(k)) - 1);
 ---
 <Base title="Rody">
   <h1>{linesTitle(list.length)}</h1>
-  <p class="lead">Rodokmen se větví podle osmi pradědečků a prababiček – rodičů dědečků a babiček. Každý rod je jedna z těchto větví se všemi svými předky.</p>
-  {list.length === 0 && <p>Rody se ukážou, až budou v rodokmenu známí pradědečkové a prababičky.</p>}
+  <p class="lead">Rodokmen se větví podle předků v jedné generaci (obvykle pradědečků a prababiček). Každý rod je jedna z těchto větví se všemi svými předky.</p>
+  {list.length === 0 && <p>Rody se ukážou, až budou v rodokmenu založené (RODY v data/osoby.py).</p>}
   <h2>Po otci</h2>
   <div class="grid2">
-    {list.filter((l) => l.k < 12).map((l) => (
+    {list.filter((l) => poOtci(l.k)).map((l) => (
       <a class="card line-card card-link" style={`--c:${l.color}`} href={href.line(l.slug)}>
         <h3>{l.name}</h3>
         <p class="small">{l.desc}</p>
@@ -20,7 +22,7 @@ const list = Object.values(lines).sort((a, b) => a.k - b.k);
   </div>
   <h2>Po matce</h2>
   <div class="grid2">
-    {list.filter((l) => l.k >= 12).map((l) => (
+    {list.filter((l) => !poOtci(l.k)).map((l) => (
       <a class="card line-card card-link" style={`--c:${l.color}`} href={href.line(l.slug)}>
         <h3>{l.name}</h3>
         <p class="small">{l.desc}</p>

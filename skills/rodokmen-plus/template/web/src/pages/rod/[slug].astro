@@ -23,7 +23,7 @@ const partnerLine = lineByK[l.k ^ 1];
         sousedního rodu <a href={href.line(partnerLine.slug)}>{partnerLine.name}</a>; jejich {people[people[l.root].child].sex === 'M' ? 'syn' : 'dcera'} <PersonLink slug={people[l.root].child} />.</>
     )}
   </p>
-  <p class="small muted">Rodokmen je rozdělený do osmi rodů podle osmi pradědečků a prababiček – každý manželský pár proto patří do dvou sousedních rodů.</p>
+  <p class="small muted">Rodokmen je rozdělený do rodů podle předků v jedné generaci (obvykle pradědečků a prababiček) – každý manželský pár proto patří do dvou sousedních rodů.</p>
 
   {gens.map((g) => (
     <>

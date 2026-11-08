@@ -22,14 +22,17 @@ CHROME = next((c for c in ("/Applications/Google Chrome.app/Contents/MacOS/Googl
 ns = {}
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import graf; ns.update(graf.nacti_legacy(KOREN))
 P, LINES = ns["P"], ns.get("LINES", {})
+# rody leží v jedné generaci (obvykle pradědečci 8–15; při kořeni dítěti 16–31) – barvy podle pořadí rodů
+LG = (min(LINES).bit_length() - 1) if LINES else 3
 WEBCFG = json.load(open(os.path.join(ROOT, "data", "web.json"), encoding="utf-8")) if os.path.exists(os.path.join(ROOT, "data", "web.json")) else {}
 
 W, H = (4520, 4520) if WEB else (4600, 5650)
 CX, CY = (2260, 2260) if WEB else (W / 2, 2760)
 RINGS = [(0, 240), (240, 440), (440, 650), (650, 880), (880, 1100), (1100, 1380),
          (1380, 1640), (1640, 1870), (1870, 2010), (2010, 2130), (2130, 2240)]
-BASE = {8: "#EFB45F", 9: "#F09A78", 10: "#E58AA6", 11: "#B99AE0",
-        12: "#86B8E8", 13: "#6FCBB9", 14: "#9CD17A", 15: "#D3D46A"}
+PALETA = ["#EFB45F", "#F09A78", "#E58AA6", "#B99AE0", "#86B8E8", "#6FCBB9", "#9CD17A", "#D3D46A"]
+BASE = {k: PALETA[i % len(PALETA)] for i, k in enumerate(sorted(LINES))}
+BASE0 = PALETA[0]
 LIGHT = {3: 0.0, 4: 0.18, 5: 0.32, 6: 0.44, 7: 0.55, 8: 0.64, 9: 0.72, 10: 0.78}
 SIDE_COL = {0: "#E9DFCF", 1: "#D6E2EC"}          # father / mother half, generations 1–2
 EMPTY, FONT = "#ECE8E0", "Helvetica Neue, Helvetica, Arial, sans-serif"
@@ -93,9 +96,9 @@ def fill(k):
         return EMPTY
     if g == 0:
         return "#5B4A3A"
-    if g <= 2:
+    if g < LG:
         return SIDE_COL[(k >> (g - 1)) & 1]
-    c = mix(BASE[k >> (g - 3)], LIGHT[g])
+    c = mix(BASE.get(k >> (g - LG), PALETA[0]), LIGHT[min(g - LG + 3, 10)])
     return mix(c, 0.45) if p.get("st") in ("prob", "mh") else c
 
 
@@ -131,7 +134,7 @@ for k in slots:
     if g <= 4:   # tangential text on arcs
         rm = (r0 + r1) / 2
         lines = []
-        if g == 3 and k in LINES:
+        if k in LINES:
             lines.append((LINES[k][0].upper(), 21, 'font-weight="700" letter-spacing="4" fill="#5A4632"'))
         lines.append((name, {1: 40, 2: 34, 3: 30, 4: 27}[g], f'font-weight="600" {style}'))
         if yrs:
@@ -193,7 +196,7 @@ title = (f'<text x="{W / 2}" y="250" text-anchor="middle" font-family="Georgia, 
 
 lx, ly = 300, CY + 2240 + 170
 legend = []
-items = [(k, LINES[k][0]) for k in range(8, 16) if k in LINES]
+items = [(k, LINES[k][0]) for k in sorted(LINES)]
 desc = {k: (LINES[k][1].split(";")[0].split(".")[0])[:70] for k, _ in items}
 for idx, (k, nm) in enumerate(items):
     col, row = idx // 4, idx % 4
@@ -202,9 +205,9 @@ for idx, (k, nm) in enumerate(items):
                   f'<text x="{x + 76}" y="{y}" font-size="40"><tspan font-weight="700" fill="#3B2E22">{html.escape(nm)}</tspan>'
                   f'<tspan fill="#5E5245"> – {html.escape(desc[k])}</tspan></text>')
 sy = ly + 4 * 78 + 50
-legend.append(f'<rect x="{lx}" y="{sy - 34}" width="44" height="44" rx="6" fill="{mix(BASE[8], 0.2)}"/>'
+legend.append(f'<rect x="{lx}" y="{sy - 34}" width="44" height="44" rx="6" fill="{mix(BASE0, 0.2)}"/>'
               f'<text x="{lx + 64}" y="{sy}" font-size="36" fill="#3B2E22">doloženo matrikou</text>'
-              f'<rect x="{lx + 520}" y="{sy - 34}" width="44" height="44" rx="6" fill="{mix(mix(BASE[8], 0.2), 0.45)}"/>'
+              f'<rect x="{lx + 520}" y="{sy - 34}" width="44" height="44" rx="6" fill="{mix(mix(BASE0, 0.2), 0.45)}"/>'
               f'<text x="{lx + 584}" y="{sy}" font-size="36" font-style="italic" fill="#3B2E22">pravděpodobné</text>'
               f'<rect x="{lx + 1000}" y="{sy - 34}" width="44" height="44" rx="6" fill="{EMPTY}"/>'
               f'<text x="{lx + 1064}" y="{sy}" font-size="36" fill="#3B2E22">zatím neznámé</text>'

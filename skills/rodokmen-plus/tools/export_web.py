@@ -21,8 +21,8 @@ VYREZY = os.path.join(ROOT, "vyrezy")      # výřezy zápisů a dokumentů (asi
 ZDROJE = os.path.join(ROOT, "zdroje")      # tytéž výřezy v plném rozlišení (proklik)
 
 ROOT_KEY = None   # výchozí kořen (KORENY["hlavni"], jinak první v KORENY): Kekulé čísla, rody a vějíř se počítají od něj
-LINE_COLORS = {8: "#EFB45F", 9: "#F09A78", 10: "#E58AA6", 11: "#B99AE0",
-               12: "#86B8E8", 13: "#6FCBB9", 14: "#9CD17A", 15: "#D3D46A"}
+PALETA_RODU = ["#EFB45F", "#F09A78", "#E58AA6", "#B99AE0", "#86B8E8", "#6FCBB9", "#9CD17A", "#D3D46A"]
+LINE_COLORS = {}   # Kekulé zakladatele rodu → barva; plní main() podle RODY (rody smí být v libovolné generaci)
 STATUS = {"doc": "doloženo matrikou", "prob": "pravděpodobné", "fam": "údaj od rodiny",
           "mh": "jen z cizího rodokmenu", "unk": "neznámé"}
 KINDS = {"N": "křest / narození", "O": "sňatek", "Z": "úmrtí", "I": "rejstřík", "S": "sčítání lidu",
@@ -275,9 +275,15 @@ def main():
     ref = lambda x: g.id_osoby(x) if isinstance(x, str) and not x.isdigit() else None
     doc_people = lambda d: [s for s in (ref(x) for x in d.get("osoby", [])) if s in slugs]
 
+    # rody leží všechny v jedné generaci (kontrola.py to hlídá) – obvykle pradědečci (8–15),
+    # ale při kořeni o generaci níž (dítě) třeba 16–31
+    line_gen = gen(min(LINES)) if LINES else 3
+    LINE_COLORS.clear()
+    LINE_COLORS.update({k: PALETA_RODU[i % len(PALETA_RODU)] for i, k in enumerate(sorted(LINES))})
+
     def line_of(k):
         g_ = gen(k)
-        return k >> (g_ - 3) if g_ >= 3 else None
+        return k >> (g_ - line_gen) if g_ >= line_gen else None
 
     def graph_rel(i):
         """Vztah osoby mimo předky výchozí osoby, popsaný přes graf („sestra: Jan Novák (praděděček)“)."""
