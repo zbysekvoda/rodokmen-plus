@@ -12,7 +12,6 @@ Použití:
 Popis svazků se ukládá do pracovni/.cache_aron/<apu_id>.json (ve složce projektu).
 """
 import glob, json, math, os, shutil, subprocess, sys, tempfile, time, urllib.request
-import concurrent.futures as cf
 import xml.etree.ElementTree as ET
 for _s in (sys.stdout, sys.stderr):   # UTF-8 výstup i na Windows bez -X utf8 (cp1250 neumí třeba „→“)
     if hasattr(_s, "reconfigure"):
@@ -104,8 +103,8 @@ def fetch_image(dzi_url, level_offset=1, out="page.jpg", crop=None):
                 f.write(get(url, binary=True))
             return job
 
-        with cf.ThreadPoolExecutor(8) as ex:
-            list(ex.map(dl, jobs))
+        for job in jobs:   # sekvenčně: v sandboxu vlákna padají a archiv nedostane souběžné spojení
+            dl(job)
         # a tile with c > 0 (r > 0) carries `ov` extra pixels on its left (top) edge;
         # crop every tile to its own ts x ts cell, then append rows and columns
         # po řádcích: jeden příkaz na celou stránku by na Windows přesáhl limit délky příkazové řádky (32 767 znaků)
