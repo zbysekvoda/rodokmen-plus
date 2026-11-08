@@ -231,6 +231,20 @@ A když osoba „chybí“ v očekávaných matrikách (stěhovala se se službo
   ukáže rody z tajné církve → pak hledej v tolerančních matrikách.
 - Pořadí: nejdřív matriky; noviny, když chybí stopa kvůli stěhování, nebo když jde o úředníka/vojáka a chceme příběh.
 
+## Ručně stažené knihy (složka s `obsah.txt`) – kterýkoli archiv
+Když archiv skripty nepouští (ALTCHA, blokace) nebo je rychlejší stáhnout celou knihu, stáhne ji uživatel tlačítkem
+na portálu do `pracovni/<původní název>/` spolu s **`obsah.txt`** (popis knihy, na konci odkaz s číslem knihy).
+Na stránku svazku v archivu kvůli tomu **nechoď** – vše je v `obsah.txt`.
+1. Klíč svazku vezmi z čísla v odkazu: eBadatelna `ebad_<matrikaId>`, ARON `<apu>`, Porta fontium `pf_<kniha>`.
+2. Složku přejmenuj na `pracovni/<klíč>_<název>_manual/` (název = část názvu svazku před první čárkou, bez
+   diakritiky, malými, mezery a `-` jako `_`, např. `ebad_12345_horni_lhota_3_manual`); klíč ve `svazky.json` je bez přípony.
+3. Snímky přejmenuj na `s<n>.jpg` podle pořadí (bez úvodních nul).
+4. Do složky napiš `obsah.md` (roky, co kniha obsahuje, rejstříky a jejich snímky); kotvy rok → snímek rovnou do
+   `orientace` svazku (`reference/data.md`).
+5. Svazek zapiš `zapis.py svazky …` s polem `"upload": "manual"`.
+6. Je-li svazek stažený i strojově, ponech verzi s vyšším rozlišením, druhou smaž a zapiš to do deníku.
+Složka bez `obsah.txt` → do `todo.md`, ať ho uživatel doplní.
+
 ## Ostatní portály – obecný postup
 Nástroje pro ně hotové nejsou. Postupuj takto a výsledek zapiš do `STAV.md`, ať to příště víš:
 1. Otevři portál v prohlížeči (Claude in Chrome / Playwright, pokud jsou k dispozici; jinak požádej uživatele).

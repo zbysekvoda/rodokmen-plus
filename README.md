@@ -36,7 +36,10 @@ Nápady z forků původního skillu, přepsané na graf osob (licence MIT):
   [srameko/rodokmen-skill@5f25edb](https://github.com/srameko/rodokmen-skill/blob/5f25edb9a201f8ac03b79293bbcb79b5109d022e/skills/rodokmen/tools/fronta.py) (srameko),
 - `tools/kmotri.py` – kmotři a svědci jako stopy ze
   [srameko/rodokmen-skill@5f25edb](https://github.com/srameko/rodokmen-skill/blob/5f25edb9a201f8ac03b79293bbcb79b5109d022e/skills/rodokmen/tools/kmotri.py),
-  původně z [micl79/rodokmen-skill@11cf9ba](https://github.com/micl79/rodokmen-skill/blob/11cf9bad06c454f8415625a23a7b9e49d13c75e3/skills/rodokmen/tools/kmotri.py) (micl79).
+  původně z [micl79/rodokmen-skill@11cf9ba](https://github.com/micl79/rodokmen-skill/blob/11cf9bad06c454f8415625a23a7b9e49d13c75e3/skills/rodokmen/tools/kmotri.py) (micl79),
+- pravidla hledání (víc předků jedním průchodem, okno ±5 let, sourozenci, kmotři jako stopy, ručně stažené knihy
+  s `obsah.txt`) v `SKILL.md` a `reference/portaly.md` ze
+  [vmi43/rodokmen-skill@b89d5c9](https://github.com/vmi43/rodokmen-skill/blob/b89d5c91d78e61b8e20b9f2eab8b20d2f8e02e06/skills/rodokmen/SKILL.md) (Vasek M.).
 
 ## Co je v repozitáři
 ```

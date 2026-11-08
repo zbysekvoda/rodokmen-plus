@@ -133,7 +133,8 @@ Podrobně `reference/matriky.md`, portály `reference/portaly.md`.
    Mladší → matriční úřad, zapiš do `data/archivni_dotazy.md`.
 3. **Najdi svazek**: obec → farnost → archiv. ARON `aron_search.py`, SOA Třeboň `trebon.py`, Porta fontium
    `portafontium.py`, SOA Praha `ebadatelna.py`, Praha `ahmp_search.sh`, MZA Brno `mza.py` (často za ALTCHA →
-   skill `matriky-v-prohlizeci`). Sňatek hledej nejdřív ve farnosti nevěsty. Starší matriky (před ~1784) bývají ve faře
+   skill `matriky-v-prohlizeci`). Knihu může stáhnout i uživatel ručně (složka s `obsah.txt`,
+   `reference/portaly.md`). Sňatek hledej nejdřív ve farnosti nevěsty. Starší matriky (před ~1784) bývají ve faře
    sousedního města.
 4. **Index dřív než listování.** Než začneš listovat, zjisti, jestli farnost nemá samostatný rejstřík (index N/O/Z)
    – bývá to jiná kniha než matrika. Před listováním **ověř druh a rozsah knihy** (N/O/Z, roky, obce oddílu) na prvních
@@ -141,6 +142,21 @@ Podrobně `reference/matriky.md`, portály `reference/portaly.md`.
    **Skoč rovnou na rok:** `python3 -I tools/mapa_knihy.py rok <klíč svazku> <rok>` vrátí rozsah snímků z pole
    `orientace` svazku. Kotvy zatím nejsou → mapa knihy `mapa_knihy.py <aron|pf|mza|ahmp> <kniha> <od> <do> [krok]`
    (záhlaví po každém n-tém snímku), ověřené kotvy rok → snímek zapiš do `orientace` (`reference/data.md`).
+   **Jak hledat ve svazku:**
+   - **Víc předků jedním průchodem.** Než svazek otevřeš, sesbírej všechny, koho v něm hledáš (farnost a druh
+     zápisu sedí, události do zhruba ±5 let – křty dvou prarodičů z téže vsi, sňatky sourozenců předků). Pomůže
+     `tools/fronta.py` (předci bez rodiče s obcí a rokem). Okno vezmi kolem všech odhadnutých dat a zapisuj každý
+     nález z okna, ať se ke knize nevracíš.
+   - **Okno ±5 let** kolem známého či odhadnutého roku (z věku při úmrtí širší, viz `reference/matriky.md`);
+     začátek okna najdi přes `mapa_knihy.py rok`. Nic? Okno rozšiř o dalších 5 let na stranu, kde je odhad
+     nejistější, a rozsah zapiš do deníku.
+   - **Sourozenci.** Najdeš-li sourozence, zapiš ho (osoba se společnými rodiči) a okno posuň: starší → dalších
+     5 let do minulosti od jeho křtu, mladší → do budoucnosti; opakuj, dokud v daném směru celých 5 let nic.
+     První nález platí do obou směrů. Chybí-li přímý zápis předka, rodiče a dům dají křty a sňatky sourozenců.
+     Rejstřík s další shodou (jméno, rodiče, dům) sleduj i za hranicí okna.
+   - **Kmotři a svědci jsou stopy.** Čti celý zápis včetně kmotrů, svědků, porodní báby a okrajů, ne jen
+     hledanou osobu. Opakuje-li se kmotr nebo příjmení rodu či vsi (stejní Novákové z Lhoty u několika křtů),
+     je to stopa k příbuzenství a místu; přehled dá `tools/kmotri.py`. Osobou je jen ztotožněný (Datový model).
 5. **Stáhni snímek** do `pracovni/<svazek>/` (nástroje archivů berou snímek ze sdílené mezipaměti `tools/cache.py`,
    když už byl jednou stažen – i v jiném projektu) a **přečti ho sám** v plném
    rozlišení. Vybledlé nebo skvrnité místo → `python3 -I tools/vylepsi_snimek.py pracovni/<stránka>.jpg [x0,y0,x1,y1]`
