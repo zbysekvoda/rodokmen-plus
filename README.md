@@ -87,6 +87,16 @@ Vydání (správce): `scripts/release.sh X.Y.Z` – kontrola, že v repu nejsou 
 (`scripts/kontrola_soukromi.py`, cesta v `RODOKMEN_SOUKROMA_DATA`), zvednutí verze, commit a tag `vX.Y.Z`;
 `scripts/release.sh X.Y.Z --push` ho pošle na GitHub.
 
+## Převzato z forků
+Nápady a kód z forků původního skillu (MIT):
+- brzda `tools/slusne.py` – Retry-After (sekundy i datum HTTP) a hlavičky RateLimit-*/X-RateLimit-*:
+  [jozefizso/rodokmen-skill@38850a5](https://github.com/jozefizso/rodokmen-skill/blob/38850a5aa4dbebe3faf1eb6ed5c5e8c9007c2d68/skills/rodokmen/tools/slusne.py) (Jozef Izso);
+  sdílený limit pro všechny síťové nástroje a dlaždice sekvenčně podle
+  [vmi43/rodokmen-skill@b89d5c9](https://github.com/vmi43/rodokmen-skill/blob/b89d5c91d78e61b8e20b9f2eab8b20d2f8e02e06/skills/rodokmen/tools/slusne.py) (Vasek M.)
+- `tools/smoke_test.py` – podle
+  [hnizdiljan/rodokmen-skill@d172316](https://github.com/hnizdiljan/rodokmen-skill/blob/d172316bc190d0f44894fa67115505729d587c6a/skills/rodokmen/tools/smoke_test.py) (hnizdiljan)
+  a [srameko/rodokmen-skill@5f25edb](https://github.com/srameko/rodokmen-skill/blob/5f25edb9a201f8ac03b79293bbcb79b5109d022e/skills/rodokmen/tools/smoke_test.py) (Ondrej Sramek)
+
 ## Zpětná vazba
 Chyby a nápady (bez údajů o rodině) zakládejte jako issue v tomto repozitáři. Týká-li se věc převzatých částí,
 zvažte poslat ji i autorům původních skillů.
