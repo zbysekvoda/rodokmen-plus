@@ -118,6 +118,11 @@ Cíl: znát co nejvíc o 3–4 generacích, než sáhneš do matrik.
 - Ptej se postupně: výchozí osoba, rodiče, prarodiče, pradědečci – **jména, rodná příjmení žen, roky a místa narození,
   sňatky, úmrtí a hroby, řemesla, domy (čísla popisná!)**. Čísla domů rovnou zapisuj do `bydliste`.
 - Dokumenty (rodné a oddací listy, domovské listy, parte, fotky náhrobků, kroniky, dopisy) do `dokumenty/`, přečti celé.
+- **Portrét osoby:** když při zpracování fotografií narazíš na samostatnou fotku jedné osoby, nabídni ji jako portrét
+  (na webu vedle jména místo iniciály, mezi dokumenty pak nebude). Kdo na ní je, převezmi z evidence nebo od rodiny,
+  nikdy podle obličeje. Před souhlasem nic nepřejmenovávej; po souhlasu oznam klíč s `portret`
+  (`jan_novak_1890_portret`), originál v `dokumenty/` nech a rozhodnutí (ano / ne / odloženo) zapiš do
+  `data/udaje_od_rodiny.md`. Odmítnutou nabídku neopakuj. Postup: `reference/data.md` → „Portréty osob“.
 - Doporuč zeptat se nejstarších příbuzných – teď, dokud to jde. Nabídni seznam otázek.
 - **Příbuzenství ber doslova**, jak ho rodina řekla. Při nejasnosti se zeptej.
 - Zapiš: `data/udaje_od_rodiny.md` (kdo co řekl), osoby do `osoby.py` se stavem `fam`.

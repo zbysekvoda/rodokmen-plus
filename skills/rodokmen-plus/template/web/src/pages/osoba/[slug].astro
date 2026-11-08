@@ -30,7 +30,14 @@ const fmt = (v) => Array.isArray(v) ? v.join(', ') : typeof v === 'object' ? JSO
     {path.map((s, i) => <>{i > 0 && <span>→</span>}{s === p.slug ? <span>{people[s].name}</span> : <a href={href.person(s)}>{people[s].name.split(' ')[0]} {people[s].years}</a>}</>)}
   </div>
   <div class="person-card" style={lineSlug ? `--c:var(--line-${lineSlug})` : undefined}>
-    <span class="initial" aria-hidden="true">{p.name.replace(/^\(/, '').charAt(0)}</span>
+    {p.portrait ? (
+      <figure class="portrait">
+        <a href={`/${p.portrait.full ? 'zdroje' : 'img'}/${encodeURIComponent(p.portrait.img)}.jpg`} target="_blank" rel="noopener" aria-label={`Otevřít portrét: ${p.name} (nová karta)`}>
+          <img src={`/img/${encodeURIComponent(p.portrait.img)}.jpg`} alt={`Portrét: ${p.name}`} decoding="async" />
+        </a>
+        {p.portrait.caption && <figcaption>{p.portrait.caption}</figcaption>}
+      </figure>
+    ) : <span class="initial" aria-hidden="true">{p.name.replace(/^\(/, '').charAt(0)}</span>}
     <div>
       <h1>{p.name}</h1>
       {p.years && <div class="big-years">{p.years}</div>}

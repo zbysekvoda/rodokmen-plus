@@ -235,6 +235,14 @@ def login_files(cfg):
     return bool(answer)
 
 
+def is_portrait(key):
+    """Portrét = podřetězec „portret“ v klíči obrázku (bez ohledu na diakritiku a velikost písmen).
+    Převzato z xkraust/rodokmen-skill@79d3685, skills/rodokmen/tools/export_web.py:
+    https://github.com/xkraust/rodokmen-skill/blob/79d36850afaa080b0ebcf70a368cbbb5237d700e/skills/rodokmen/tools/export_web.py"""
+    name = unicodedata.normalize("NFD", os.path.basename(key))
+    return "portret" in "".join(c for c in name if not unicodedata.combining(c)).casefold()
+
+
 def main():
     sys.path.insert(0, TOOLS)
     import graf
@@ -275,6 +283,23 @@ def main():
     # odkaz na osobu = id grafu (str); Kekulého čísla v datech neplatí (kontrola.py je hlásí jako chybu)
     ref = lambda x: g.id_osoby(x) if isinstance(x, str) and not x.isdigit() else None
     doc_people = lambda d: [s for s in (ref(x) for x in d.get("osoby", [])) if s in slugs]
+
+    # portréty (klíč s „portret“): jeden na osobu, vedle jména místo iniciály; mezi dokumenty se neukazují
+    portraits, plain_docs = {}, []
+    for d in docs_cfg:
+        if not is_portrait(d["img"]):
+            plain_docs.append(d)
+            continue
+        who = list(dict.fromkeys(doc_people(d)))
+        if len(who) != 1 or len(who) != len(d.get("osoby", [])):
+            print(f"POZOR: portrét {d['img']} musí mít v data/dokumenty.json právě jednu známou osobu – přeskočen.")
+        elif not os.path.isfile(os.path.join(VYREZY, d["img"] + ".jpg")):
+            print(f"POZOR: portrét {d['img']} – chybí vyrezy/{d['img']}.jpg, přeskočen.")
+        elif who[0] in portraits:
+            print(f"POZOR: více portrétů pro {who[0]}: ponechán {portraits[who[0]]['img']}, přeskočen {d['img']}.")
+        else:
+            portraits[who[0]] = dict(img=d["img"], caption=d.get("popis", ""),
+                                     full=os.path.isfile(os.path.join(ZDROJE, d["img"] + ".jpg")))
 
     # rody leží všechny v jedné generaci (kontrola.py to hlídá) – obvykle pradědečci (8–15),
     # ale při kořeni o generaci níž (dítě) třeba 16–31
@@ -366,7 +391,8 @@ def main():
             child=kslug.get(k // 2) if k and k > 1 else None, spouse=spouses[0] if spouses else None, spouses=spouses,
             siblings=byorder(j for j in g.sourozenci(i) if j in slugs),
             family=None, ownFamily=None, path=path, side=side,
-            docs=[dict(img=x["img"], caption=x["popis"]) for x in docs_cfg if i in doc_people(x)],
+            docs=[dict(img=x["img"], caption=x["popis"]) for x in plain_docs if i in doc_people(x)],
+            portrait=portraits.get(i),
             children=kids,
             also=[dict(k=a, rel=relation(a), line=line_of(a), child=kslug.get(a // 2)) for a in al],
             extra=extra_of(i, d),
@@ -753,7 +779,7 @@ def main():
                 families=families, records=records, lines=lines, milestones=jload("milniky.json", []),
                 villages=villages, issues=issues, stats=stats, hypotheses=hypotheses,
                 docs=[dict(img=d["img"], caption=d["popis"], people=doc_people(d), stories=doc_stories(d))
-                      for d in docs_cfg if os.path.exists(os.path.join(VYREZY, d["img"] + ".jpg"))])
+                      for d in plain_docs if os.path.exists(os.path.join(VYREZY, d["img"] + ".jpg"))])
 
     write(os.path.join(WEB, "src", "data", "site.json"), json.dumps(site, ensure_ascii=False, indent=1))
 
