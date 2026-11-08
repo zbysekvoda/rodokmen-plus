@@ -102,6 +102,7 @@ Prázdný `local/` nevadí.
 
 ## Vějíř jako plakát
 `python3 -I tools/fan_chart.py vystupy/` → SVG a HTML (a PNG, je-li nainstalovaný Google Chrome, na Windows i Microsoft Edge) k tisku.
+Opakovaný předek (sňatek příbuzných): sourozenci se stejnými rodiči sdílí ve vějíři jednu výseč rodičů (přerušovaný obrys), jinak se opakování kreslí jako šrafovaná značka „↺ viz č. N“ bez druhé kopie větve. Na webu vějíř přibližuje kolečko, touchpad i pinch (`lib/panzoom.js`), „Zpět na celý vějíř“ vrací celek.
 
 ## Aktualizace staršího projektu
 Znovu spusť `python3 -I SKILL_DIR/tools/novy_projekt.py <složka projektu>`. Data (`data/`, výřezy) zůstanou, `tools/` se přepíše
