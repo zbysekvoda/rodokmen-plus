@@ -64,7 +64,13 @@ Nápady z forků původního skillu, přepsané na graf osob (licence MIT):
   [hnizdiljan/rodokmen-skill@0291562](https://github.com/hnizdiljan/rodokmen-skill/commit/0291562c9ef208dde5af5532c69581c3b28c3744) (Jan Hnízdil),
 - sloučení sdílených předků ve vějíři (`tools/fan_chart.py`: sourozenci se společnými rodiči sdílí jednu dvojnásobnou
   výseč s přerušovaným obrysem, nesloučitelné opakování je šrafovaná značka „↺ viz č.“) ze
-  [vmi43/rodokmen-skill@5bd5904](https://github.com/vmi43/rodokmen-skill/blob/5bd59042d10714fe914bd6c48c54c7b065dd39ea/skills/rodokmen/tools/fan_chart.py) (Vaclav Miller).
+  [vmi43/rodokmen-skill@5bd5904](https://github.com/vmi43/rodokmen-skill/blob/5bd59042d10714fe914bd6c48c54c7b065dd39ea/skills/rodokmen/tools/fan_chart.py) (Vaclav Miller),
+- oběti a vězni 2. sv. války přes brzdu `slusne.py`: `tools/obeti.py` (holocaust.cz), `tools/arolsen.py` (Arolsen Archives)
+  a `tools/mauthausen.py` (Raum der Namen) ze [srameko/rodokmen-skill@5f25edb](https://github.com/srameko/rodokmen-skill/blob/5f25edb9a201f8ac03b79293bbcb79b5109d022e/skills/rodokmen/tools/obeti.py) (srameko),
+  varianty v [hnizdiljan/rodokmen-skill@d172316](https://github.com/hnizdiljan/rodokmen-skill/blob/d172316bc190d0f44894fa67115505729d587c6a/skills/rodokmen/tools/arolsen.py) (hnizdiljan);
+  `tools/vezni.py` (Památník Terezín) z [hnizdiljan/rodokmen-skill@d172316](https://github.com/hnizdiljan/rodokmen-skill/blob/d172316bc190d0f44894fa67115505729d587c6a/skills/rodokmen/tools/vezni.py) (hnizdiljan),
+- `tools/souhlas.py` – uložený souhlas s podmínkami portálů, bez něj nástroje nedotazují ze
+  [srameko/rodokmen-skill@5f25edb](https://github.com/srameko/rodokmen-skill/blob/5f25edb9a201f8ac03b79293bbcb79b5109d022e/skills/rodokmen/tools/souhlas.py) (srameko).
 
 ## Co je v repozitáři
 ```

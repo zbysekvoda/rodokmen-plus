@@ -353,6 +353,7 @@ Vždy **projektovou kopii**, nikdy `SKILL_DIR/tools/` (zapisovala by do skillu; 
 | `mza.py` | MZA Brno (Acta Publica) – detail knihy bývá za ALTCHA → `matriky-v-prohlizeci` |
 | `scitani_mza.py` | sčítací operáty MZA (Morava) přes Deepzoom dlaždice |
 | `ahmp_search.sh`, `ahmp_scan.py`, `policie_prihlasky.py` | Praha: matriky, policejní přihlášky |
+| `obeti.py`, `vezni.py`, `mauthausen.py`, `arolsen.py` | oběti a vězni 2. sv. války (holocaust.cz, Památník Terezín, Mauthausen, Arolsen); jen se souhlasem uživatele (`souhlas.py`, potvrzuje on sám) – `reference/portaly.md` |
 | `soal_zoomify.py`, `matricula_*.sh` | SOA Litoměřice, ZA Opava, Matricula |
 | `cuzk_archiv.py listy / rastry / export / mapa` | Archiv ČÚZK: stabilní a pozemkový katastr, indikační skici (Čechy) |
 | `ipr_praha.py`, `dnnt.py` | Praha: staré plány a letecké snímky; tisk 20. století (DNNT) |

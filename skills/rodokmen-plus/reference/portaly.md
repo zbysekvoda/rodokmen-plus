@@ -292,11 +292,33 @@ Pro muže narozené ~1865–1900. Starší: matriky, Musterlisten, Kriegsarchiv 
 - **Kmenové listy** (VHA Praha) online nejsou, jen placená rešerše (jméno + rok narození). **Ročníky 1887–1900
   a 1903–1910 jsou skartované** – smysl mají pro ročníky 1865–1886.
 
-## Oběti 2. světové války
-- **Arolsen Archives** (collections.arolsen-archives.org): dokumenty o vězních, nuceně nasazených a vysídlených. Vyhledávání
-  v prohlížeči, vstupní prohlášení musí odsouhlasit uživatel.
-- **Mauthausen – Raum der Namen** (raumdernamen.mauthausen-memorial.org): vězni zemřelí v Mauthausenu, s datem a místem
-  narození i úmrtí. Takové údaje jsou citlivé – na web jen se souhlasem rodiny (`soukromi.md`).
+## Oběti a vězni 2. světové války – `tools/obeti.py`, `arolsen.py`, `mauthausen.py`, `vezni.py`
+Kdy: předek (nebo sourozenec) zmizí z pramenů 1939–1945, rodina mluví o deportaci, koncentráku, gestapu, Terezíně či
+nuceném nasazení, nebo je v matrice/sčítání židovská či romská rodina. Pořadí: `obeti.py` (Židé z českých zemí, Lety) →
+`vezni.py` (čeští političtí i rasově pronásledovaní vězni) → `mauthausen.py` (zemřelí v Mauthausenu) → `arolsen.py`
+(kartotéky táborů, transporty, nucené práce, DP po válce – i přeživší).
+
+**Souhlas s podmínkami (`tools/souhlas.py`).** Databáze obsahují citlivé údaje; holocaust.cz a Arolsen žádají při vstupu
+potvrzení podmínek, u Mauthausenu a Památníku Terezín ukazuje nástroj vlastní upozornění. Nástroj bez zapsaného souhlasu
+**nic nestahuje** (skončí kódem 4 a řekne, co spustit). Souhlas potvrzuje **jen uživatel** sám v terminálu:
+`python3 -I tools/<nástroj>.py souhlas` (v Claude Code `!…`), přečte znění a napíše „ano“. Claude ho nikdy nepotvrzuje
+za uživatele, ani přes `SOUHLAS_STAV`. Platí 30 dní na počítači a jen pro dané znění (změní-li se, zeptá se znovu);
+`python3 -I tools/souhlas.py stav` vypíše platné souhlasy. Na pojistce se neptej opakovaně – když souhlas platí, nástroj jede.
+
+- `obeti.py hledat --prijmeni Nováková [--jmeno] [--bydliste] [--misto-narozeni] [--rok] [--stran N]`; `obeti.py detail <odkaz>`
+  – databáze obětí holocaust.cz (Terezínská iniciativa): narození, transporty, osud, dokumenty. Příjmení i v ženském tvaru.
+- `vezni.py hledat --prijmeni Novák [--jmeno] [--narozeni "15. 3. 1910"] [--misto] [--cislo] [--stran N]`; `vezni.py detail <odkaz>`
+  – Památník Terezín: Buchenwald, Dachau, Flossenbürg, Mauthausen, Ravensbrück, ghetto a Malá pevnost Terezín, Pankrác.
+  Zkus s diakritikou i bez.
+- `mauthausen.py hledat "Novak 1905" [--stran N]` – Raum der Namen: jen zemřelí v Mauthausenu a pobočkách, jména v místním tvaru.
+- `arolsen.py hledat "Novák Josef 1905" [--misto-narozeni] [--rodne] [--cislo] [--narodnost] [--vyznani] [--podrobne] [--max N]`;
+  `arolsen.py karta <id> pracovni/arolsen.jpg` – obrázek karty (přes sdílenou mezipaměť `cache.py`). Datum v databázi je m/d/r,
+  nástroj ho převádí. Údaje jen pro osobní, vědecké a genealogické účely (podmínky Arolsen); dokumenty před zveřejněním
+  podle jejich Terms of Use.
+
+Všechny jdou přes brzdu `slusne.py`; neprocházej databáze hromadně. Shoda jména není ztotožnění – ověř datum a místo
+narození v matrice a v rodině. Nalezené údaje jsou citlivé: do dat projektu ano, na web jen se souhlasem rodiny (`soukromi.md`).
+Kdyby portál začal vyžadovat přihlášení, captchu nebo vracel 403, nástroj to ohlásí – hledej ručně v prohlížeči, neobcházej to.
 
 ## Příjmení dnes a DNA
 - **Rozšíření příjmení dnes**: kdejsme.cz (počty nositelů po okresech). Rychle ukáže, jestli je příjmení vzácné a kde

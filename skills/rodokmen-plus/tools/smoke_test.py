@@ -5,7 +5,8 @@ Nápad a tvar výstupu převzaty z forků (MIT):
   https://github.com/hnizdiljan/rodokmen-skill/blob/d172316bc190d0f44894fa67115505729d587c6a/skills/rodokmen/tools/smoke_test.py
   https://github.com/srameko/rodokmen-skill/blob/5f25edb9a201f8ac03b79293bbcb79b5109d022e/skills/rodokmen/tools/smoke_test.py
 Tady je to tenký obal nad zdravi.py --rychle (bez stahování snímků), takže kontroly (pevné svazky, očekávaný výstup)
-jsou na jednom místě. Každý nástroj jde přes brzdu slusne.py – pouštěj ručně, ne ve smyčce ani z pomocníků.
+jsou na jednom místě. Databáze obětí a vězňů (holocaust, arolsen, mauthausen, terezin) se
+dotazují jen se souhlasem uživatele (souhlas.py), jinak smoke test ověří jen dostupnost serveru. Každý nástroj jde přes brzdu slusne.py – pouštěj ručně, ne ve smyčce ani z pomocníků.
 
 Použití:
   smoke_test.py                  všechny portály, jen dotazy (~1–2 min)
