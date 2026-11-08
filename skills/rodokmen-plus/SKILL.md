@@ -355,6 +355,7 @@ Vždy **projektovou kopii**, nikdy `SKILL_DIR/tools/` (zapisovala by do skillu; 
 | `ahmp_search.sh`, `ahmp_scan.py`, `policie_prihlasky.py` | Praha: matriky, policejní přihlášky |
 | `obeti.py`, `vezni.py`, `mauthausen.py`, `arolsen.py` | oběti a vězni 2. sv. války (holocaust.cz, Památník Terezín, Mauthausen, Arolsen); jen se souhlasem uživatele (`souhlas.py`, potvrzuje on sám) – `reference/portaly.md` |
 | `soal_zoomify.py`, `matricula_*.sh` | SOA Litoměřice, ZA Opava, Matricula |
+| `vademecum.py`, `litomerice.py` | židovské matriky 1784–1949 (Národní archiv, VadeMeCum – hledá se podle obce); SOA Litoměřice (portál ověřuje člověka → kód 5, pak prohlížeč + `soal_zoomify.py`) – `reference/portaly.md` |
 | `cuzk_archiv.py listy / rastry / export / mapa` | Archiv ČÚZK: stabilní a pozemkový katastr, indikační skici (Čechy) |
 | `ipr_praha.py`, `dnnt.py` | Praha: staré plány a letecké snímky; tisk 20. století (DNNT) |
 | `anno.py`, `anno_snap.py`, `kramerius.py` | noviny a knihy (ANNO, Kramerius – Hosák–Šrámek, vlastivědy) |
