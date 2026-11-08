@@ -292,6 +292,9 @@ tr.anc td { background: var(--accent-soft); }
 .osa-row .solid, .osa-row .whisk { fill: var(--c); }
 .osa-row .whisk.open { opacity: 0.6; }
 .osa-row:hover text, .osa-row:focus text { text-decoration: underline; }
+.osa-warn { fill: #b45309; color: #b45309; font-weight: 600; }
+.osa-row.warn .solid { stroke: #b45309; stroke-width: 1.5; }
+.osa-nesedi ul { padding-left: 1.2em; } .osa-nesedi li { margin: .3em 0; } .osa-nesedi li.mozna { opacity: .8; } .osa-nesedi li a.small { margin-left: .4em; }
 .osa.has-focus .osa-row { opacity: 0.35; }
 .osa.has-focus .osa-row.focus { opacity: 1; }
 .osa-row.focus .solid { stroke: var(--text); stroke-width: 1.5; }

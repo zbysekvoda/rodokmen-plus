@@ -125,6 +125,8 @@ Nápady a kód z forků původního skillu (MIT):
   [xsigik/rodokmen-skill@9d4df44](https://github.com/xsigik/rodokmen-skill/commit/9d4df4466fdc6741612675bb5aeb2fd694f39c22) (Jakub Valenta)
 - věk osoby u sňatku a úmrtí na stránce osoby a rodiny (`web/src/lib/data.js`: `ageAt`, `factWithAge`, verze 0.7.1):
   [xkraust/rodokmen-skill@79d3685](https://github.com/xkraust/rodokmen-skill/blob/79d36850afaa080b0ebcf70a368cbbb5237d700e/skills/rodokmen/template/web/src/lib/data.js) (xkraust)
+- upozornění na časovou návaznost v časové ose (`web/src/lib/navaznost.js`, ⚠ u pruhu a seznam „Co časově nesedí“) podle
+  [mplisek/rodokmen-skill@cc35533](https://github.com/mplisek/rodokmen-skill/blob/cc35533cda7753a31e87f915fef6555542df1798/skills/rodokmen/tools/chronologie.py) (Martin Plíšek, mplisek)
 
 ## Zpětná vazba
 Chyby a nápady (bez údajů o rodině) zakládejte jako issue v tomto repozitáři. Týká-li se věc převzatých částí,
