@@ -12,12 +12,9 @@ OUT = os.path.abspath(sys.argv[1]) if len(sys.argv) > 1 else os.path.join(ROOT, 
 WEB = "--web" in sys.argv
 KOREN = sys.argv[sys.argv.index("--koren") + 1] if "--koren" in sys.argv else None   # klíč z KORENY (nebo id osoby); výchozí = hlavní kořen
 HREFS = {int(k): v for k, v in json.load(open(sys.argv[sys.argv.index("--web") + 1])).items()} if WEB else {}
-CHROME = next((c for c in ("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-                           "C:/Program Files/Google/Chrome/Application/chrome.exe",
-                           "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe",
-                           "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
-                           "google-chrome", "chromium", "chromium-browser")
-               if os.path.exists(c) or __import__("shutil").which(c)), None)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from prostredi import najdi_chrome   # společné s kniha_pdf.py
+CHROME = najdi_chrome()
 
 ns = {}
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import graf; ns.update(graf.nacti_legacy(KOREN))

@@ -14,6 +14,8 @@ for _s in (sys.stdout, sys.stderr):   # UTF-8 výstup i na Windows bez -X utf8 (
         _s.reconfigure(encoding="utf-8", errors="replace")
 
 TOOLS = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, TOOLS)
+from prostredi import magick_bin   # společné s export_web_domy.py a kniha_pdf.py
 ROOT = os.path.dirname(TOOLS)
 DATA = os.path.join(ROOT, "data")
 WEB = os.path.join(ROOT, "web")
@@ -170,8 +172,6 @@ def placeholder(p):
     return p["n"].startswith(("otec neuveden", "matka neuvedena")) or p["n"] in ("", "?")
 
 
-def magick_bin():   # ImageMagick 7 (magick), jinak 6 (convert) – ten ale ne na Windows, tam je convert.exe jiný program
-    return shutil.which("magick") or (os.name != "nt" and shutil.which("convert")) or None
 
 
 def size(path):
