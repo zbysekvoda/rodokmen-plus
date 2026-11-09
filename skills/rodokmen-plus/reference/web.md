@@ -1,7 +1,7 @@
 # Rodinný web – stavba, nastavení, zveřejnění
 
 Web je statický (Astro + vyhledávání Pagefind), data bere z `data/` přes `tools/export_web.py`.
-Stránky: úvod (lákadlo, statistiky, zajímavosti, mapa, rody, vějíř), příběh, zajímavosti, rody, stránka rodu,
+Stránky: úvod (lákadlo, statistiky, zajímavosti, mapa, rody, vějíř), příběh, zajímavosti, osobnosti (pole `vyz`), statistiky, rody, stránka rodu,
 mapa (OpenStreetMap), vějíř přes celou obrazovku s hledáním, seznam předků, zápisy (s výřezem, rámečkem, přepisem
 a překladem), stránka osoby, rodiny, „Co hledáme“, výzkumný deník, hledání.
 
@@ -80,11 +80,32 @@ Styly `web/src/styles/global.css` (barvy v `:root`), rozložení `web/src/layout
 Barvy rodů jsou v `tools/export_web.py` (`LINE_COLORS`) a `tools/fan_chart.py` (`BASE`). Upravuj jen na přání uživatele
 a po úpravě zkontroluj web na mobilu i počítači.
 
+## Vlastní doplňky projektu (`web/src/local`, `p.extra`)
+Věci jen pro tento projekt **nepiš do souborů šablony ani do `tools/`** – aktualizace by je přepsala (zůstaly by jen v záloze).
+Patří do `web/src/local/`, který `novy_projekt.py` nikdy nepřepíše ani nesmaže (převzato z
+[xsigik/rodokmen-skill](https://github.com/xsigik/rodokmen-skill/commit/318a965d6a5df9a5078657747377f16ccc83f345)):
+- **Vlastní pole osoby:** v `data/osoby.py` `extra=dict(prezdivka="Pepan", vojna="1866–1872")`. Na webu je v `p.extra`
+  (beze změny, i seznamy a slovníky) a stránka osoby ho ukáže jako tabulku klíč–hodnota; klíče začínající `_` se v tabulce
+  neukážou – jsou pro lokální komponenty. Texty v `extra` hlídá `kontrola.py` (citlivá slova, žijící).
+- **Komponenta na stránce osoby:** `web/src/local/osoba/<cokoli>.astro` dostane prop `p` a vloží se pod fakta (abecedně).
+  ```astro
+  ---
+  const { p } = Astro.props;
+  ---
+  {p.extra?._o && <p>{p.extra._o}</p>}
+  ```
+- **Vlastní stránka:** `web/src/local/stranky/kronika.astro` → `/kronika/` (podsložky = cesta; layout
+  `import Base from '../../layouts/Base.astro'`). Stránky šablony mají přednost.
+- **Přesměrování:** `web/src/local/presmerovani.json`, např. `{"/stara-adresa/": "/osoba/jan-novak-1850/"}`
+  (statický web dostane přesměrovací stránku).
+Prázdný `local/` nevadí.
+
 ## Vějíř jako plakát
 `python3 -I tools/fan_chart.py vystupy/` → SVG a HTML (a PNG, je-li nainstalovaný Google Chrome, na Windows i Microsoft Edge) k tisku.
+Opakovaný předek (sňatek příbuzných): sourozenci se stejnými rodiči sdílí ve vějíři jednu výseč rodičů (přerušovaný obrys), jinak se opakování kreslí jako šrafovaná značka „↺ viz č. N“ bez druhé kopie větve. Na webu vějíř přibližuje kolečko, touchpad i pinch (`lib/panzoom.js`), „Zpět na celý vějíř“ vrací celek.
 
 ## Aktualizace staršího projektu
 Znovu spusť `python3 -I SKILL_DIR/tools/novy_projekt.py <složka projektu>`. Data (`data/`, výřezy) zůstanou, `tools/` se přepíše
 a soubory ve `web/`, které se liší od nové šablony, taky – staré verze uloží do `pracovni/zaloha_web_<datum>/` a vypíše jejich seznam.
-Upravoval-li jsi s uživatelem vzhled (styly, stránky), převezmi úpravy ze zálohy (porovnej soubory) a ověř web. Pak ve `web/`
+`web/src/local/` zůstane beze změny (doplní se jen chybějící ukázkové soubory). Upravoval-li jsi s uživatelem vzhled (styly, stránky), převezmi úpravy ze zálohy (porovnej soubory) a ověř web. Pak ve `web/`
 `npm install` a `npm run data`. Starou šablonu přihlášení `export_web.py` odmítne s výzvou k aktualizaci.

@@ -43,14 +43,56 @@ KONTROLY = [
     ("policie", "hledání přihlášek", ["policie_prihlasky.py", "Kolar", "Josef"], r"záznamů", None),
     ("cuzk", "listy stabilního katastru", ["cuzk_archiv.py", "listy", "49.5234,14.4301"], r"TAB082018300", None),
     ("cuzk", "export listu", ["cuzk_archiv.py", "export", "skici", "195567", "{out}", "0,0,1,1", "400"], r"400×", "cz.jpg"),
-    ("ruian", "adresa v RÚIAN", ["mista.py", "ruian", "Karlova 190/1"], r"k\. ú\. Staré Město", None),
-    ("osm", "hledání v OpenStreetMap", ["mista.py", "hledej", "Chyšky, Písek"], r"lat=49\.5", None),
+    ("ruian", "adresa v RÚIAN", ["mista_domy.py", "ruian", "Karlova 190/1"], r"k\. ú\. Staré Město", None),
+    ("osm", "hledání v OpenStreetMap", ["mista_domy.py", "hledej", "Chyšky, Písek"], r"lat=49\.5", None),
     ("ipr", "starý plán Prahy", ["ipr_praha.py", "serie", "50.0870,14.4207", "80", "300", "--jen", "herget_1791"],
      r"OK\s+herget_1791", "pracovni/ipr/herget_1791_r80.jpg"),
     ("kramerius", "fulltext", ["kramerius.py", 'text_ocr:"Chyšky"', "1"], r"^found [1-9]", None),
     ("dnnt", "hledání v tisku", ["dnnt.py", "hledej", 'text_ocr:"Chyšky"', "--max", "1"], r"nalezeno [1-9]", None),
     ("anno", "rakouské noviny", ["anno.py", "Chischka", "1880", "1890", "1"], r"ANNOP_", None),
+    # databáze obětí a vězňů 2. sv. války: obecné příjmení, kontroluje se jen tvar odkazu, ne osobní údaje
+    ("holocaust", "databáze obětí", ["obeti.py", "hledat", "--prijmeni", "Novák", "--stran", "1"], r"holocaust\.cz/databaze-obeti/", None),
+    ("arolsen", "hledání osob", ["arolsen.py", "hledat", "Novák", "--max", "1"], r"arolsen-archives\.org/en/document/\d+", None),
+    ("mauthausen", "Raum der Namen", ["mauthausen.py", "hledat", "Novak", "--stran", "1"], r"\| nar\. ", None),
+    # židovské matriky (Národní archiv, VadeMeCum) a SOA Litoměřice
+    ("vademecum", "hledání matrik obce", ["vademecum.py", "hledat", "Dambořice", "--stran", "1"],
+     r"^81034f69-dfc6-4de8-ac9c-de097a9bf81f \|", None),
+    ("vademecum", "info svazku", ["vademecum.py", "info", "81034f69-dfc6-4de8-ac9c-de097a9bf81f"], r"Snímků: 75", None),
+    ("vademecum", "snímek", ["vademecum.py", "snimek", "81034f69-dfc6-4de8-ac9c-de097a9bf81f", "2", "{out}", "nahled"],
+     r"permalink\?xid=81034f69", "vm.jpg"),
+    ("litomerice", "hledání knih obce", ["litomerice.py", "hledat", "Úštěk"], r"^\S+ \| \d+ \|", None),
+    # sčítání lidu a civilní matriky: Porta fontium (SOA Plzeň) a Slovakiana (SNA, 1 dotaz za 10 s – kontrola trvá ~40 s)
+    ("portafontium", "sčítání 1921 okresu", ["portafontium.py", "scitani", "soap-do/1921/okres-kdyne"],
+     r"^34136377 \| Kdyně", None),
+    ("portafontium", "dům ze sčítání", ["portafontium.py", "info", "34136377"], r"Číslo domu: 1$", None),
+    ("portafontium", "civilní matriky okresu", ["portafontium.py", "fara", "okresni-urad/domazlice"],
+     r"^domazlice-okresni-urad-01 \|", None),
+    ("portafontium", "snímek sčítání", ["portafontium.py", "snimek", "34136377", "1", "{out}", "nahled"],
+     r"iipimage/34136377/", "pfs.jpg"),
+    ("slovakiana", "hárky obce 1930", ["slovakiana.py", "hledat", "Lopej", "--rok", "1930", "--stran", "1"],
+     r"^1930 \| .* \| cair-\w+ \|", None),
+    ("slovakiana", "popis hárku", ["slovakiana.py", "harok", "cair-ko27a1l"], r"Box number: 1233", None),
+    ("slovakiana", "snímek hárku", ["slovakiana.py", "snimek", "cair-ko27a1l", "1", "{out}"],
+     r"scitacie-harky/cair-ko27a1l", "sk.jpg"),
+    ("terezin", "databáze vězňů", ["vezni.py", "hledat", "--prijmeni", "Novák", "--stran", "1"], r"pamatnik-terezin\.cz/vezen/", None),
 ]
+# Portály, které před vstupem ověřují člověka (výpočet v prohlížeči). Nástroj to neobchází a skončí tímto kódem;
+# kontrola pak hlásí OK s poznámkou – server žije, nástroj ověření poznal, hledání jde jen v prohlížeči.
+OVERENI_CLOVEKA = {"litomerice": 5}
+# Nástroje, které bez souhlasu uživatele (souhlas.py) nedotazují portál: bez souhlasu se kontroluje jen dostupnost serveru.
+SOUHLAS = {"holocaust": ("obeti", "https://www.holocaust.cz/databaze-obeti/"),
+           "arolsen": ("arolsen", "https://collections.arolsen-archives.org/"),
+           "mauthausen": ("mauthausen", "https://raumdernamen.mauthausen-memorial.org/"),
+           "terezin": ("vezni", "https://www.pamatnik-terezin.cz/databaze")}
+
+
+def ma_souhlas(modul):
+    import importlib, souhlas
+    try:
+        m = importlib.import_module(modul)
+    except (ImportError, SystemExit):
+        return False
+    return souhlas.ma_souhlas(m.SOUHLAS_KLIC, m.SOUHLAS_ZNENI)
 # Portály bez pevného svazku (cestu k obrázku dává jen prohlížeč): jen „server odpovídá“
 DOSTUPNOST = [
     ("soal", "obrázkový server SOA Litoměřice", "https://images.soalitomerice.cz/ximage/matriky/zoomify/"),
@@ -103,6 +145,11 @@ def main():
         for portal, popis, cmd, vzor, obr in KONTROLY:
             if (jen is not None and portal not in jen) or (rychle and obr):
                 continue
+            if portal in SOUHLAS and not ma_souhlas(SOUHLAS[portal][0]):
+                ok, kod = server_odpovida(SOUHLAS[portal][1])
+                print(f"{'OK   ' if ok else 'CHYBA'} {portal:13} {popis:28} (bez souhlasu jen dostupnost, {kod})")
+                selhalo += not ok
+                continue
             out = os.path.join("out", obr) if obr and "/" not in obr else obr
             cmd = [c.replace("{out}", out or "") for c in cmd]
             cmd = ["bash", "tools/" + cmd[1], *cmd[2:]] if cmd[0] == "bash" else [*PY, "tools/" + cmd[0], *cmd[1:]]
@@ -112,6 +159,9 @@ def main():
                                    errors="replace", timeout=180)
                 vystup = p.stdout + p.stderr
                 ok = p.returncode == 0 and re.search(vzor, p.stdout, re.M) is not None
+                if not ok and OVERENI_CLOVEKA.get(portal) == p.returncode:
+                    print(f"OK    {portal:13} {popis:28} (portál ověřuje člověka – jen prohlížeč)")
+                    continue
                 if ok and obr and not je_jpeg(os.path.join(tmp, out)):
                     ok, vystup = False, f"obrázek {obr} chybí nebo není JPEG\n" + vystup
             except subprocess.TimeoutExpired:

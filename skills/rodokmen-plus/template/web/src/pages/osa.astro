@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import { people, lines } from '../lib/data.js';
 import { layout, bar, SORTS, NOW } from '../lib/osa.js';
+import { navaznost } from '../lib/navaznost.js';
 const site = await import('../data/site.json');
 const milestones = site.default.milestones ?? [];
 const lineList = Object.values(lines);
@@ -11,6 +12,8 @@ const rows = Object.values(people).filter((p) => p.birth && (p.death || p.alive)
   return { id: p.slug, name: p.name, years: p.years, b: p.birth, d: p.death, alive: p.alive, gen: p.gen, place: p.place,
     line: l?.slug ?? 'ostatni', lineName: l ? `Rod ${l.name}` : 'Příbuzní mimo rody', lineOrder: l ? lineList.indexOf(l) : 99 };
 });
+const warns = navaznost();
+const warnOf = Object.groupBy ? Object.groupBy(warns, (w) => w.slug) : warns.reduce((a, w) => ((a[w.slug] ??= []).push(w), a), {});
 const missing = Object.keys(people).length - rows.length;
 const from = Math.floor(Math.min(...rows.map((r) => r.b.lo)) / 10) * 10 - 10;
 const L = layout(rows, { from });
@@ -44,18 +47,26 @@ const title = (r) => `${r.name} ${r.years || ''} – narození: ${evidence[r.b.q
       <g class="osa-axis">{decades.map((y) => <g data-y={y}><line x1={L.x(y)} x2={L.x(y)} y1="16" y2={L.height} /><text x={L.x(y)} y="28">{y}</text></g>)}</g>
       <g class="osa-heads">{L.heads.map((h) => <text x="6" y={h.y}>{h.label}</text>)}</g>
       {rows.map((r) => { const B = bar(r, L.x); return (
-        <a href={`/osoba/${r.id}/`} class="osa-row" data-id={r.id} data-line={r.line} data-gen={r.gen ?? ''} data-place={r.place ?? ''} data-name={r.name} data-line-name={r.lineName} data-line-order={r.lineOrder} data-alive={r.alive ? '1' : ''}
+        <a href={`/osoba/${r.id}/`} class={`osa-row${warnOf[r.id] ? ' warn' : ''}`} data-id={r.id} data-line={r.line} data-gen={r.gen ?? ''} data-place={r.place ?? ''} data-name={r.name} data-line-name={r.lineName} data-line-order={r.lineOrder} data-alive={r.alive ? '1' : ''}
           data-b={JSON.stringify(r.b)} data-d={JSON.stringify(r.d ?? null)} transform={`translate(0 ${L.pos[r.id]})`} style={`--c:var(--line-${r.line})`}>
-          <title>{title(r)}</title>
+          <title>{title(r)}{warnOf[r.id] ? `\n⚠ ${warnOf[r.id].map((w) => w.text).join('\n⚠ ')}` : ''}</title>
           {B.in && <rect class="whisk" mask="url(#m-in)" x={B.in[0]} y="12" width={B.in[1] - B.in[0]} height="9" />}
           <rect class="solid" x={B.solid[0]} y="12" width={B.solid[1] - B.solid[0]} height="9" rx="2" />
           {B.out && <rect class={`whisk${B.open ? ' open' : ''}`} mask="url(#m-out)" x={B.out[0]} y="12" width={B.out[1] - B.out[0]} height="9" />}
-          <text x={(B.in ?? B.solid)[0]} y="9">{r.name} <tspan class="yrs">{r.years}</tspan></text>
+          <text x={(B.in ?? B.solid)[0]} y="9">{warnOf[r.id] && <tspan class="osa-warn">⚠ </tspan>}{r.name} <tspan class="yrs">{r.years}</tspan></text>
         </a>); })}
     </svg>
   </div>
   <p class="small muted osa-legend"><span><i class="lg solid"></i>roky doložené</span><span><i class="lg whisk"></i>rok jen přibližně (odhad nebo dopočteno z dětí)</span><span><i class="lg open"></i>úmrtí neznámé</span>
+    {warns.length > 0 && <span><span class="osa-warn">⚠</span> časová návaznost nesedí (seznam níže)</span>}
     {missing > 0 && <span>{missing} osob na ose chybí, protože o jejich letech nevíme vůbec nic.</span>}</p>
+  {warns.length > 0 && (
+    <section class="osa-nesedi" id="nesedi">
+      <h2>Co časově nesedí</h2>
+      <p class="small muted">Data, která se navzájem vylučují – např. dítě narozené po smrti matky nebo sňatek před narozením. Obvykle jde o překlep, záměnu osob nebo špatně dopočtený rok; stojí za to zdroj znovu otevřít.</p>
+      <ul>{warns.map((w) => <li class={w.mozna ? 'mozna' : ''}><span class="osa-warn">⚠</span> <a href={`/osa/?o=${w.slug}`}>{w.text}</a> {w.osoby.map((s) => <a class="small" href={`/osoba/${s}/`}>{people[s].name} →</a>)}</li>)}</ul>
+    </section>
+  )}
 </Base>
 
 <script>

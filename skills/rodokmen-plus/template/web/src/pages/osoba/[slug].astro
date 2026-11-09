@@ -7,7 +7,7 @@ import MobileTree from '../../components/MobileTree.astro';
 import RecLinks from '../../components/RecLinks.astro';
 import Mentions from '../../components/Mentions.astro';
 import ViewSwitch from '../../components/ViewSwitch.astro';
-import { issues, people, families, lineByK, records, dateKey, href, statusClass, houses, houseTitle, span } from '../../lib/data.js';
+import { issues, people, families, lineByK, records, dateKey, href, statusClass, houses, houseTitle, span, birthOf, factWithAge } from '../../lib/data.js';
 
 export function getStaticPaths() {
   return Object.keys(people).map((slug) => ({ params: { slug } }));
@@ -19,13 +19,25 @@ const path = [...p.path].reverse().filter(Boolean);
 const lineSlug = p.lineSlug ?? null;
 const open = issues.filter((i) => i.people?.includes(p.slug) && !i.text.startsWith('Vyřešeno'));
 const onAxis = p.birth && (p.death || p.alive);
+// rozšiřující bod projektu (po vzoru xsigik/rodokmen-skill@318a965): komponenty web/src/local/osoba/*.astro dostanou `p`;
+// p.extra = volná pole osoby z data/osoby.py (extra=dict(…)); klíče s „_“ na začátku jsou jen pro lokální komponenty
+const doplnky = Object.entries(import.meta.glob('../../local/osoba/*.astro', { eager: true })).sort(([a], [b]) => a.localeCompare(b)).map(([, m]) => m.default);
+const extra = Object.entries(p.extra ?? {}).filter(([k, v]) => !k.startsWith('_') && v !== null && v !== '');
+const fmt = (v) => Array.isArray(v) ? v.join(', ') : typeof v === 'object' ? JSON.stringify(v) : String(v);
 ---
 <Base title={p.name} description={`${p.name} ${p.years} – ${p.rel}`}>
   <div class="crumbs">
     {path.map((s, i) => <>{i > 0 && <span>→</span>}{s === p.slug ? <span>{people[s].name}</span> : <a href={href.person(s)}>{people[s].name.split(' ')[0]} {people[s].years}</a>}</>)}
   </div>
   <div class="person-card" style={lineSlug ? `--c:var(--line-${lineSlug})` : undefined}>
-    <span class="initial" aria-hidden="true">{p.name.replace(/^\(/, '').charAt(0)}</span>
+    {p.portrait ? (
+      <figure class="portrait">
+        <a href={`/${p.portrait.full ? 'zdroje' : 'img'}/${encodeURIComponent(p.portrait.img)}.jpg`} target="_blank" rel="noopener" aria-label={`Otevřít portrét: ${p.name} (nová karta)`}>
+          <img src={`/img/${encodeURIComponent(p.portrait.img)}.jpg`} alt={`Portrét: ${p.name}`} decoding="async" />
+        </a>
+        {p.portrait.caption && <figcaption>{p.portrait.caption}</figcaption>}
+      </figure>
+    ) : <span class="initial" aria-hidden="true">{p.name.replace(/^\(/, '').charAt(0)}</span>}
     <div>
       <h1>{p.name}</h1>
       {p.years && <div class="big-years">{p.years}</div>}
@@ -50,8 +62,12 @@ const onAxis = p.birth && (p.death || p.alive);
       Podruhé jako {p.also.map((a) => a.rel).join(', ')}.</p>
   )}
   <h2 class="life-h">Život</h2>
-  {p.facts.length > 0 && <ul class="facts">{p.facts.map((f) => <li>{f}</li>)}</ul>}
+  {p.facts.length > 0 && <ul class="facts">{p.facts.map((f) => <li>{factWithAge(f, birthOf(p))}</li>)}</ul>}
   {p.note && <p class="note">{p.note}</p>}
+  {extra.length > 0 && (
+    <table class="extra">{extra.map(([k, v]) => <tr><th scope="row">{k}</th><td>{fmt(v)}</td></tr>)}</table>
+  )}
+  {doplnky.map((Doplnek) => <Doplnek p={p} />)}
 
   {p.homes.length > 0 && (
     <>

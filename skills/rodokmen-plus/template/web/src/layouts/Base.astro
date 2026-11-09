@@ -6,7 +6,7 @@ const { title, description = config.popis || siteName, wide = false, wider = fal
 const path = Astro.url.pathname;
 // nahoře jen hlavní cesty; příběhy, zajímavosti a mapa vedou přes rozcestník /pribehy/ a stránku Domy; Vějíř / Předci jsou přepínač pohledů u stromu, badatelské stránky v patičce
 const top = [
-  ['/pribehy/', 'Příběhy', ['/pribeh-rodu/', '/pribeh-domu/', '/pribeh/', '/zajimavosti/']],
+  ['/pribehy/', 'Příběhy', ['/pribeh-rodu/', '/pribeh-domu/', '/pribeh/', '/zajimavosti/', '/osobnosti/', '/statistiky/']],
   ['/rody/', 'Rody', ['/rod/', '/rodina/']], ['/domy/', 'Domy', ['/dum/', '/mapa/']], ['/strom/', 'Strom', ['/vejir/', '/predci/', '/pasy/', '/strom-cely/', '/osa-vazby/', '/vejir-cas/', '/reka/']],
   ['/osa/', 'Časová osa', []], ['/hledat/', 'Hledat', []],
 ];

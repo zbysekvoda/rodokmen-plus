@@ -33,6 +33,9 @@ P = {
 - `r` klíče zápisů ze `zaznamy.json`. `st` viz `matriky.md`: `doc` přečteno v matrice, `prob` pravděpodobné,
   `fam` od rodiny (i strom, který si rodina vede sama, např. GEDCOM z jejího MyHeritage), `mh` cizí strom z internetu, `unk`.
 - `LINES = {8: ("Novákové", "Kováři z Holic…"), …}` – všechna čísla v jedné generaci (obvykle 8–15); název rodu = příjmení v množném čísle.
+- `vyz` (volitelné) – krátký popis, proč osoba vyčnívá; web ji ukáže nahoře na stránce „Osobnosti“ (`/osobnosti/`).
+  Bez `vyz` ji tam zařadí `tools/osobnosti.py` podle slov ve faktech (farář, starosta, legionář…; sedlák a mistr ne).
+  V datech webu `p.vyz` a `p.osobnost` (`{kat, poradi, fakt}` nebo `null`). Kontroluje `tools/kontrola.py` (musí být text).
 - `SIDE` – sourozenci a další příbuzní: `dict(k=<číslo předka>, n="Josef Novák (1865–1920)", t="text", r=[klíče])`.
 - `ISSUES` – dvojice `("Otázka", "Vyřešeno: … / Hypotéza: … / Otevřené: …")` → stránka „Co hledáme“ (vyřešené se skryjí).
   Jde na web – nepiš sem citlivé věci (příčiny úmrtí, rodinné spory) bez souhlasu.
@@ -52,7 +55,14 @@ P = {
 
 ## `svazky.json`
 `{"1a0b2337": {"archiv": "SOA Zámrsk – Sbírka matrik…", "portal": "ARON", "svazek": "N Holice 1880–1900, sign. …",
-"popis": "obce", "url": "odkaz na svazek"}}` – u ARON zapisuje `aron_img.py <apu> svazek`.
+"popis": "obce", "url": "odkaz na svazek", "orientace": {…}}}` – u ARON zapisuje `aron_img.py <apu> svazek`.
+- `orientace` (nepovinné, jen pro tebe a pomocníky, web ho neukazuje): rozvržení knihy ověřené na snímku –
+  `{"popis": "N 1884–1891 po obcích; Cheznovice fol. 290–338; snímek ≈ fol + 3 (ověřeno fol. 290–338); rejstřík na konci",
+  "roky": {"1884": 3, "1885": 41}}`. `roky` jsou kotvy rok → první snímek roku; `mapa_knihy.py rok <klíč> <rok>` z nich
+  vrátí rozsah snímků. Posun snímek ↔ folio se v knize mění – každý zapiš s rozsahem, kde jsi ho ověřil. Starší
+  textová `orientace` (řetězec) platí dál, jen z ní nejde skočit na rok.
+  Jediné místo pravdy o rozvržení: svazek nejdřív zapiš nástrojem `… svazek` (ruční pole jako `orientace` nechá),
+  pak doplň `zapis.py svazky <klíč> pracovni/x.json --sloucit` (v `x.json` jen `{"orientace": …}`); deník odkazuje sem.
 
 ## `prepisy.json`
 `{"<klic>": {"orig": "[Datum] 14. února 1890\n[Dům] 112\n[Otec] …", "cs": "Český překlad celou větou…"}}`
@@ -75,6 +85,27 @@ nebo dotaz s větší obcí či okresem. U **víceznačných názvů** (Podolí,
 ## `dokumenty.json` – rodinné fotky a dokumenty na webu
 `[{"img": "foto_svatba_1919", "popis": "Svatba Jana a Josefy, Holice 1919.", "osoby": [8, 9]}]`
 Obrázek ulož přes `vyrez.py dokumenty/<sken>.jpg foto_svatba_1919` (vznikne `vyrezy/` i `zdroje/`).
+
+### Portréty osob
+Podle [xkraust/rodokmen-skill@79d3685](https://github.com/xkraust/rodokmen-skill/blob/79d36850afaa080b0ebcf70a368cbbb5237d700e/skills/rodokmen/reference/data.md).
+Samostatnou fotku jedné osoby nabídni jako portrét; skupinová fotka, koláž ani tvář v dokumentu hotový portrét nejsou
+(výřez domluv zvlášť). Identitu neodhaduj z obličeje – vezmi ji z evidence nebo se zeptej. Nabídka např.: „Na fotce
+`IMG_1234.jpg` je jedna osoba. Chcete ji použít jako portrét na stránce Jana Nováka? Mezi dokumenty pak nebude.“
+Možnosti: ano / nechat mezi dokumenty / odložit. Před souhlasem nic nepřejmenovávej ani nepřesouvej.
+
+Po souhlasu oznam klíč a vytvoř webové kopie (originál v `dokumenty/` zůstane pod svým názvem):
+```text
+python3 -I tools/vyrez.py dokumenty/IMG_1234.jpg jan_novak_1890_portret
+python3 -I tools/zapis.py dokumenty jan_novak_1890_portret pracovni/portret.json
+```
+`pracovni/portret.json`: `{"img": "jan_novak_1890_portret", "popis": "Jan Novák kolem roku 1920.", "osoby": ["jan-novak-1890"]}`.
+Do `data/udaje_od_rodiny.md` zapiš datum, původní soubor, osobu, rozhodnutí a klíč.
+
+Export (`export_web.py`) pozná portrét podle podřetězce `portret` v klíči `img` bez ohledu na diakritiku a velikost
+písmen. Portrét musí mít právě jednu známou osobu, jinak ho přeskočí s varováním; na osobu bere první existující
+v pořadí `dokumenty.json` a na další upozorní. Portréty se nezobrazují v galerii dokumentů ani u osoby mezi dokumenty.
+Při odmítnutí použij klíč bez `portret`. **Osoba už portrét má:** nabídni ponechání, nebo nahrazení – starému pak
+dej klíč bez `portret` (`vyrez.py` s novým klíčem a úprava položky přes `zapis.py`), vrátí se mezi dokumenty.
 
 ## `web.json` – nastavení webu
 Viz `web.md`.

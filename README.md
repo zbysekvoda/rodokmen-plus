@@ -30,6 +30,108 @@ Pokud vám stačí jen rodokmen, nebo jen dějiny jednoho domu, použijte klidn�
 - **Web v2** – strom po generacích i celý strom, rodové pásy, časová osa, odkazy mezi osobami se zpětnými zmínkami,
   příběhy, stránky domů, světlý i tmavý vzhled, přihlášení jen pro rodinu.
 
+### Převzato z forků
+Nápady z forků původního skillu, přepsané na graf osob (licence MIT):
+- `tools/ged_export.py` – export grafu do GEDCOM 5.5.1 a `tools/prosle_knihy.py` – přehled prošlých knih
+  (z deníku a záznamů místo ruční tabulky) ze
+  [vlastimilvasek/rodokmen-skill@e04b220](https://github.com/vlastimilvasek/rodokmen-skill/tree/e04b220e8188cac1353a9ba02cf675671098eb27/skills/rodokmen) (vlastimilvasek),
+- `tools/fronta.py` – fronta hledání (chybějící rodiče, neuzavřené rody) ze
+  [srameko/rodokmen-skill@5f25edb](https://github.com/srameko/rodokmen-skill/blob/5f25edb9a201f8ac03b79293bbcb79b5109d022e/skills/rodokmen/tools/fronta.py) (srameko),
+- `tools/kmotri.py` – kmotři a svědci jako stopy ze
+  [srameko/rodokmen-skill@5f25edb](https://github.com/srameko/rodokmen-skill/blob/5f25edb9a201f8ac03b79293bbcb79b5109d022e/skills/rodokmen/tools/kmotri.py),
+  původně z [micl79/rodokmen-skill@11cf9ba](https://github.com/micl79/rodokmen-skill/blob/11cf9bad06c454f8415625a23a7b9e49d13c75e3/skills/rodokmen/tools/kmotri.py) (micl79),
+- pravidla hledání (víc předků jedním průchodem, okno ±5 let, sourozenci, kmotři jako stopy, ručně stažené knihy
+  s `obsah.txt`) v `SKILL.md` a `reference/portaly.md` ze
+  [vmi43/rodokmen-skill@b89d5c9](https://github.com/vmi43/rodokmen-skill/blob/b89d5c91d78e61b8e20b9f2eab8b20d2f8e02e06/skills/rodokmen/SKILL.md) (Vasek M.),
+- `tools/nahledy.py` – mřížka náhledů pro rychlé procházení rozsahu snímků ze
+  [xsigik/rodokmen-skill@6a62def](https://github.com/xsigik/rodokmen-skill/blob/6a62def5e10ab169018282a124f033fe4280be71/skills/rodokmen/tools/nahledy.py) (Jakub Valenta, xsigik, #10),
+- `tools/sito.py` – síto pro knihy bez rejstříku (dávky náhledů s deníkem prošlých snímků), myšlenka „Síta Jev“ ze
+  [xsigik/rodokmen-skill@9aa2c18](https://github.com/xsigik/rodokmen-skill/blob/9aa2c189892885f579df3043a2da04ed245f23e6/skills/rodokmen/tools/sito.py) (xsigik, #21–#24; fork ve verzi
+  [c262de7](https://github.com/xsigik/rodokmen-skill/tree/c262de702464b9743d4782abe1b296aa77bd34d4)),
+- `tools/mista.py` – geokódování obcí a čísel popisných z faktů osob: Mapy.com s klíčem `MAPY_API_KEY` z prostředí (např. z Keychainu) ze
+  [vmi43/rodokmen-skill@99e238e](https://github.com/vmi43/rodokmen-skill/blob/99e238ed18636f9a9fca481071761fefd7dbec66/skills/rodokmen/tools/mista.py) (Vasek M.),
+  bez klíče Nominatim jen sídla a varování na vzdálenou obec ze
+  [hackra76/rodokmen-skill@59ba1e6](https://github.com/hackra76/rodokmen-skill/blob/59ba1e666208af7888f6dd4dd5dc54e7c2706807/skills/rodokmen/tools/mista.py) (hackra76, 0.8.1),
+  domy bez klíče z RÚIAN.
+- `tools/vademecum.py` – židovské matriky Národního archivu (Archivní VadeMeCum: hledání podle obce, info, snímky)
+  a `tools/litomerice.py` – matriky SOA Litoměřice (hledání knih podle obce; portál teď ověřuje člověka, nástroj to
+  neobchází) ze [hnizdiljan/rodokmen-skill@d172316](https://github.com/hnizdiljan/rodokmen-skill/tree/d172316bc190d0f44894fa67115505729d587c6a/skills/rodokmen/tools)
+  (hnizdiljan, 0.7.0), síť přes `slusne.py`, snímky přes `soal_zoomify.py` a sdílenou cache,
+- `tools/slovakiana.py` – sčítací hárky 1930 ze Slovakiany (index obce, popis hárku, snímek strany; Crawl-delay 10 v `slusne.py`) ze
+  [jozefizso/rodokmen-skill@0fd808f](https://github.com/jozefizso/rodokmen-skill/blob/0fd808fe3833abe2b6f9ee956e2f302963d169e5/skills/rodokmen/tools/slovakiana.py)
+  (Jozef Izso, jozefizso, 0.10.0; fork ve verzi [38850a5](https://github.com/jozefizso/rodokmen-skill/tree/38850a5aa4dbebe3faf1eb6ed5c5e8c9007c2d68)),
+  snímky přes sdílenou cache,
+- sčítání lidu 1857–1921 po domech (`portafontium.py scitani`, `domy`, id domu místo knihy) a okresní civilní matriky,
+  Standesamt a evangelické sbory (`portafontium.py fara <skupina>/<úřad>`) ze
+  [xsigik/rodokmen-skill@3ffb2e2](https://github.com/xsigik/rodokmen-skill/commit/3ffb2e2fe9f8d1c6b31fc986330875af150f292f)
+  (Jakub Valenta, xsigik, #13; fork ve verzi [c262de7](https://github.com/xsigik/rodokmen-skill/tree/c262de702464b9743d4782abe1b296aa77bd34d4)),
+  síť přes `slusne.py` bez vlastních pauz a opakování,
+- portréty osob na webu (klíč obrázku s `portret`, na stránce osoby místo iniciály, mimo galerii dokumentů)
+  a nabídka portrétu při zpracování fotografií v `SKILL.md` a `reference/data.md` ze
+  [xkraust/rodokmen-skill@79d3685](https://github.com/xkraust/rodokmen-skill/commit/79d36850afaa080b0ebcf70a368cbbb5237d700e) (xkraust),
+- vějíř na webu: plynulý posun a přibližování (kolečko, touchpad, pinch) přes sdílený `lib/panzoom.js`
+  s tlačítkem „Zpět na celý vějíř“ podle
+  [jozefizso/rodokmen-skill@72293c5](https://github.com/jozefizso/rodokmen-skill/commit/72293c54770db26e007f6fb477bd8148c2611d9b) (Jozef Izso)
+  a [hnizdiljan/rodokmen-skill@17d6c16](https://github.com/hnizdiljan/rodokmen-skill/commit/17d6c16e5acf2e78521edc72e88ed586c3d113af) (hnizdiljan),
+  obrys pod kurzorem s `vector-effect: non-scaling-stroke` z
+  [hnizdiljan/rodokmen-skill@0291562](https://github.com/hnizdiljan/rodokmen-skill/commit/0291562c9ef208dde5af5532c69581c3b28c3744) (hnizdiljan),
+- sloučení sdílených předků ve vějíři (`tools/fan_chart.py`: sourozenci se společnými rodiči sdílí jednu dvojnásobnou
+  výseč s přerušovaným obrysem, nesloučitelné opakování je šrafovaná značka „↺ viz č.“) ze
+  [vmi43/rodokmen-skill@5bd5904](https://github.com/vmi43/rodokmen-skill/blob/5bd59042d10714fe914bd6c48c54c7b065dd39ea/skills/rodokmen/tools/fan_chart.py) (Vaclav Miller),
+- oběti a vězni 2. sv. války přes brzdu `slusne.py`: `tools/obeti.py` (holocaust.cz), `tools/arolsen.py` (Arolsen Archives)
+  a `tools/mauthausen.py` (Raum der Namen) ze [srameko/rodokmen-skill@5f25edb](https://github.com/srameko/rodokmen-skill/blob/5f25edb9a201f8ac03b79293bbcb79b5109d022e/skills/rodokmen/tools/obeti.py) (srameko),
+  varianty v [hnizdiljan/rodokmen-skill@d172316](https://github.com/hnizdiljan/rodokmen-skill/blob/d172316bc190d0f44894fa67115505729d587c6a/skills/rodokmen/tools/arolsen.py) (hnizdiljan);
+  `tools/vezni.py` (Památník Terezín) z [hnizdiljan/rodokmen-skill@d172316](https://github.com/hnizdiljan/rodokmen-skill/blob/d172316bc190d0f44894fa67115505729d587c6a/skills/rodokmen/tools/vezni.py) (hnizdiljan),
+- `tools/souhlas.py` – uložený souhlas s podmínkami portálů, bez něj nástroje nedotazují ze
+  [srameko/rodokmen-skill@5f25edb](https://github.com/srameko/rodokmen-skill/blob/5f25edb9a201f8ac03b79293bbcb79b5109d022e/skills/rodokmen/tools/souhlas.py) (srameko),
+- návody k Těšínsku (ZA Opava, polská a slovenská strana, evangelíci a. v.) a k FamilySearch v Chromu uživatele
+  (slovenské a uherské matriky) v `reference/portaly.md` ze
+  [xsigik/rodokmen-skill@c262de7](https://github.com/xsigik/rodokmen-skill/blob/c262de702464b9743d4782abe1b296aa77bd34d4/skills/rodokmen/reference/portaly.md) (Jakub Valenta, xsigik),
+- návody k odsunu Němců 1945–1946 (transportní listiny, spisy ONV, Lastenausgleichsarchiv) a k Encyklopedii dějin
+  města Brna v `reference/portaly.md` ze
+  [srameko/rodokmen-skill@5f25edb](https://github.com/srameko/rodokmen-skill/blob/5f25edb9a201f8ac03b79293bbcb79b5109d022e/skills/rodokmen/reference/portaly.md) (Ondrej Sramek, srameko),
+- `tools/kramerius.py --server` (jiná knihovna s Kramerius v5, např. Digitální studovna MO) ze
+  [hnizdiljan/rodokmen-skill@d172316](https://github.com/hnizdiljan/rodokmen-skill/blob/d172316bc190d0f44894fa67115505729d587c6a/skills/rodokmen/tools/kramerius.py) (hnizdiljan),
+- návody k Vídni (Matricula, GenTeam, WStLA), ke Slovensku, Maďarsku a Banátu a k vojákům 1. sv. války
+  (seznamy ztrát podle obce, vojenské úmrtní matriky MO, Kriegsarchiv, pomníky) v `reference/portaly.md` ze
+  [hnizdiljan/rodokmen-skill@d172316](https://github.com/hnizdiljan/rodokmen-skill/blob/d172316bc190d0f44894fa67115505729d587c6a/skills/rodokmen/reference/portaly.md) (hnizdiljan),
+- návod k Franziscejskému katastru Dolních Rakous (Valticko, Vitorazsko; NÖ Landesarchiv) v `reference/portaly.md` ze
+  [vlastimilvasek/rodokmen-skill@e04b220](https://github.com/vlastimilvasek/rodokmen-skill/blob/e04b220e8188cac1353a9ba02cf675671098eb27/skills/rodokmen/reference/portaly.md) (vlastimilvasek),
+- návody k zemským deskám a k databázi mlýnů vodnimlyny.cz v `reference/portaly.md` ze
+  [jozefizso/rodokmen-skill@38850a5](https://github.com/jozefizso/rodokmen-skill/blob/38850a5aa4dbebe3faf1eb6ed5c5e8c9007c2d68/skills/rodokmen/reference/portaly.md) (Jozef Izso),
+- významné osobnosti `tools/osobnosti.py` (pole `vyz`, stránka `/osobnosti/`) a stránka Statistiky (`/statistiky/`,
+  výpočet přepsaný do `web/src/lib/statistiky.js`):
+  [hnizdiljan/rodokmen-skill@d172316](https://github.com/hnizdiljan/rodokmen-skill/tree/d172316bc190d0f44894fa67115505729d587c6a/skills/rodokmen) (hnizdiljan),
+  starší varianta [Brunobeee/rodokmen-skill@7ad48a8](https://github.com/Brunobeee/rodokmen-skill/blob/7ad48a869981282ab815520bfa295ee534290b3b/skills/rodokmen/tools/osobnosti.py) (Brunobeee),
+  původně PR #23 od oskar-stierand v sarsonj/rodokmen-skill,
+- brzda `tools/slusne.py` – Retry-After (sekundy i datum HTTP) a hlavičky RateLimit-*/X-RateLimit-*:
+  [jozefizso/rodokmen-skill@38850a5](https://github.com/jozefizso/rodokmen-skill/blob/38850a5aa4dbebe3faf1eb6ed5c5e8c9007c2d68/skills/rodokmen/tools/slusne.py) (Jozef Izso);
+  sdílený limit pro všechny síťové nástroje a dlaždice sekvenčně podle
+  [vmi43/rodokmen-skill@b89d5c9](https://github.com/vmi43/rodokmen-skill/blob/b89d5c91d78e61b8e20b9f2eab8b20d2f8e02e06/skills/rodokmen/tools/slusne.py) (Vasek M.),
+- nezávislý audit zápisu `tools/audit.py` (podklad pro auditora-subagenta Claude místo Codexu) a postup
+  „čtenář na levnějším modelu + auditor“ v `paralelni-badani` podle verze 0.11:
+  [jozefizso/rodokmen-skill@38850a5](https://github.com/jozefizso/rodokmen-skill/blob/38850a5aa4dbebe3faf1eb6ed5c5e8c9007c2d68/skills/rodokmen/tools/audit.py)
+  a [rodokmen-orchestrace](https://github.com/jozefizso/rodokmen-skill/blob/38850a5aa4dbebe3faf1eb6ed5c5e8c9007c2d68/skills/rodokmen-orchestrace/SKILL.md) (Jozef Izso),
+- `tools/smoke_test.py` – podle
+  [hnizdiljan/rodokmen-skill@d172316](https://github.com/hnizdiljan/rodokmen-skill/blob/d172316bc190d0f44894fa67115505729d587c6a/skills/rodokmen/tools/smoke_test.py) (hnizdiljan)
+  a [srameko/rodokmen-skill@5f25edb](https://github.com/srameko/rodokmen-skill/blob/5f25edb9a201f8ac03b79293bbcb79b5109d022e/skills/rodokmen/tools/smoke_test.py) (Ondrej Sramek),
+- vlastní pole osoby (`p.extra`) a doplňky webu ve `web/src/local`, které aktualizace nepřepíše:
+  [xsigik/rodokmen-skill@318a965](https://github.com/xsigik/rodokmen-skill/commit/318a965d6a5df9a5078657747377f16ccc83f345) (Jakub Valenta, xsigik),
+- sdílená mezipaměť snímků `tools/cache.py` a mapa knihy `tools/mapa_knihy.py`:
+  [sarsonj/rodokmen-skill@f0f8337](https://github.com/sarsonj/rodokmen-skill/tree/f0f833745d0456dd8644803e1c8708c3e9817f66) (Jindřich Šaršon, sarsonj);
+  kontrola integrity mezipaměti (verze 0.8.1):
+  [hackra76/rodokmen-skill@59ba1e6](https://github.com/hackra76/rodokmen-skill/commit/59ba1e666208af7888f6dd4dd5dc54e7c2706807) (hackra76),
+- orientace v knize u svazku (`svazky.json` → `orientace`, #6):
+  [xsigik/rodokmen-skill@bca63e4](https://github.com/xsigik/rodokmen-skill/commit/bca63e401b02bde5e4ea644930292f547189d63f) (Jakub Valenta, xsigik),
+- `tools/kontrola.py` – čísla domů ve faktech a bydlištích proti citovaným zápisům podle
+  [sarsonj/rodokmen-skill@f0f8337](https://github.com/sarsonj/rodokmen-skill/blob/f0f833745d0456dd8644803e1c8708c3e9817f66/skills/rodokmen/tools/kontrola.py#L154-L188)
+  (Jindřich Šaršon, pavelzbornik); automatické kontroly dat jako směr podle
+  [xsigik/rodokmen-skill@9d4df44](https://github.com/xsigik/rodokmen-skill/commit/9d4df4466fdc6741612675bb5aeb2fd694f39c22) (Jakub Valenta),
+- věk osoby u sňatku a úmrtí na stránce osoby a rodiny (`web/src/lib/data.js`: `ageAt`, `factWithAge`, verze 0.7.1):
+  [xkraust/rodokmen-skill@79d3685](https://github.com/xkraust/rodokmen-skill/blob/79d36850afaa080b0ebcf70a368cbbb5237d700e/skills/rodokmen/template/web/src/lib/data.js) (xkraust),
+- upozornění na časovou návaznost v časové ose (`web/src/lib/navaznost.js`, ⚠ u pruhu a seznam „Co časově nesedí“) podle
+  [mplisek/rodokmen-skill@cc35533](https://github.com/mplisek/rodokmen-skill/blob/cc35533cda7753a31e87f915fef6555542df1798/skills/rodokmen/tools/chronologie.py) (Martin Plíšek, mplisek).
+
 ## Co je v repozitáři
 ```
 .claude-plugin/                 instalace jako plugin
@@ -79,6 +181,7 @@ nechat založit předem, ať vidíte, jak web vypadá.
   webu na registr npm; na hosting jen když web sami zveřejníte.
 
 ## Verze a aktualizace
+Co se změnilo a známé problémy: [CHANGELOG.md](CHANGELOG.md).
 Verze je v `.claude-plugin/plugin.json` a `skills/rodokmen-plus/VERZE` (projekt si ji pamatuje v `.skill_verze` a skill
 při neshodě nabídne aktualizaci). Aktualizace pluginu: `claude plugin marketplace update rodokmen-plus` a
 `claude plugin update rodokmen-plus@rodokmen-plus`; pak v projektu `novy_projekt.py` na stejnou složku (data zůstanou).

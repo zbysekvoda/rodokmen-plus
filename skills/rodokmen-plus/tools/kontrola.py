@@ -78,6 +78,138 @@ def wiki_odkazy(err, warn, g, O, LINES, kek, keys, D, obec_domu, dum_id, cfg):
                 warn.append(f"{kde} – neznámý typ {typ!r} (osoba, dum, zdroj, rod, misto, pribeh); na webu zůstane jako text")
 
 
+# Věcné kontroly dat (věk při sňatku a porodu, dítě po smrti rodiče, čísla domů).
+# Meze jdou přepsat v data/kontrola.json, např. {"vek": {"porod_matka": [13, 52]}}.
+VEK = {"snatek": (14, 85), "porod_matka": (12, 55), "porod_otec": (14, 80)}
+TOLERANCE_OTEC_DNY = 300   # dítě může přijít až ~9–10 měsíců po smrti otce
+
+
+def udalost(p, znak):
+    """První přesné datum události z faktů („* 12. 3. 1873 …“, „† 1902“) → (datetime.date, jen_rok) nebo None.
+    Odhady a rozmezí („asi“, „před“, „po“, „1831–1843“, „1831?“) se přeskakují – z nich chybu dovodit nejde."""
+    for f in p.get("f", []):
+        if not isinstance(f, str):
+            continue
+        m = re.match(rf"^\s*{re.escape(znak)}\s*(?:(\d{{1,2}})\.\s*(\d{{1,2}})\.\s*(\d{{4}})|(\d{{4}}))(?![\d?])", f)
+        if not m or re.match(r"\s*(?:[-–—/?]|až\b|nebo\b|\(\?\))", f[m.end():]):
+            continue
+        try:
+            if m.group(4):
+                return datetime.date(int(m.group(4)), 7, 1), True
+            return datetime.date(int(m.group(3)), int(m.group(2)), int(m.group(1))), False
+        except ValueError:
+            continue
+    return None
+
+
+def dat(d):
+    return f"{d.day}. {d.month}. {d.year}"
+
+
+def vek(nar, kdy):
+    """Věk v letech mezi dvěma událostmi; u data jen s rokem rozdíl roků. → (věk, přesně)"""
+    (d1, r1), (d2, r2) = nar, kdy
+    if r1 or r2:
+        return d2.year - d1.year, False
+    return d2.year - d1.year - ((d2.month, d2.day) < (d1.month, d1.day)), True
+
+
+def vecne_kontroly(err, warn, g, O, zaz, prep):
+    meze = dict(VEK)
+    for k, v in (jload("kontrola.json", {}).get("vek") or {}).items():
+        if k in meze and isinstance(v, (list, tuple)) and len(v) == 2:
+            meze[k] = tuple(v)
+    vlastni = lambda i: not (O[i].get("druh") == "bocni" or O[i].get("tataz"))
+    nar = {i: udalost(p, "*") for i, p in O.items() if vlastni(i)}
+    smrt = {i: udalost(p, "†") for i, p in O.items() if vlastni(i)}
+    jmeno = lambda i: f"{i} ({O[i].get('n')})"
+
+    def mimo(i, typ, kdy, co):
+        if not nar.get(i) or not kdy:
+            return
+        v, presne = vek(nar[i], kdy)
+        lo, hi = meze[typ]
+        # u dat jen s rokem může být věk o rok menší/větší – hlásit až jasné překročení
+        if v < 0:
+            err.append(f"osoba {jmeno(i)}: {co} je {-v} let před narozením této osoby – ověř data, nebo jde o jinou osobu")
+        elif v < lo - (0 if presne else 1) or v > hi + (0 if presne else 1):
+            warn.append(f"osoba {jmeno(i)}: {co} ve věku {v} let (mez {lo}–{hi}, data/kontrola.json „vek.{typ}“) – "
+                        "ověř data, nebo jde o jinou osobu")
+
+    for i, p in O.items():
+        if not vlastni(i):
+            continue
+        sn = udalost({"f": [f for f in p.get("f", []) if isinstance(f, str) and f.startswith("×")]}, "×")
+        mimo(i, "snatek", sn, "sňatek")
+        if sn and smrt.get(i) and not sn[1] and not smrt[i][1] and sn[0] > smrt[i][0]:
+            err.append(f"osoba {jmeno(i)}: sňatek {dat(sn[0])} po vlastní smrti {dat(smrt[i][0])}")
+
+    for d, p in O.items():
+        if not vlastni(d) or not nar.get(d):
+            continue
+        dn, dn_rok = nar[d]
+        otec, matka = g.rodice(d)
+        for r, typ in ((matka, "porod_matka"), (otec, "porod_otec")):
+            if r is None or r not in nar:
+                continue
+            mimo(r, typ, nar[d], f"{'porod' if typ == 'porod_matka' else 'narození dítěte'} {jmeno(d)}")
+            if not smrt.get(r):
+                continue
+            sd, sd_rok = smrt[r]
+            tol = TOLERANCE_OTEC_DNY if r == otec else 0
+            if dn_rok or sd_rok:   # jen roky: chyba až rok (u otce dva roky) po smrti
+                if dn.year > sd.year + (1 if r == otec else 0):
+                    warn.append(f"osoba {jmeno(d)}: narození {dn.year}, ale {'otec' if r == otec else 'matka'} "
+                                f"{jmeno(r)} zemřel{'a' if r == matka else ''} {sd.year} – ověř roky, nebo jde o jiného rodiče")
+            elif (dn - sd).days > tol:
+                err.append(f"osoba {jmeno(d)}: narození {dat(dn)} je {(dn - sd).days} dní po smrti "
+                           f"{'otce' if r == otec else 'matky'} {jmeno(r)} († {dat(sd)})"
+                           + (f" – víc než tolerance {tol} dní" if tol else ""))
+
+    # Čísla domů: čp. ve faktech doložené osoby má být v některém citovaném zápisu, čp. v 'bydliste' v zápisech,
+    # které uvádí jako zdroj. Převzato a zjednodušeno z upstreamu (MIT, Jindřich Šaršon; čísla domů pavelzbornik, PR #86):
+    # https://github.com/sarsonj/rodokmen-skill/blob/f0f833745d0456dd8644803e1c8708c3e9817f66/skills/rodokmen/tools/kontrola.py#L154-L188
+    ne_datum = (r"(?!\d|\.\s*(?:\d|(?:ledna|února|března|dubna|května|června|července|srpna|září|října|listopadu|"
+                r"prosince|[7-9x]bris|10bris)(?![^\W\d_])))")
+    s_predponou = re.compile(r"(?<![^\W\d_])(?:čp|čís|č|nro|nr|no|n°|haus|dům|domu|domě)\.?\s*(\d+)" + ne_datum, re.I)
+    pole_domu = re.compile(r"\[[^\]\n]*(?:dům|domu|haus)[^\]\n]*\]([^\n|\[]*)", re.I)
+    ne_dum = re.compile(r"(?<![^\W\d_])(?:zápis\w*|záznam\w*|stran\w*|str|list\w*|fol|folio|sním\w*|sn|pag)\.?\s*$", re.I)
+
+    def cisla_domu(t):
+        t = str(t or "")
+        c = {m.group(1) for m in s_predponou.finditer(t) if not ne_dum.search(t[max(0, m.start() - 12):m.start()])}
+        return c | {x for v in pole_domu.findall(t) for x in re.findall(r"(?<!\d)(\d+)" + ne_datum, v)}
+    zazk = {z.get("klic"): z for z in zaz}
+
+    def cisla_zapisu(r):
+        z, pr = zazk.get(r, {}), prep.get(r, {}) if isinstance(prep.get(r), dict) else {}
+        return (cisla_domu(z.get("shrnuti")) | cisla_domu(z.get("nazev")) | cisla_domu(pr.get("orig")) | cisla_domu(pr.get("cs"))
+                | {str(d.get("cp")) for d in z.get("domy", []) if isinstance(d, dict)})
+    zapisy = {}
+    for i, p in O.items():   # tatáž osoba zapsaná dvakrát: zápisy obou výskytů
+        zapisy.setdefault(p.get("tataz") or i, set()).update(p.get("r", []))
+    for i, p in O.items():
+        if p.get("druh") == "bocni":
+            continue
+        rs = [r for r in zapisy.get(p.get("tataz") or i, set()) if r in zazk]
+        if p.get("st") == "doc" and any(not zazk[r].get("ukazka") for r in rs):   # jen vymyšlené zápisy ukázky = bez přepisu
+            dolozena = set().union(*(cisla_zapisu(r) for r in rs))
+            fakta = " ".join(f for f in p.get("f", []) if isinstance(f, str)
+                             and not re.search(r"\([^)]*\b(?:strom|vyprávění|rodin)", f, re.I))
+            for c in sorted(set(re.findall(r"čp\.\s*(\d+)", fakta)) - dolozena, key=int):
+                warn.append(f"osoba {jmeno(i)}: čp. {c} není v žádném citovaném zápisu – ověř, "
+                            "nebo označ zdroj (strom, vyprávění)")
+        for b in p.get("bydliste", []) if isinstance(p.get("bydliste"), list) else []:
+            cp = str(b.get("cp") or "").strip()
+            for r in b.get("zdroj") or []:
+                if r == "rodina" or r not in zazk:
+                    continue
+                cisla = cisla_zapisu(r)
+                if cisla and cp.isdigit() and cp not in cisla:
+                    warn.append(f"osoba {jmeno(i)}, bydliště {b.get('obec')} čp. {cp}: zápis {r} uvádí "
+                                f"čp. {', '.join(sorted(cisla, key=int))} – překlep, přečíslování, nebo jiný dům?")
+
+
 def main():
     err, warn = [], []
     try:
@@ -103,6 +235,8 @@ def main():
 
     for k, p in O.items():
         st = p.get("st", "unk")
+        if "vyz" in p and not isinstance(p["vyz"], str):
+            err.append(f"osoba {k}: 'vyz' (popis významnosti pro stránku Osobnosti) musí být text")
         bydliste = p.get("bydliste", [])
         if not isinstance(bydliste, list):
             err.append(f"osoba {k}: 'bydliste' musí být seznam")
@@ -261,9 +395,9 @@ def main():
     blizci = {i for k, i in kek.items() if k < 8} | set(g.koreny.values())
     for k, p in O.items():
         if p.get("druh") == "bocni":
-            texty.append((f"boční příbuzný {p.get('n')}", p.get("n", "") + " " + p.get("t", "")))
+            texty.append((f"boční příbuzný {p.get('n')}", p.get("n", "") + " " + p.get("t", "") + " " + str(p.get("vyz") or "")))
             continue
-        text = " ".join(p.get("f", [])) + " " + p.get("note", "")
+        text = " ".join(p.get("f", [])) + " " + p.get("note", "") + " " + str(p.get("vyz") or "") + " " + json.dumps(p.get("extra") or {}, ensure_ascii=False)   # i vlastní pole extra
         roky = [int(y) for y in re.findall(r"\b1[5-9]\d\d|20\d\d\b", p.get("y", "") + " " + text)]
         texty.append((f"osoba {k}", text + (f" {hranice}" if roky and min(roky) >= 1870 or k in blizci else "")))
     for f in ("zajimavosti.md", "pribeh.md", "pribeh_domy.md", *(x.get("soubor", "") for x in cfg.get("pribehy", []))):
@@ -279,6 +413,7 @@ def main():
                         f"přidej úryvek textu s tím slovem do web.json „citlive_schvaleno“")
 
     wiki_odkazy(err, warn, g, O, LINES, kek, keys, D, obec_domu, dum_id, cfg)
+    vecne_kontroly(err, warn, g, O, zaz, prep)
 
     if not os.path.exists(os.path.join(DATA, "pribeh.md")) and LINES:
         hlavni = min(LINES)

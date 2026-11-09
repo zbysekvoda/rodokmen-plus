@@ -1,0 +1,15 @@
+---
+// Projektové stránky z web/src/local/stranky/**/*.astro → /<cesta>/ (po vzoru xsigik/rodokmen-skill@318a965).
+// Soubor stranky/kronika.astro → /kronika/, stranky/a/b.astro → /a/b/, stranky/x/index.astro → /x/.
+// Šablonové stránky v src/pages mají přednost; bez souborů v local se nevygeneruje nic.
+const pages = import.meta.glob('../local/stranky/**/*.astro', { eager: true });
+export function getStaticPaths() {
+  const pages = import.meta.glob('../local/stranky/**/*.astro', { eager: true });
+  return Object.keys(pages).map((f) => {
+    const path = f.replace('../local/stranky/', '').replace(/\.astro$/, '').replace(/(^|\/)index$/, '');
+    return { params: { local: path || undefined }, props: { file: f } };
+  });
+}
+const Page = pages[Astro.props.file].default;
+---
+<Page />

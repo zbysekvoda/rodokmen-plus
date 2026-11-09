@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Snímek matriky ve formátu Zoomify (SOA Litoměřice, ZA Opava) v plném rozlišení – bez prohlížeče a bez cookies.
+"""Snímek matriky ve formátu Zoomify (SOA Litoměřice, ZA Opava, VadeMeCum NA) v plném rozlišení – bez prohlížeče a bez cookies.
 
 Použití (z kořene projektu):
   soal_zoomify.py <cesta nebo adresa> <zmenseni> <vystup.jpg>
@@ -15,15 +15,15 @@ přístup na 30 minut. Prohlížečem jen najdi knihu a cestu k obrázkům, sní
 neomezuje).
 """
 import glob, math, os, re, shutil, subprocess, sys, tempfile, time, urllib.parse, urllib.request
-import concurrent.futures as cf
 for _s in (sys.stdout, sys.stderr):   # UTF-8 výstup i na Windows bez -X utf8 (cp1250 neumí třeba „→“)
     if hasattr(_s, "reconfigure"):
         _s.reconfigure(encoding="utf-8", errors="replace")
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))   # -I nepřidá složku skriptu sama
 import slusne; slusne.instaluj()   # společný limit rychlosti k webům archivů (slusne.py)
+import cache   # sdílená mezipaměť snímků (cache.py) – stejný snímek se stáhne jen jednou
 
 BASE = "https://images.soalitomerice.cz/ximage/matriky/zoomify/cz/archives/CZ-214000010/matriky/"
-HOSTS = ("images.soalitomerice.cz", "images.archives.cz")   # jen obrázkové servery archivů (snímky zpracovává ImageMagick)
+HOSTS = ("images.soalitomerice.cz", "images.archives.cz", "vademecum.nacr.cz")   # jen obrázkové servery archivů (snímky zpracovává ImageMagick)
 
 
 def magick():
@@ -77,9 +77,9 @@ def main():
             g = (start + y * nx + xx) // 256
             f = os.path.join(d, f"{y:03d}_{xx:03d}.jpg")
             with open(f, "wb") as fh:
-                fh.write(get(f"{base}/TileGroup{g}/{L}-{xx}-{y}.jpg"))
-        with cf.ThreadPoolExecutor(4) as ex:   # 4 souběžně: několikrát rychlejší, server archivu nezatěžuje víc než 4 prohlížeče
-            list(ex.map(tile, [(y, xx) for y in range(ny) for xx in range(nx)]))
+                fh.write(cache.ziskej(f"{base}/TileGroup{g}/{L}-{xx}-{y}.jpg", get))
+        for yx in [(y, xx) for y in range(ny) for xx in range(nx)]:   # sekvenčně: v sandboxu vlákna padají, archiv nedostane souběh
+            tile(yx)
         # řádky dlaždic +append, pak řádky pod sebe -append (montage na ImageMagicku 7.1.2 padá bez písma);
         # krátká jména (cwd=d) a po řádcích: celá stránka v jednom příkazu by na Windows přesáhla limit příkazové řádky
         rows = []

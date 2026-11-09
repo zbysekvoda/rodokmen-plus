@@ -48,6 +48,8 @@ Uživatel může začít kterýmkoli režimem a přepínat mezi nimi („teď se
    **Verze:** porovnej `.skill_verze` v projektu se `SKILL_DIR/VERZE`. Liší-li se, nabídni aktualizaci
    `python3 -I SKILL_DIR/tools/novy_projekt.py <složka projektu>` (data zůstanou, změněné soubory webu se zazálohují
    do `pracovni/`), pak ve `web/` `npm install`. Převezmi ze zálohy úpravy vzhledu (`reference/web.md`).
+   Vlastní úpravy webu patří do `web/src/local/` a vlastní pole osob do `extra=dict(…)` – aktualizace je nepřepíše
+   (`reference/web.md`, „Vlastní doplňky projektu“).
 2. Projekt ještě není → **Fáze 0**.
 3. Projekt je ve starém formátu skillu `rodokmen` (`P`, `LINES`, `SIDE`, `SAME` v `osoby.py`) → nabídni převod na graf:
    `python3 -I tools/migrace_graf.py` (zálohu udělá git; po převodu `python3 -I tools/graf.py kontrola`).
@@ -116,6 +118,11 @@ Cíl: znát co nejvíc o 3–4 generacích, než sáhneš do matrik.
 - Ptej se postupně: výchozí osoba, rodiče, prarodiče, pradědečci – **jména, rodná příjmení žen, roky a místa narození,
   sňatky, úmrtí a hroby, řemesla, domy (čísla popisná!)**. Čísla domů rovnou zapisuj do `bydliste`.
 - Dokumenty (rodné a oddací listy, domovské listy, parte, fotky náhrobků, kroniky, dopisy) do `dokumenty/`, přečti celé.
+- **Portrét osoby:** když při zpracování fotografií narazíš na samostatnou fotku jedné osoby, nabídni ji jako portrét
+  (na webu vedle jména místo iniciály, mezi dokumenty pak nebude). Kdo na ní je, převezmi z evidence nebo od rodiny,
+  nikdy podle obličeje. Před souhlasem nic nepřejmenovávej; po souhlasu oznam klíč s `portret`
+  (`jan_novak_1890_portret`), originál v `dokumenty/` nech a rozhodnutí (ano / ne / odloženo) zapiš do
+  `data/udaje_od_rodiny.md`. Odmítnutou nabídku neopakuj. Postup: `reference/data.md` → „Portréty osob“.
 - Doporuč zeptat se nejstarších příbuzných – teď, dokud to jde. Nabídni seznam otázek.
 - **Příbuzenství ber doslova**, jak ho rodina řekla. Při nejasnosti se zeptej.
 - Zapiš: `data/udaje_od_rodiny.md` (kdo co řekl), osoby do `osoby.py` se stavem `fam`.
@@ -131,12 +138,39 @@ Podrobně `reference/matriky.md`, portály `reference/portaly.md`.
    Mladší → matriční úřad, zapiš do `data/archivni_dotazy.md`.
 3. **Najdi svazek**: obec → farnost → archiv. ARON `aron_search.py`, SOA Třeboň `trebon.py`, Porta fontium
    `portafontium.py`, SOA Praha `ebadatelna.py`, Praha `ahmp_search.sh`, MZA Brno `mza.py` (často za ALTCHA →
-   skill `matriky-v-prohlizeci`). Sňatek hledej nejdřív ve farnosti nevěsty. Starší matriky (před ~1784) bývají ve faře
+   skill `matriky-v-prohlizeci`). Knihu může stáhnout i uživatel ručně (složka s `obsah.txt`,
+   `reference/portaly.md`). Sňatek hledej nejdřív ve farnosti nevěsty. Starší matriky (před ~1784) bývají ve faře
    sousedního města.
 4. **Index dřív než listování.** Než začneš listovat, zjisti, jestli farnost nemá samostatný rejstřík (index N/O/Z)
    – bývá to jiná kniha než matrika. Před listováním **ověř druh a rozsah knihy** (N/O/Z, roky, obce oddílu) na prvních
    snímcích; popis v katalogu se plete a rejstřík bývá zapsaný jako matrika. Dva snímky v indexu ušetří dvacet v matrice.
-5. **Stáhni snímek** do `pracovni/<svazek>/` (nejdřív se podívej, jestli ho už nemáš) a **přečti ho sám** v plném
+   **Skoč rovnou na rok:** `python3 -I tools/mapa_knihy.py rok <klíč svazku> <rok>` vrátí rozsah snímků z pole
+   `orientace` svazku. Kotvy zatím nejsou → mapa knihy `mapa_knihy.py <aron|pf|mza|ahmp> <kniha> <od> <do> [krok]`
+   (záhlaví po každém n-tém snímku), ověřené kotvy rok → snímek zapiš do `orientace` (`reference/data.md`).
+   **Jak hledat ve svazku:**
+   - **Víc předků jedním průchodem.** Než svazek otevřeš, sesbírej všechny, koho v něm hledáš (farnost a druh
+     zápisu sedí, události do zhruba ±5 let – křty dvou prarodičů z téže vsi, sňatky sourozenců předků). Pomůže
+     `tools/fronta.py` (předci bez rodiče s obcí a rokem); co už se v které knize hledalo, ukáže `tools/prosle_knihy.py`. Okno vezmi kolem všech odhadnutých dat a zapisuj každý
+     nález z okna, ať se ke knize nevracíš.
+   - **Okno ±5 let** kolem známého či odhadnutého roku (z věku při úmrtí širší, viz `reference/matriky.md`);
+     začátek okna najdi přes `mapa_knihy.py rok`. Nic? Okno rozšiř o dalších 5 let na stranu, kde je odhad
+     nejistější, a rozsah zapiš do deníku.
+   - **Sourozenci.** Najdeš-li sourozence, zapiš ho (osoba se společnými rodiči) a okno posuň: starší → dalších
+     5 let do minulosti od jeho křtu, mladší → do budoucnosti; opakuj, dokud v daném směru celých 5 let nic.
+     První nález platí do obou směrů. Chybí-li přímý zápis předka, rodiče a dům dají křty a sňatky sourozenců.
+     Rejstřík s další shodou (jméno, rodiče, dům) sleduj i za hranicí okna.
+   - **Kmotři a svědci jsou stopy.** Čti celý zápis včetně kmotrů, svědků, porodní báby a okrajů, ne jen
+     hledanou osobu. Opakuje-li se kmotr nebo příjmení rodu či vsi (stejní Novákové z Lhoty u několika křtů),
+     je to stopa k příbuzenství a místu; přehled dá `tools/kmotri.py`. Osobou je jen ztotožněný (Datový model).
+   **Kniha bez rejstříku:** krátký úsek (najít oddíl, začátek roku, ověřit pořadí stran, do ~20 snímků) →
+   mřížka náhledů `nahledy.py <archiv> <kniha> <od> <do>` nebo `--rok <klíč svazku> <rok>` (celé snímky po 6
+   v obrázku, `--vyrez` jen sloupec se jmény). Hledání osoby přes dlouhý rozsah (desítky let, celá kniha) → **síto**:
+   `sito.py zaloz <hledání> <archiv> <kniha> <od> <do> --otazka "…"`, pak opakovaně `sito.py dalsi <hledání>`,
+   přečti mřížku, `sito.py proslo <hledání> <od> <do>` a kandidáty `sito.py nalez <hledání> <snímek> "…"`;
+   `sito.py stav` ukáže díry. Po přerušení pokračuj `dalsi`. „Nenalezeno“ do `research_log.md` piš jen pro rozsah,
+   který `stav` hlásí jako úplný; nález vždy přečti v plném rozlišení. Oba nástroje stahují přes `cache.py` a brzdu.
+5. **Stáhni snímek** do `pracovni/<svazek>/` (nástroje archivů berou snímek ze sdílené mezipaměti `tools/cache.py`,
+   když už byl jednou stažen – i v jiném projektu) a **přečti ho sám** v plném
    rozlišení. Vybledlé nebo skvrnité místo → `python3 -I tools/vylepsi_snimek.py pracovni/<stránka>.jpg [x0,y0,x1,y1]`
    a čti ze všech variant (v přepisu poznamenej ze které). Nečitelné místo obce či příjmení → skill `ztotozneni-mist` a slovníky `data/mista_nazvy.json`,
    `data/prijmeni_varianty.json`.
@@ -172,7 +206,8 @@ domu se stavem `fam`, literatura `lit` se `zdroj` a stranou. Staré mapy a letec
    hned na začátku**: vede i k pramenům (sčítací operáty, indikační skici, literatura).
 
 **Pořadí pramenů pro venkovský dům** (od dneška zpátky): sčítání lidu 1921 → 1857 (celé domácnosti po číslech;
-Morava: sčítací operáty MZA, `tools/scitani_mza.py`, signatury v `data/scitani_mza.json`) → matriky podle čísla domu (1784–1900) → stabilní katastr ~1827–1835
+Morava: sčítací operáty MZA, `tools/scitani_mza.py`, signatury v `data/scitani_mza.json`; západní Čechy:
+`portafontium.py scitani`; Slovensko 1930: `slovakiana.py`) → matriky podle čísla domu (1784–1900) → stabilní katastr ~1827–1835
 → josefský 1785 a tereziánský katastr → gruntovní knihy → berní rula 1654, soupis poddaných 1651, urbáře → literatura.
 Po roce ~1910 pozemková kniha. Městský dům 20. století má vlastní pořadí (`prameny.md`).
 
@@ -219,6 +254,9 @@ Pravidla navíc:
 - **Rodina přes čísla domů**: stejné číslo a řemeslo přes generace je silná stopa; hledej celé domácnosti.
 - **Ztotožnění míst ověř** podle farnosti, panství a kraje (skill `ztotozneni-mist`).
 - U úředníků, vojáků, učitelů, farářů zkus noviny a ročenky (`reference/portaly.md` → Noviny).
+- Mimo běžné matriky má `reference/portaly.md` návody: Těšínsko, Vídeň, Slovensko/Maďarsko/Banát (FamilySearch
+  v Chromu uživatele), odsun Němců 1945–1946, vojáci 1. sv. války, Encyklopedie dějin města Brna, zemské desky, mlýny
+  a Franziscejský katastr Dolních Rakous (Valticko).
 - **Sporné věci** ukaž uživateli s výřezem a nech ho rozhodnout. Desítky sporných najednou sesbírej do
   `pracovni/sporna_cteni.json` a udělej z nich jednu stránku s odpověďmi na kliknutí (artefakt nebo HTML se stažením).
 - Pro 17. století: soupis poddaných 1651, berní rula 1654, lánové rejstříky, gruntovní knihy.
@@ -247,6 +285,9 @@ jako `doc`; před velkým kolem si nech plán schválit (kredity).
 Podrobně `reference/pribehy.md` (rod), `reference-dum/pribehy.md` (dům), texty pro web `reference-dum/texty.md`.
 - **Zajímavosti** sbírej průběžně do `data/zajimavosti.md` a říkej je uživateli. Po kole `python3 -I tools/napady.py`
   (svatby krátce před porodem, rod v jednom domě, sňatky příbuzných, dlouhověkost, epidemie).
+- **Osobnosti:** po kole spusť i `python3 -I tools/osobnosti.py` – vybere předky s výjimečným povoláním nebo
+  postavením (kněz, starosta, důstojník…) s tipy, kde hledat víc. Potvrzené označ v `osoby.py` polem `vyz="krátký popis"`;
+  web je ukáže nahoře na stránce „Osobnosti“. Stránka „Statistiky“ (`/statistiky/`) se počítá sama z dat.
 - **Příběh rodu** nabídni, když má hlavní rod ~5 doložených generací; **příběh domu** při ~4 doložených držitelích
   nebo ~150 letech historie. Koncept do chatu ke schválení, pak `data/pribeh*.md` a `web.json`.
 - Víc příběhů najednou a jejich archivní ověření ve vlnách: skill `paralelni-badani`. Ověření námět často vyvrátí –
@@ -305,22 +346,31 @@ Vždy **projektovou kopii**, nikdy `SKILL_DIR/tools/` (zapisovala by do skillu; 
 | `graf.py cisla / osoba / kontrola / prolog` | graf osob: Kekulé čísla, detail osoby, kontrola, fakta pro Prolog (`graf_pravidla.pl`) |
 | `migrace_graf.py`, `prevod_odkazu_id.py` | převod starého `osoby.py` (P/LINES/SIDE/SAME) na graf; číselné `o=` v domech → id |
 | `domy_rodiny.py` | fronta domů rodiny z `bydliste` |
+| `fronta.py [koren] [--vse]` | co hledat dál: předci bez rodiče seřazení podle šance a neuzavřené rody (`web.json` `fronta_uzavrene`) |
+| `audit.py zadani <klic…> / nacti <odpoved.json>` | podklad pro nezávislý audit zápisu subagentem (přepis × výřez × graf, jiné výklady, kde hledat) a načtení jeho JSON; postup ve skillu `paralelni-badani` → Audit |
+| `osobnosti.py [--vse]` | významné osobnosti podle povolání ve faktech a pole `vyz` (stránka /osobnosti/) |
+| `kmotri.py [--min N]` | kmotři a svědci jako stopy: hrany `kmotr`/`svedek` + jména ze `shrnuti` zápisů, opakovaná příjmení |
 | `kontrola.py`, `kontrola_domy.py` | kontrola dat osob, domů a křížových odkazů, soukromí, kdy psát příběh |
 | `aron_search.py`, `aron_img.py` | ARON (SOA Zámrsk): matriky, sčítání, gruntovní knihy |
 | `trebon.py` | SOA Třeboň: matriky, rejstříky, sčítání, strom fondů (gruntovní knihy, urbáře) |
-| `portafontium.py`, `ebadatelna.py` | SOA Plzeň; SOA Praha (matriky i archiválie `a-…`) |
+| `portafontium.py`, `ebadatelna.py` | SOA Plzeň (matriky, okresní civilní matriky, sčítání lidu 1857–1921 po domech); SOA Praha (matriky i archiválie `a-…`) |
+| `slovakiana.py` | sčítací hárky 1930 celého Slovenska (Slovakiana, SNA; 1 dotaz za 10 s) |
 | `mza.py` | MZA Brno (Acta Publica) – detail knihy bývá za ALTCHA → `matriky-v-prohlizeci` |
 | `scitani_mza.py` | sčítací operáty MZA (Morava) přes Deepzoom dlaždice |
 | `ahmp_search.sh`, `ahmp_scan.py`, `policie_prihlasky.py` | Praha: matriky, policejní přihlášky |
+| `obeti.py`, `vezni.py`, `mauthausen.py`, `arolsen.py` | oběti a vězni 2. sv. války (holocaust.cz, Památník Terezín, Mauthausen, Arolsen); jen se souhlasem uživatele (`souhlas.py`, potvrzuje on sám) – `reference/portaly.md` |
 | `soal_zoomify.py`, `matricula_*.sh` | SOA Litoměřice, ZA Opava, Matricula |
+| `vademecum.py`, `litomerice.py` | židovské matriky 1784–1949 (Národní archiv, VadeMeCum – hledá se podle obce); SOA Litoměřice (portál ověřuje člověka → kód 5, pak prohlížeč + `soal_zoomify.py`) – `reference/portaly.md` |
 | `cuzk_archiv.py listy / rastry / export / mapa` | Archiv ČÚZK: stabilní a pozemkový katastr, indikační skici (Čechy) |
 | `ipr_praha.py`, `dnnt.py` | Praha: staré plány a letecké snímky; tisk 20. století (DNNT) |
-| `anno.py`, `anno_snap.py`, `kramerius.py` | noviny a knihy (ANNO, Kramerius – Hosák–Šrámek, vlastivědy) |
+| `anno.py`, `anno_snap.py`, `kramerius.py` | noviny a knihy (ANNO, Kramerius – Hosák–Šrámek, vlastivědy); `kramerius.py --server` jiná knihovna (Digitální studovna MO) |
 | `ged_import.py`, `ftb_export.py` | GEDCOM a záloha MyHeritage → kostra osob a fronta zápisů |
+| `ged_export.py [vystup.ged]` | graf osob → GEDCOM 5.5.1 (osoby, narození/úmrtí/sňatky, rodiny FAM, zdroje) pro jiné programy |
+| `prosle_knihy.py [příjmení]` | přehled prošlých knih ze `svazky.json`, `zaznamy.json` a deníku – podívej se před čtením knihy |
 | `vyrez.py`, `ramecek.py`, `overit.py` | výřez, rámeček čteného místa, ověření čtení na dvou polovinách |
 | `vylepsi_snimek.py` | špatně čitelný snímek → varianty vedle sebe (kontrast, CLAHE, odečtené pozadí, kanál) |
 | `zapis.py <soubor> <klíč> <vstup.json> [--sloucit]` | změna jedné položky v JSON datech beze změny formátu |
-| `mista.py`, `mista_domy.py ruian / okoli / hledej / pridej` | místa na mapu (OSM); dům v RÚIAN (obec, parcela, k. ú., poloha) |
+| `mista.py [pridej / znovu]`, `mista_domy.py ruian / okoli / hledej / pridej` | obce a domy (čp. z faktů osob) na mapu – Mapy.com s `MAPY_API_KEY` v prostředí (např. načtený z Keychainu, nikdy do chatu ani commitu), bez klíče fallback OSM Nominatim + RÚIAN, varuje na místa bez souřadnic; dům v RÚIAN (obec, parcela, k. ú., poloha) |
 | `napady.py` | náměty na zajímavosti z dat |
-| `slusne.py`, `hlidac.py`, `zdravi.py` | společný limit k archivům, hook proti obcházení, test nástrojů proti portálům |
+| `slusne.py`, `hlidac.py`, `zdravi.py`, `smoke_test.py [--plny]` | společný limit k archivům, hook proti obcházení, test nástrojů proti portálům (smoke_test: OK/FAIL po portálech) |
 | `export_web.py`, `export_web_domy.py`, `fan_chart.py` | data → web (osoby i domy); vějíř předků k tisku |

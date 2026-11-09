@@ -12,13 +12,13 @@ Použití:
 Popis svazků se ukládá do pracovni/.cache_aron/<apu_id>.json (ve složce projektu).
 """
 import glob, json, math, os, shutil, subprocess, sys, tempfile, time, urllib.request
-import concurrent.futures as cf
 import xml.etree.ElementTree as ET
 for _s in (sys.stdout, sys.stderr):   # UTF-8 výstup i na Windows bez -X utf8 (cp1250 neumí třeba „→“)
     if hasattr(_s, "reconfigure"):
         _s.reconfigure(encoding="utf-8", errors="replace")
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))   # -I nepřidá složku skriptu sama
 import slusne; slusne.instaluj()   # společný limit rychlosti k webům archivů (slusne.py)
+import cache   # sdílená mezipaměť snímků (cache.py) – stejný snímek se stáhne jen jednou
 
 API = "https://aron.vychodoceskearchivy.cz/api/aron"
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -101,11 +101,11 @@ def fetch_image(dzi_url, level_offset=1, out="page.jpg", crop=None):
         def dl(job):
             c, r, url, p = job
             with open(p, "wb") as f:
-                f.write(get(url, binary=True))
+                f.write(cache.ziskej(url, lambda u: get(u, binary=True)))
             return job
 
-        with cf.ThreadPoolExecutor(8) as ex:
-            list(ex.map(dl, jobs))
+        for job in jobs:   # sekvenčně: v sandboxu vlákna padají a archiv nedostane souběžné spojení
+            dl(job)
         # a tile with c > 0 (r > 0) carries `ov` extra pixels on its left (top) edge;
         # crop every tile to its own ts x ts cell, then append rows and columns
         # po řádcích: jeden příkaz na celou stránku by na Windows přesáhl limit délky příkazové řádky (32 767 znaků)
@@ -138,9 +138,10 @@ if __name__ == "__main__":
         path = os.path.join(root, "data", "svazky.json")
         sv = json.load(open(path, encoding="utf-8")) if os.path.exists(path) else {}
         fond, _, rest = vol["name"].partition(": ")
-        sv[apu[:8]] = dict(archiv=fond if rest else "", portal="ARON", svazek=rest or vol["name"],
-                           popis=(vol.get("description") or "")[:300], snimku=len(tiles),
-                           url=f"https://aron.vychodoceskearchivy.cz/apu/{vol['id']}")
+        sv[apu[:8]] = {**sv.get(apu[:8], {}), **dict(   # ruční pole (orientace) zůstanou
+            archiv=fond if rest else "", portal="ARON", svazek=rest or vol["name"],
+            popis=(vol.get("description") or "")[:300], snimku=len(tiles),
+            url=f"https://aron.vychodoceskearchivy.cz/apu/{vol['id']}")}
         with open(path, "w", encoding="utf-8", newline="\n") as f:
             json.dump(sv, f, ensure_ascii=False, indent=1)
         print(apu[:8], "->", sv[apu[:8]]["svazek"])
