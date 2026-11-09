@@ -3,7 +3,8 @@
 
 Spuštění: python3 -I tests/test_slusne_retry_after.py
 """
-import atexit, email.utils, http.server, os, shutil, sys, tempfile, threading, time, unittest, urllib.error, urllib.request
+import atexit, email.utils, http.server, os, shutil, subprocess, sys, tempfile, threading, time, unittest, urllib.error, urllib.request
+from unittest import mock
 
 TOOLS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "skills", "rodokmen-plus", "tools")
 os.environ["SLUSNE_DIR"] = tempfile.mkdtemp(prefix="slusne_test_")
@@ -111,6 +112,95 @@ class RetryAfter(unittest.TestCase):
         self.assertEqual(slusne.sekundy(email.utils.formatdate(ted + 90, usegmt=True), ted), 90)
         self.assertEqual(slusne.sekundy("nesmysl", ted), 0)
         self.assertEqual(slusne.sekundy(None, ted), 0)
+
+
+class CurlHlavicky(unittest.TestCase):
+    """curl větev bez sítě a bez spaní: subprocess.run je podvržený (zapíše hlavičky do souboru -D a vrátí kód),
+    time.sleep jen zaznamená, kolik se mělo čekat."""
+    URL = "https://archiv.example.invalid/snimek.png"   # .png → rozestup obrázků 0,05 s, měří se jen pauza od serveru
+
+    def setUp(self):
+        for f in os.listdir(os.environ["SLUSNE_DIR"]):
+            os.remove(os.path.join(os.environ["SLUSNE_DIR"], f))
+        self.spani, self.volani, self.odpovedi = [], [], []
+        p1 = mock.patch.object(slusne.subprocess, "run", side_effect=self._curl)
+        p2 = mock.patch.object(slusne.time, "sleep", side_effect=self.spani.append)
+        p1.start(), p2.start()
+        self.addCleanup(mock.patch.stopall)
+
+    def _curl(self, cmd, **kw):
+        """Odpověď z fronty self.odpovedi: (kód, hlavičky) nebo seznam takových dvojic (přesměrování s -L)."""
+        self.volani.append(cmd)
+        odpoved = self.odpovedi.pop(0)
+        bloky = odpoved if isinstance(odpoved, list) else [odpoved]
+        soubor = cmd[len(cmd) - 1 - cmd[::-1].index("-D") + 1]   # poslední -D, jako curl
+        if soubor != "-":
+            with open(soubor, "w", encoding="latin-1") as f:
+                for kod, hl in bloky:
+                    f.write(f"HTTP/2 {kod}\r\n" + "".join(f"{k}: {v}\r\n" for k, v in hl.items()) + "\r\n")
+        return subprocess.CompletedProcess(cmd, 0, None, f"\nSLUSNE {bloky[-1][0]}\n")
+
+    def test_200_s_retry_after_dalsi_curl_ceka(self):
+        self.odpovedi += [(200, {"Retry-After": "2"}), (200, {})]
+        slusne.curl(["-s", self.URL])
+        self.assertEqual(self.spani, [])
+        slusne.curl(["-s", self.URL])
+        self.assertEqual(len(self.spani), 1)
+        self.assertAlmostEqual(self.spani[0], 2, delta=0.5)
+
+    def test_200_s_ratelimit_remaining_0(self):
+        self.odpovedi += [(200, {"RateLimit-Remaining": "0", "RateLimit-Reset": "7"}), (200, {})]
+        slusne.curl([self.URL])
+        slusne.curl([self.URL])
+        self.assertAlmostEqual(self.spani[0], 7, delta=0.5)
+
+    def test_429_retry_after_sekundy(self):
+        self.odpovedi.append((429, {"Retry-After": "7200"}))
+        with self.assertRaises(slusne.Zablokovano):
+            slusne.curl([self.URL])
+        do, proc = slusne.blokace("archiv.example.invalid")
+        self.assertAlmostEqual(do - time.time(), 7200, delta=60)
+        self.assertIn("Retry-After 7200", proc)
+        with self.assertRaises(slusne.Zablokovano):   # další curl už se nespustí
+            slusne.curl([self.URL])
+        self.assertEqual(len(self.volani), 1)
+
+    def test_429_retry_after_datum_http(self):
+        self.odpovedi.append((429, {"Retry-After": email.utils.formatdate(time.time() + 3 * 3600, usegmt=True)}))
+        with self.assertRaises(slusne.Zablokovano):
+            slusne.curl([self.URL])
+        do, _ = slusne.blokace("archiv.example.invalid")
+        self.assertAlmostEqual(do - time.time(), 3 * 3600, delta=60)
+
+    def test_429_kratky_retry_after_blokuje_aspon_30_min(self):
+        self.odpovedi.append((429, {"Retry-After": "5"}))
+        with self.assertRaises(slusne.Zablokovano):
+            slusne.curl([self.URL])
+        do, _ = slusne.blokace("archiv.example.invalid")
+        self.assertGreater(do - time.time(), slusne.BLOKACE - 60)
+
+    def test_presmerovani_plati_posledni_odpoved(self):
+        self.odpovedi.append([(301, {"Retry-After": "9999", "Location": "/jinam"}), (429, {"Retry-After": "7200"})])
+        with self.assertRaises(slusne.Zablokovano):
+            slusne.curl(["-L", self.URL])
+        do, _ = slusne.blokace("archiv.example.invalid")
+        self.assertAlmostEqual(do - time.time(), 7200, delta=60)
+
+    def test_vlastni_dump_header_se_precte_a_nesmaze(self):
+        fd, vlastni = tempfile.mkstemp(dir=os.environ["SLUSNE_DIR"])
+        os.close(fd)
+        self.odpovedi += [(200, {"Retry-After": "3"}), (200, {})]
+        slusne.curl(["-D", vlastni, self.URL])
+        self.assertEqual(self.volani[0].count("-D"), 1)   # žádné druhé -D
+        self.assertTrue(os.path.exists(vlastni))
+        slusne.curl([self.URL])
+        self.assertAlmostEqual(self.spani[0], 3, delta=0.5)
+
+    def test_docasny_soubor_hlavicek_se_smaze(self):
+        self.odpovedi.append((200, {}))
+        slusne.curl([self.URL])
+        soubor = self.volani[0][self.volani[0].index("-D") + 1]
+        self.assertFalse(os.path.exists(soubor))
 
 
 if __name__ == "__main__":
