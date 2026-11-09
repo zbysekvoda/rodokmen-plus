@@ -273,6 +273,13 @@ Pravidla navíc:
 - **ALTCHA, CAPTCHA a jiná ochrana se neobchází.** Portál za ověřením (MZA Acta Publica od 11/2026) čti jen v Chromu
   uživatele, ručně, s pauzami – postup a limity ve skillu `matriky-v-prohlizeci`. Snímky z takového portálu nestahuj
   mimo prohlížeč (curl s tokenovou URL je zakázaný). Ověření, které neprojde samo, = zastav a řekni to uživateli.
+- **MZA Brno od 11/2026: snímky matrik jen v prohlížeči.** Acta Publica chrání stránku knihy ověřením ALTCHA;
+  `mza.py info`/`snimek` to pozná a skončí **kódem 5** s odkazem na knihu (`…/matrika/detail/<id>`). Kód 5 není chyba
+  nástroje: nespouštěj ho znovu, nezkoušej jiný nástroj ani jinou URL, ALTCHA neřeš. `mza.py hledat`/`matriky` dál
+  fungují – zjisti id a signaturu knihy a předej uživateli odkaz, číslo knihy a snímky, které potřebuješ.
+  Uživatel pak buď otevře knihu v Chromu, projde ověřením a snímky čteš s ním podle `matriky-v-prohlizeci`, nebo
+  knihu/snímky uloží ručně do `pracovni/mza_<id>_<název>_manual/` a dál se pracuje podle „Ručně stažené knihy“
+  v `reference/portaly.md` (klíč svazku `mza_<id>`, `"upload": "manual"`).
 - Odpověď 403, 429 nebo 503 = hned přestaň, `python3 -I tools/slusne.py zablokuj <web> "důvod"`, řekni to uživateli.
 - Placené služby (MyHeritage, Ancestry, Geni) nikdy hromadně; čti jen to, co uživatel otevře.
 
