@@ -398,17 +398,24 @@ def main():
             texty.append((f"boční příbuzný {p.get('n')}", p.get("n", "") + " " + p.get("t", "") + " " + str(p.get("vyz") or "")))
             continue
         text = " ".join(p.get("f", [])) + " " + p.get("note", "") + " " + str(p.get("vyz") or "") + " " + json.dumps(p.get("extra") or {}, ensure_ascii=False)   # i vlastní pole extra
+        text += " " + json.dumps(p.get("bydliste") or [], ensure_ascii=False)   # bydliště jdou na web i do knihy
         roky = [int(y) for y in re.findall(r"\b1[5-9]\d\d|20\d\d\b", p.get("y", "") + " " + text)]
         texty.append((f"osoba {k}", text + (f" {hranice}" if roky and min(roky) >= 1870 or k in blizci else "")))
     for f in ("zajimavosti.md", "pribeh.md", "pribeh_domy.md", *(x.get("soubor", "") for x in cfg.get("pribehy", []))):
         if os.path.exists(os.path.join(DATA, f)):
             texty += [(f, odst) for odst in open(os.path.join(DATA, f), encoding="utf-8").read().split("\n\n")]
+    # zápisy: shrnutí, přepis a překlad – web je ukazuje u zdroje, Kniha předků (PDF) u výřezů v kartách a pramenech
+    for z in zaz:
+        tr = prep.get(z.get("klic")) or {}
+        tr = tr if isinstance(tr, dict) else {}
+        texty.append((f"zápis {z.get('klic')}", " ".join(str(x) for x in (z.get("datum"), z.get("nazev"), z.get("shrnuti"),
+                                                                       tr.get("orig"), tr.get("cs")) if x)))
     for kde, text in texty:
         if not recent(text):
             continue
         m = next((m for m in citlive.finditer(text) if not schvalene(text, m)), None)
         if m:
-            warn.append(f"CITLIVÉ ({kde}): „…{text[max(0, m.start() - 40):m.end() + 40].strip()}…“ – jde na web; "
+            warn.append(f"CITLIVÉ ({kde}): „…{text[max(0, m.start() - 40):m.end() + 40].strip()}…“ – jde na web i do Knihy předků (PDF, šíří se mimo přihlášení); "
                         f"zeptej se uživatele, jestli to tam smí být (reference/soukromi.md); když ano, "
                         f"přidej úryvek textu s tím slovem do web.json „citlive_schvaleno“")
 
