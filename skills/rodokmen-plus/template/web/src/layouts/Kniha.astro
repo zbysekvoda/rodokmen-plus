@@ -20,6 +20,8 @@ const { title } = Astro.props;
       await document.fonts.ready;
       await new Previewer().preview();
       (window as any).knihaHotovo = true;
+      // tlačítko „Tisk“ na stránce osoby vede na /kniha/<id>/?tisk → po dosazení rovnou tiskový dialog prohlížeče
+      if (new URLSearchParams(location.search).has('tisk')) window.print();
     </script>
   </body>
 </html>
