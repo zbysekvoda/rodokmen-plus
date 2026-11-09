@@ -9,7 +9,7 @@ odkaz „Kniha předků (PDF)“ na stránce osoby se objeví po dalším `npm r
 Když web/dist knihu neobsahuje, spustí `npm run data` (chybí-li data) a `npm run build`.
 
 Jak: dist obslouží lokální HTTP server (file:// rozbije cesty /_astro/), výřezy z /img/ a /zdroje/ cestou
-zmenší na tiskových ~200 dpi (ImageMagick, prostredi.zmensi_obrazek). Chrome se ovládá přes DevTools protokol
+zmenší na tiskových ~165 dpi, JPEG kvalita 65 (ImageMagick, prostredi.zmensi_obrazek). Chrome se ovládá přes DevTools protokol
 (vlastní minimální WebSocket klient, jen standardní knihovna): tiskne se až po window.knihaHotovo, tj. když
 Paged.js dosází všechny stránky. Prostý `chrome --print-to-pdf` s časovým rozpočtem by dosázel jen první stranu.
 """
@@ -23,7 +23,8 @@ from prostredi import najdi_chrome, zmensi_obrazek   # společné s fan_chart.py
 ROOT = os.path.dirname(TOOLS)
 WEB = os.path.join(ROOT, "web")
 DIST = os.path.join(WEB, "dist")
-TISK_PX = 1400            # delší strana výřezu v PDF: ~170 mm sazby × 200 dpi
+TISK_PX = 1100            # delší strana výřezu v PDF: ~170 mm sazby × ~165 dpi (rukopis čitelný)
+TISK_KVALITA = 65         # JPEG; s 1100 px drží knihu se zapisy "vse" kolem 10 MB
 ZMENSIT = ("/img/", "/zdroje/")
 LIMIT_S = int(os.environ.get("RODOKMEN_KNIHA_LIMIT_S", "180"))  # nejdéle na dosazení jedné knihy
 
@@ -97,7 +98,7 @@ class Obsluha(http.server.SimpleHTTPRequestHandler):
         cil = os.path.join(self.cache, os.path.relpath(skutecna, self.directory))
         if not os.path.exists(cil):
             try:
-                if not zmensi_obrazek(skutecna, cil, TISK_PX):
+                if not zmensi_obrazek(skutecna, cil, TISK_PX, TISK_KVALITA):
                     return skutecna
             except subprocess.CalledProcessError:
                 return skutecna
