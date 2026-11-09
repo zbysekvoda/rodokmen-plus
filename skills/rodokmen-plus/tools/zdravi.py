@@ -159,6 +159,9 @@ def main():
                                    errors="replace", timeout=180)
                 vystup = p.stdout + p.stderr
                 ok = p.returncode == 0 and re.search(vzor, p.stdout, re.M) is not None
+                if not ok and "odmítá skripty (HTTP 403) – požadavek se neodeslal" in vystup:
+                    print(f"OK    {portal:13} {popis:28} (portál zakázal skripty – jen prohlížeč, viz slusne.py)")
+                    continue
                 if not ok and OVERENI_CLOVEKA.get(portal) == p.returncode:
                     print(f"OK    {portal:13} {popis:28} (portál ověřuje člověka – jen prohlížeč)")
                     continue

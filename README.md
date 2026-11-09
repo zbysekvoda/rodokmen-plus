@@ -178,6 +178,9 @@ nechat založit předem, ať vidíte, jak web vypadá.
   narození. Web je ve výchozím stavu za přihlášením pro rodinu.
 - Archivy blokují IP adresy po sérii rychlých dotazů. Nástroje mají společný limit a projekt nastaví hook, který zastaví
   vlastní skripty jdoucí mimo něj. Ověření typu ALTCHA ani CAPTCHA skill neobchází a smyčkové stahování zakazuje.
+- SOA Třeboň (digi.ceskearchivy.cz) a eBadatelna SOA Praha od 2. 11. 2026 skripty odmítají (HTTP 403). `trebon.py`
+  a `ebadatelna.py` proto skončí hned hláškou bez dotazu na portál. Svazek najděte v prohlížeči a do projektu
+  vložte trvalý odkaz na snímek (případně snímek uložte ručně); zákaz se neobchází.
 - Projekt po založení obsahuje hook `tools/hlidac.py` (kontroluje síťové příkazy v Bashi). Plugin sám žádné hooky
   ani MCP servery nemá. Nechte zapnuté schvalování příkazů, dokud si nezvyknete, co Claude dělá.
 - Skripty chodí jen na archivní portály, Wikipedii, Kramerius a ANNO, RÚIAN a ČÚZK, OpenStreetMap a při instalaci

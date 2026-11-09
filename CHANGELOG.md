@@ -28,9 +28,13 @@ Nápady a kód z forků původního rodokmen-skill (MIT). Zdrojové forky a comm
 - `novy_projekt.py`: argumenty přes argparse – `--help` vypíše nápovědu a nic nezaloží (dřív vznikla složka
   „--help“), neznámá volba skončí chybou bez zápisu, `--ukazka` funguje před i za cílovou složkou.
   Test `tests/test_novy_projekt.py`.
+- `slusne.py`: SOA Třeboň (digi.ceskearchivy.cz) a eBadatelna (ebadatelna.soapraha.cz) zakázaly od 2. 11. 2026
+  skripty. Požadavek na ně se neodešle a nástroj skončí hláškou s postupem v prohlížeči; 403 se nikdy neopakuje.
+  `zdravi.py` to hlásí jako známé omezení. Test `tests/test_slusne_zakaz_skriptu.py`.
 
 ### Známé problémy
-- SOA Třeboň (`trebon.py`) a SOA Praha (`ebadatelna.py`) odmítají skripty (HTTP 403) – smoke FAIL.
+- SOA Třeboň (`trebon.py`) a SOA Praha (`ebadatelna.py`) od 2. 11. 2026 odmítají skripty (HTTP 403) – nástroje
+  portál nedotazují, smoke FAIL. Postup: svazek najít v prohlížeči, uložit snímek nebo trvalý odkaz.
 - MZA (`mza.py info`) od 11/2026 nenajde seznam snímků – portál změnil stránku.
 - SOA Litoměřice ověřuje člověka (proof-of-work); `litomerice.py` to pozná a skončí kódem 5. Hledání v Litoměřicích
   funguje jen v prohlížeči, ověření se neobchází.
