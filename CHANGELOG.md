@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.1
+
+### Změněno
+- Kniha předků: karty osob v jednom sloupci a větší písmo; světlá obálka s rámečkem místo plné tmavé (šetří barvu při tisku).
+
 ## Nevydáno (flow „Nápady z forků rodokmen-skill“)
 
 Nápady a kód z forků původního rodokmen-skill (MIT). Zdrojové forky a commity jsou v README v sekci

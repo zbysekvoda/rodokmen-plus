@@ -12,12 +12,12 @@
 
 :root {
   --kn-paper: #f7f2e8; --kn-ink: #2b2620; --kn-muted: #7a6f60; --kn-rule: #d8ccb6;
-  --kn-accent: #8a3b2a; --kn-gold: #b08a3e; --kn-cover: #2b2620; --kn-cover-ink: #f1e7d3; --kn-cover-sub: #cbbd9f;
+  --kn-accent: #8a3b2a; --kn-gold: #b08a3e; --kn-cover: #f7f2e8; --kn-cover-ink: #2b2620; --kn-cover-sub: #7a6f60; /* světlá obálka – při tisku nešetří barvou */
   --kn-doc: #3d6b4a; --kn-prob: #b08a3e; --kn-fam: #4a5f8a; --kn-unk: #a59d90;
   --kn-desk: #e9e4da;
   --kn-serif: 'Newsreader', Georgia, serif;
   --kn-sans: 'Source Sans 3', system-ui, sans-serif;
-  --kn-body: 10.5pt;
+  --kn-body: 11.5pt;
 }
 
 @page {
@@ -47,7 +47,8 @@ h2.ch { font: 400 24pt/1.1 var(--kn-serif); margin: 4pt 0 10pt; }
 /* obálka */
 .cover { page: obalka; height: 297mm; padding: 60mm 20mm 20mm; background: var(--kn-cover); color: var(--kn-cover-ink);
   text-align: center; position: relative; break-after: page; }
-.cover .kicker { color: var(--kn-gold); }
+.cover .kicker { color: var(--kn-accent); }
+.cover { outline: .75pt solid var(--kn-gold); outline-offset: -12mm; }
 .cover h1 { string-set: kniha content(text); font: 400 40pt/1 var(--kn-serif); margin: 12pt 0 6pt; }
 .cover .sub { font-style: italic; color: var(--kn-cover-sub); font-size: 14pt; }
 .cover .names { position: absolute; bottom: 30mm; left: 0; right: 0; font: 600 8pt var(--kn-sans); letter-spacing: .25em; color: var(--kn-gold); }
@@ -100,18 +101,18 @@ a.ref::after { content: ' → s. ' target-counter(attr(href), page); font: 600 0
 .fan-r .legend { position: absolute; left: 20mm; right: 20mm; bottom: 12mm; }
 
 /* karty osob */
-.gen { display: grid; grid-template-columns: 1fr 1fr; gap: 12pt 14pt; margin-top: 8pt; }
-.card { border-top: 2.5pt solid var(--kn-unk); padding-top: 5pt; break-inside: avoid; font-size: 9.5pt; }
+.gen { display: grid; grid-template-columns: 1fr; gap: 14pt; margin-top: 8pt; }
+.card { border-top: 2.5pt solid var(--kn-unk); padding-top: 5pt; break-inside: avoid; font-size: 11pt; }
 .card.st-doc { border-color: var(--kn-doc); } .card.st-prob { border-color: var(--kn-prob); } .card.st-fam { border-color: var(--kn-fam); }
 .card .k { float: right; font: 600 7pt var(--kn-sans); color: var(--kn-muted); }
-.card h3 { font: 600 12pt/1.2 var(--kn-serif); margin: 0; }
+.card h3 { font: 600 13.5pt/1.2 var(--kn-serif); margin: 0; }
 .card .y { color: var(--kn-muted); font-style: italic; }
 .card ul { list-style: none; padding: 0; margin: 4pt 0 0; }
 .card li { padding-left: 10pt; text-indent: -10pt; }
 .card li::before { content: attr(data-s); display: inline-block; width: 10pt; text-indent: 0; color: var(--kn-accent); font-weight: 600; }
-.card .note { margin: 4pt 0 0; font-size: 8.5pt; color: var(--kn-muted); }
+.card .note { margin: 4pt 0 0; font-size: 10pt; color: var(--kn-muted); }
 .crop { margin: 5pt 0 0; }
-.crop img { display: block; width: 100%; height: 18mm; object-fit: cover; border: 1px solid var(--kn-rule); }
+.crop img { display: block; width: 100%; height: 26mm; object-fit: cover; border: 1px solid var(--kn-rule); }
 .crop figcaption { font: 6.5pt var(--kn-sans); color: var(--kn-muted); text-align: right; margin-top: 1pt; }
 
 /* dům */
