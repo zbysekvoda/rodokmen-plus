@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Vějíř předků (360°) z data/osoby.py jako SVG.
 Použití: fan_chart.py <out_dir> [--koren <klíč>]                       (plakát: SVG + HTML s nadpisem a legendou, PNG přes Chrome, je-li k dispozici)
-         fan_chart.py <out_file.svg> --web <hrefs.json>  (holé klikací SVG pro web – volá ho export_web.py)"""
+         fan_chart.py <out_file.svg> --web <hrefs.json>  (holé klikací SVG pro web – volá ho export_web.py)
+Volitelně --generaci <N>: nejvýš N generací včetně kořene (Kniha předků: web.json → kniha.generaci); prstence se
+roztáhnou na celý poloměr. Bez něj plná hloubka (nejvýš 11 generací)."""
 import html, itertools, json, math, os, re, subprocess, sys
 for _s in (sys.stdout, sys.stderr):   # UTF-8 výstup i na Windows bez -X utf8 (cp1250 neumí třeba „→“)
     if hasattr(_s, "reconfigure"):
@@ -27,6 +29,16 @@ W, H = (4520, 4520) if WEB else (4600, 5650)
 CX, CY = (2260, 2260) if WEB else (W / 2, 2760)
 RINGS = [(0, 240), (240, 440), (440, 650), (650, 880), (880, 1100), (1100, 1380),
          (1380, 1640), (1640, 1870), (1870, 2010), (2010, 2130), (2130, 2240)]
+if "--generaci" in sys.argv:   # omezená hloubka (kniha): jen prvních N prstenců, roztažených na původní vnější poloměr
+    try:
+        GENERACI = int(sys.argv[sys.argv.index("--generaci") + 1])
+    except (IndexError, ValueError):
+        sys.exit("--generaci chce celé číslo ≥ 1")
+    if GENERACI < 1:
+        sys.exit("--generaci chce celé číslo ≥ 1")
+    if GENERACI < len(RINGS):
+        _f = RINGS[-1][1] / RINGS[GENERACI - 1][1]
+        RINGS = [(round(a * _f), round(b * _f)) for a, b in RINGS[:GENERACI]]
 PALETA = ["#EFB45F", "#F09A78", "#E58AA6", "#B99AE0", "#86B8E8", "#6FCBB9", "#9CD17A", "#D3D46A"]
 BASE = {k: PALETA[i % len(PALETA)] for i, k in enumerate(sorted(LINES))}
 BASE0 = PALETA[0]
