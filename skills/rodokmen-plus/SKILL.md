@@ -303,6 +303,9 @@ Podrobně `reference/web.md`. Jeden web pro osoby i domy (stránky domů `/dum/<
    majitelé, obyvatelé narození v posledních 100 letech). Hlášky `CITLIVÉ` z `kontrola.py` vyřeš; schválené úryvky do
    `web.json` → `citlive_schvaleno`.
 5. Zveřejnění (Netlify `npm run nasadit` nebo vlastní server) **jen s výslovným souhlasem**.
+6. Kniha předků (PDF): `python3 -I tools/kniha_pdf.py <id>` → `vystupy/kniha-<id>.pdf`; obsah nastaví `web.json` → `kniha`
+   (`reference/web.md`). PDF se šíří mimo přihlášení – nejdřív vyřeš všechna `CITLIVÉ` (`reference/soukromi.md`),
+   na web (`--web`) a rodině jen se souhlasem uživatele.
 
 ## Poznámky pro správce skillu
 Průběžně zapisuj do `poznamky_pro_skill.md` (kořen projektu): chyby nástrojů (příkaz, co se stalo, jak jsi to obešel),
@@ -374,3 +377,4 @@ Vždy **projektovou kopii**, nikdy `SKILL_DIR/tools/` (zapisovala by do skillu; 
 | `napady.py` | náměty na zajímavosti z dat |
 | `slusne.py`, `hlidac.py`, `zdravi.py`, `smoke_test.py [--plny]` | společný limit k archivům, hook proti obcházení, test nástrojů proti portálům (smoke_test: OK/FAIL po portálech) |
 | `export_web.py`, `export_web_domy.py`, `fan_chart.py` | data → web (osoby i domy); vějíř předků k tisku |
+| `kniha_pdf.py <id> \| --vse [--web]` | Kniha předků do PDF (`vystupy/kniha-<id>.pdf`, s `--web` i na web za bránu); `web.json` → `kniha`, `reference/web.md` |

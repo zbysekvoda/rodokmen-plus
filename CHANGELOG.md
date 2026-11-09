@@ -6,6 +6,9 @@ Nápady a kód z forků původního rodokmen-skill (MIT). Zdrojové forky a comm
 „Převzato z forků“, odkaz na původní soubor je v hlavičce převzatých nástrojů.
 
 ### Přidáno
+- Kniha předků (PDF): tisková route `/kniha/<id>/` (Paged.js), `tools/kniha_pdf.py <id> | --vse [--web]`,
+  `web.json` → `kniha` (generaci, domy, pribehy, zapisy), odkaz na stránce osoby; `kontrola.py` hlásí `CITLIVÉ`
+  i u zápisů a bydlišť (jdou do knihy), brána nginx i Netlify chrání `/kniha/*.pdf` a `/kniha/*/` (test `tests/test_brana.py`).
 - Export a přehledy: `ged_export.py` (GEDCOM 5.5.1), `prosle_knihy.py`, `fronta.py`, `kmotri.py`.
 - Procházení knih: `nahledy.py` (mřížka náhledů), `sito.py` (síto pro knihy bez rejstříku), `mapa_knihy.py`,
   sdílená mezipaměť snímků `cache.py`, orientace v knize u svazku.
