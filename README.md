@@ -69,6 +69,9 @@ Nápady z forků původního skillu, přepsané na graf osob (licence MIT):
 - portréty osob na webu (klíč obrázku s `portret`, na stránce osoby místo iniciály, mimo galerii dokumentů)
   a nabídka portrétu při zpracování fotografií v `SKILL.md` a `reference/data.md` ze
   [xkraust/rodokmen-skill@79d3685](https://github.com/xkraust/rodokmen-skill/commit/79d36850afaa080b0ebcf70a368cbbb5237d700e) (xkraust),
+- `tools/zapis.py dokumenty <klíč> --prejmenovat <nový> [--nahled]` – přejmenování klíče dokumentu včetně výřezů,
+  zvýraznění, `web.json` „uvod.foto“ a odkazů `img/…jpg`, s odmítnutím kolize s existujícím klíčem, ze
+  [xkraust/rodokmen-skill@79d3685](https://github.com/xkraust/rodokmen-skill/blob/79d36850afaa080b0ebcf70a368cbbb5237d700e/skills/rodokmen/tools/zapis.py) (xkraust),
 - vějíř na webu: plynulý posun a přibližování (kolečko, touchpad, pinch) přes sdílený `lib/panzoom.js`
   s tlačítkem „Zpět na celý vějíř“ podle
   [jozefizso/rodokmen-skill@72293c5](https://github.com/jozefizso/rodokmen-skill/commit/72293c54770db26e007f6fb477bd8148c2611d9b) (Jozef Izso)

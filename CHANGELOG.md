@@ -18,6 +18,7 @@ Nápady a kód z forků původního rodokmen-skill (MIT). Zdrojové forky a comm
 - Web: osobnosti, statistiky, portréty, věk u událostí, časová návaznost, vějíř s posunem/přibližováním
   a sloučenými sdílenými předky (`fan_chart.py`).
 - Kontroly: `audit.py`, `kontrola.py` (čísla domů), `smoke_test.py` (OK/FAIL po portálech).
+- `zapis.py dokumenty <klíč> --prejmenovat <nový> [--nahled]`: přejmenování dokumentu i s výřezy a odkazy.
 - Návody v `reference/portaly.md`: Těšínsko, FamilySearch, odsun Němců, Vídeň, Slovensko/Maďarsko/Banát,
   vojáci 1. sv. války, Franziscejský katastr Dolních Rakous, zemské desky, vodnimlyny.cz.
 
