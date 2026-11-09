@@ -27,6 +27,8 @@ Pokud vám stačí jen rodokmen, nebo jen dějiny jednoho domu, použijte klidn�
 - **Ztotožnění míst a příjmení** – německé a zkomolené názvy obcí, homonyma, slovníky tvarů (skill `ztotozneni-mist`).
 - **Paralelní bádání** – víc pomocníků na vlastních větvích, fronta úkolů, šablona zadání, ověřovací vlna,
   hledání příběhů ve vlnách a skrytých vazeb z kmotrů a svědků (skill `paralelni-badani`).
+- **Kniha předků (PDF)** – tisková kniha o předcích osoby (obálka, vějíř, karty po generacích, domy, příběhy,
+  prameny s výřezy): `web.json` → `kniha`, `python3 -I tools/kniha_pdf.py <id> [--web]`, na stránce osoby odkaz na PDF.
 - **Web v2** – strom po generacích i celý strom, rodové pásy, časová osa, odkazy mezi osobami se zpětnými zmínkami,
   příběhy, stránky domů, světlý i tmavý vzhled, přihlášení jen pro rodinu.
 
@@ -171,6 +173,8 @@ Claude zkontroluje programy, založí složku projektu a začne se ptát. Ukázk
 nechat založit předem, ať vidíte, jak web vypadá.
 
 ## Soukromí a šetrnost
+- Kniha předků (PDF, `tools/kniha_pdf.py`) má stejná pravidla jako web, ale soubor se šíří mimo přihlášení –
+  `kontrola.py` hlásí citlivé texty i pro ni; na webu je PDF za stejnou branou.
 - Data zůstávají ve složce projektu na vašem počítači. Na web jde jen to, co schválíte; žijící lidé jen jménem a rokem
   narození. Web je ve výchozím stavu za přihlášením pro rodinu.
 - Archivy blokují IP adresy po sérii rychlých dotazů. Nástroje mají společný limit a projekt nastaví hook, který zastaví

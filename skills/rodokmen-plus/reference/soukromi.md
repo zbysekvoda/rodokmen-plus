@@ -17,6 +17,13 @@ Co uživatel na webu schválí, zapiš úryvkem do `web.json` → `citlive_schva
 4. Kontakt na webu – chce tam uživatel svůj e-mail?
 Teprve pak `npm run nasadit`.
 
+## Kniha předků (PDF)
+Stejná pravidla jako web (žijící jen jméno a rok), ale **PDF se šíří mimo přihlášení**: kdo ho dostane, může ho
+poslat dál. Kniha obsahuje plné texty příběhů, poznámky, fakta, bydliště a výřezy i přepisy zápisů. `kontrola.py`
+hlásí `CITLIVÉ` i u zápisů (shrnutí, přepis, překlad) a bydlišť – vyřeš je před `kniha_pdf.py --web` i před
+posláním PDF komukoli. `citlive_schvaleno` text z knihy neodstraní, jen ho přestane hlásit. Na webu je PDF
+(`/kniha/<id>.pdf`) i tisková stránka (`/kniha/<id>/`) za stejnou branou jako zbytek webu. PDF nepatří do gitu.
+
 ## Placené a cizí služby (MyHeritage, Ancestry, Geni, FamilySearch)
 - Přihlášení, platby a předplatné řeší **jen uživatel**. Zkušební verze se po skončení automaticky platí – připomeň,
   kdy končí a kde ji zrušit.

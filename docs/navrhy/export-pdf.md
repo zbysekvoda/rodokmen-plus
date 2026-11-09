@@ -2,6 +2,16 @@
 
 Stav: analýza a návrh (2026-11-09). Vizuální návrh: [`export-pdf-navrh.html`](export-pdf-navrh.html), otevřete v prohlížeči.
 
+## Stav (2026-11-09)
+**Hotovo (MVP, flow „Kniha předků – export do PDF“):** tisková route `/kniha/<id>/` s Paged.js a `@page` CSS;
+obsah – obálka, statistiky, vějíř přes dvoustranu, karty po generacích, domy, příběhy, prameny s výřezy, tiráž;
+`web.json` → `kniha`; `tools/kniha_pdf.py` (Chrome přes CDP, zmenšení výřezů) a odkaz na stránce osoby;
+soukromí – žijící jako na webu, `kontrola.py` hlásí `CITLIVÉ` i u zápisů a bydlišť, brána nginx i Netlify chrání
+`/kniha/*.pdf` a `/kniha/*/`; dokumentace v `reference/web.md` a `reference/soukromi.md`.
+Ukázka `jan-novak-1890`: 15 stran, 0,47 MB.
+
+**Odloženo:** statická mapa míst (dlaždice nejdou volně do tisku, viz Rizika – Mapy) a rodové pásy.
+
 ## Co chceme
 Na stránce osoby (`/osoba/<id>/`) jde vytvořit PDF pro tuto osobu jako kořen: její předky, příběhy, domy,
 ve kterých předci žili, a ukázky zápisů z matrik. Výstup má být vizuálně pěkný, na tisk (A4) i na čtení na obrazovce.
