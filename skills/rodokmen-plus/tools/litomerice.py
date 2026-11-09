@@ -76,9 +76,11 @@ OVERENI_KOD = 5   # portál chce ověření člověka (proof-of-work v prohlíž
 
 
 def kontrola(page):
-    if "/human/verify" in page[:8000] or "Ověřujeme, že jste člověk" in page[:8000]:
+    if re.search(r"/human/(verify|challenge)|Ověřujeme, že jste člověk", page[:8000]):
         print("Portál digi.soalitomerice.cz teď před vstupem ověřuje, že jde o člověka (ochrana proti botům). Nástroj ji "
-              "neobchází: knihu a snímek najdi v prohlížeči, snímek pak stáhni přes tools/soal_zoomify.py "
+              "neobchází a další požadavky neposílá. Postup: v prohlížeči otevři https://digi.soalitomerice.cz/digitalnibadatelna/ "
+              "a projdi ověřením, najdi knihu a snímek; z prohlížeče (vývojářské nástroje → Síť, hledej ImageProperties.xml) "
+              "zkopíruj adresu zoomify a snímek stáhni přes tools/soal_zoomify.py <adresa> <zmenseni> <vystup.jpg> "
               "(obrázkový server ověření nemá).", file=sys.stderr)
         sys.exit(OVERENI_KOD)
     if "ProArch Server Exception" in page[:6000]:
