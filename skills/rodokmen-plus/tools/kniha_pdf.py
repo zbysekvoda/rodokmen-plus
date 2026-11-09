@@ -11,7 +11,7 @@ Když web/dist knihu neobsahuje, spustí `npm run data` (chybí-li data) a `npm 
 Jak: dist obslouží lokální HTTP server (file:// rozbije cesty /_astro/), výřezy z /img/ a /zdroje/ cestou
 zmenší na tiskových ~200 dpi (ImageMagick, prostredi.zmensi_obrazek). Chrome se ovládá přes DevTools protokol
 (vlastní minimální WebSocket klient, jen standardní knihovna): tiskne se až po window.knihaHotovo, tj. když
-Paged.js dosází všechny stránky. `chrome --print-to-pdf --virtual-time-budget` by dosázel jen první stranu.
+Paged.js dosází všechny stránky. Prostý `chrome --print-to-pdf` s časovým rozpočtem by dosázel jen první stranu.
 """
 import base64, functools, http.server, json, os, shutil, socket, struct, subprocess, sys, tempfile, threading, time
 import urllib.parse, urllib.request
@@ -25,7 +25,7 @@ WEB = os.path.join(ROOT, "web")
 DIST = os.path.join(WEB, "dist")
 TISK_PX = 1400            # delší strana výřezu v PDF: ~170 mm sazby × 200 dpi
 ZMENSIT = ("/img/", "/zdroje/")
-LIMIT_S = 180             # nejdéle na dosazení jedné knihy
+LIMIT_S = int(os.environ.get("RODOKMEN_KNIHA_LIMIT_S", "180"))  # nejdéle na dosazení jedné knihy
 
 
 # ---------- čistá logika (testy v tests/test_kniha_pdf.py) ----------
@@ -121,7 +121,7 @@ class WebSocket:
 
     def __init__(self, url):
         u = urllib.parse.urlparse(url)
-        self.s = socket.create_connection((u.hostname, u.port), timeout=LIMIT_S)
+        self.s = socket.create_connection((u.hostname, u.port), timeout=max(LIMIT_S, 30))
         klic = base64.b64encode(os.urandom(16)).decode()
         self.s.sendall((f"GET {u.path} HTTP/1.1\r\nHost: {u.hostname}:{u.port}\r\nUpgrade: websocket\r\n"
                         f"Connection: Upgrade\r\nSec-WebSocket-Key: {klic}\r\nSec-WebSocket-Version: 13\r\n\r\n").encode())
@@ -254,7 +254,12 @@ def main(argv):
     ch = Chrome(chrome)
     try:
         for o in osoby:
-            pdf = ch.vytiskni(f"http://127.0.0.1:{srv.server_address[1]}/kniha/{o}/")
+            try:
+                pdf = ch.vytiskni(f"http://127.0.0.1:{srv.server_address[1]}/kniha/{o}/")
+            except TimeoutError as e:
+                sys.exit(f"{e}.\nZkontrolujte: chyby JS v konzoli stránky /kniha/{o}/ (`npm run dev` ve web/), "
+                         "že Kniha.astro po dosazení Paged.js nastaví window.knihaHotovo, a u velké knihy "
+                         "prodlužte limit: RODOKMEN_KNIHA_LIMIT_S=600.")
             for cil in vystupni_cesty(ROOT, o, web):
                 os.makedirs(os.path.dirname(cil), exist_ok=True)
                 with open(cil, "wb") as f:
