@@ -78,7 +78,7 @@ KONTROLY = [
 ]
 # Portály, které před vstupem ověřují člověka (výpočet v prohlížeči). Nástroj to neobchází a skončí tímto kódem;
 # kontrola pak hlásí OK s poznámkou – server žije, nástroj ověření poznal, hledání jde jen v prohlížeči.
-OVERENI_CLOVEKA = {"litomerice": 5}
+OVERENI_CLOVEKA = {"litomerice": 5, "mza": 5}
 # Nástroje, které bez souhlasu uživatele (souhlas.py) nedotazují portál: bez souhlasu se kontroluje jen dostupnost serveru.
 SOUHLAS = {"holocaust": ("obeti", "https://www.holocaust.cz/databaze-obeti/"),
            "arolsen": ("arolsen", "https://collections.arolsen-archives.org/"),

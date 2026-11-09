@@ -16,6 +16,7 @@ Použití (z kořene projektu `python3 -I tools/mza.py …`, na Windows `python 
 <id> = číslo z adresy knihy …/actapublica/matrika/detail/<id> (není to číslo knihy). Snímky se číslují od 1
 jako v prohlížeči portálu. Obrázkový server bere jen HTTP/2 – snímky proto stahuje `curl` (Python dostane HTTP 426).
 Ber ohled na server: stahuj jen snímky, které čteš.
+POZOR: od 11/2026 portál před snímky knihy ověřuje člověka (ALTCHA v prohlížeči); nástroj to neobchází a skončí kódem 5.
 """
 import html, json, os, re, shutil, subprocess, sys, time, urllib.error, urllib.parse, urllib.request
 for _s in (sys.stdout, sys.stderr):   # UTF-8 výstup i na Windows bez -X utf8 (cp1250 neumí třeba „→“)
@@ -111,6 +112,12 @@ def matriky(oid):
 # ---------- detail knihy ----------
 
 _DETAIL = {}
+OVERENI_KOD = 5   # portál chce ověření člověka (ALTCHA v prohlížeči) – zdravi.py to rozliší od chyby nástroje
+
+
+def brana_altcha(t):
+    """Stránka místo snímků ukazuje bránu ALTCHA (ověření člověka, od 11/2026)."""
+    return 'id="altcha-gate"' in t or "altcha/challenge" in t
 
 
 def detail(mid):
@@ -119,6 +126,11 @@ def detail(mid):
             sys.exit(f"id knihy „{mid}“ musí být číslo z adresy …/matrika/detail/<id>")
         t = get(f"matrika/detail/{mid}")
         m = re.search(r"CreateSeadragon\(\s*(\[.*?\])\s*,\s*(\[.*?\])\s*,\s*(\[.*?\])", t, re.S)
+        if not m and brana_altcha(t):
+            print(f"MZA (Acta Publica) teď před snímky knihy {mid} ověřuje, že nejste robot (ALTCHA – výpočet v prohlížeči). "
+                  f"Nástroj ověření neobchází: otevři knihu v prohlížeči ({BASE}matrika/detail/{mid}) a snímky čti tam.",
+                  file=sys.stderr)
+            sys.exit(OVERENI_KOD)
         if not m:
             sys.exit(f"Kniha {mid}: na stránce chybí seznam snímků – kniha neexistuje, není online, "
                      "nebo portál změnil stránku (nahlas to do poznamky_pro_skill.md).")
