@@ -1,0 +1,33 @@
+---
+// Dům předků: obrázek (foto z dokumentů, stará mapa, jinak skica s číslem popisným), držitelé – předci kořene zvýraznění.
+import { houseTitle, span, people } from '../../lib/data.js';
+import { anchorId } from '../../lib/kniha-vyber.js';
+const { h, pred, root } = Astro.props;
+const photo = h.docs?.[0] ? { img: h.docs[0].img, cap: h.docs[0].caption } : h.maps?.[0] ? { img: h.maps[0].img, cap: [h.maps[0].year, h.maps[0].title, h.maps[0].source && `(${h.maps[0].source})`].filter(Boolean).join(' ') } : null;
+const rows = h.owners?.length ? h.owners.map((o) => ({ when: span(o.since, o.until), name: o.name, extra: o.how, person: o.person }))
+  : (h.family ?? []).map((f) => ({ when: span(f.since, f.until), name: f.name ?? people[f.person]?.name ?? '', extra: f.role, person: f.person }));
+---
+<section class="house" id={anchorId('dum', h.slug)}>
+  <div class="kicker">Dům předků</div>
+  <h2 class="ch">{h.name ? `${h.name}, ${h.obec} čp. ${h.cp}` : houseTitle(h)}</h2>
+  {photo ? (
+    <figure class="house-hero"><img src={`/img/${photo.img}.jpg`} alt={houseTitle(h)} /><figcaption class="cap">{photo.cap}</figcaption></figure>
+  ) : (
+    <figure class="house-hero sketch">
+      <svg viewBox="0 0 420 150" aria-hidden="true">
+        <rect width="420" height="150" fill="#e3d6bb" />
+        <g fill="none" stroke="#a08a63" stroke-width=".8"><path d="M0 110 C80 95 140 120 220 100 S360 90 420 105" /><path d="M30 0 L60 150 M300 0 L270 150" /></g>
+        <g fill="#c9b48c" stroke="#8a3b2a" stroke-width=".8"><rect x="170" y="52" width="60" height="34" /><rect x="238" y="60" width="30" height="26" /></g>
+        <text x="200" y="74" text-anchor="middle" font-family="serif" font-size="11" fill="#8a3b2a">{h.cp}</text>
+      </svg>
+      <figcaption class="cap">Schematická skica – obrázek domu zatím chybí ({h.obec} čp. {h.cp}).</figcaption>
+    </figure>
+  )}
+  {h.desc && <p>{h.desc}</p>}
+  {rows.length > 0 && (
+    <table class="owners">
+      {rows.map((o) => <tr><td>{o.when || '?'}</td><td class={o.person && pred.has(o.person) ? 'pred' : ''}>{o.person && pred.has(o.person) ? <a class="ref" href={`#${anchorId('osoba', o.person)}`}>{o.name}</a> : o.name}{o.extra && <span class="muted">, {o.extra}</span>}</td></tr>)}
+    </table>
+  )}
+  <div class="legend"><span>◆ přímý předek: {root.name}</span></div>
+</section>
