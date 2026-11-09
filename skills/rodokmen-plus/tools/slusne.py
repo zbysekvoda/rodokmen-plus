@@ -6,6 +6,8 @@ a archivy pak přitvrzují vůči všem. Proto:
 - limit platí pro každý web zvlášť a je SPOLEČNÝ všem procesům (pomocníci/subagenti, dva nástroje najednou),
 - dotazy (hledání, API, HTML) přísně – výchozí 1 za 2 s; obrázky a dlaždice volněji – 20 za s
   (ban způsobují rychlé dotazy, ne dlaždice jednoho snímku),
+- weby, které skripty zakázaly (ZAKAZ_SKRIPTU: SOA Třeboň a eBadatelna SOA Praha od 2. 11. 2026), se vůbec
+  nedotazují – nástroj hned skončí hláškou, co dělat ručně v prohlížeči,
 - po HTTP 429 nebo 503 (a po 403 na dotaz uprostřed práce) se web zablokuje na 30 minut pro všechny procesy a nástroj hned skončí –
   žádné další pokusy; chce-li server v Retry-After (sekundy i datum HTTP) delší pauzu, trvá blokace tak dlouho,
 - když server hlásí, že dotazy docházejí (RateLimit-Remaining / X-RateLimit-Remaining 0–1, i tvar `RateLimit: r=0;t=30`),
@@ -35,12 +37,37 @@ LIMITY = {
     "slovakiana.sk": (10.0, 10.0), "wcm.slovakiana.sk": (10.0, 10.0), "content.slovakiana.sk": (10.0, 10.0),
 }
 BLOKACE = 30 * 60
+# Weby, které skripty zakázaly (HTTP 403 pro všechno kromě prohlížeče). Požadavek se vůbec neodešle – žádné obcházení
+# (User-Agent, cookies z prohlížeče, proxy). host → (název, od kdy, co dělat ručně v prohlížeči)
+ZAKAZ_SKRIPTU = {
+    "digi.ceskearchivy.cz": ("SOA Třeboň (digi.ceskearchivy.cz)", "2. 11. 2026",
+                             "otevři https://digi.ceskearchivy.cz v prohlížeči, svazek najdi přes hledání místa "
+                             "a snímek si ulož nebo opiš trvalý odkaz https://digi.ceskearchivy.cz/<id_knihy>/<snímek>"),
+    "ebadatelna.soapraha.cz": ("SOA Praha – eBadatelna (ebadatelna.soapraha.cz)", "2. 11. 2026",
+                               "otevři https://ebadatelna.soapraha.cz v prohlížeči, matriku najdi přes lokalitu "
+                               "a snímek si ulož nebo opiš trvalý odkaz https://ebadatelna.soapraha.cz/d/<matrikaId>/<snímek>"),
+}
 OBRAZEK = re.compile(r"\.(jpe?g|png|gif|webp|tiff?|jp2|dzi)(\?|$)|_files/|iipsrv|IIIF=|Deepzoom=|ximage|zoomify|"
                      r"TileGroup|ImageProperties\.xml|isrv\d*\.cgi|/full/|default\.jpg|/image/|mrimage|/tiles?/", re.I)
 
 
 class Zablokovano(SystemExit):   # SystemExit: nástroje chytají OSError/Exception – tohle jim neproklouzne do opakování
     pass
+
+
+class ZakazSkriptu(Zablokovano):
+    pass
+
+
+def zakaz_skriptu(host):
+    """Hláška pro web, který skripty zakázal, jinak None."""
+    z = ZAKAZ_SKRIPTU.get((host or "").lower())
+    if not z:
+        return None
+    nazev, od, rucne = z
+    return (f"STOP: {nazev} od {od} odmítá skripty (HTTP 403) – požadavek se neodeslal. Portál NEOBCHÁZEJ "
+            f"(jiný User-Agent, cookies z prohlížeče, proxy, jiný nástroj). Ručně: {rucne}. "
+            f"Řekni to uživateli a pokračuj jiným pramenem.")
 
 
 def adresar():
@@ -173,6 +200,9 @@ class Fronta(SystemExit):
 
 
 def _zkontroluj_blokaci(host):
+    z = zakaz_skriptu(host)
+    if z:
+        raise ZakazSkriptu(z)
     b = blokace(host)
     if b:
         raise Zablokovano(_hlaska(host, *b))
@@ -219,6 +249,8 @@ def posoudit(host, co, kod, retry_after=None):
     """Po odpovědi: 429/503 (a 403 na dotaz) → zablokovat web a skončit.
     403 hned na první dotaz bývá špatný User-Agent nebo neveřejná stránka, ne zátěž – skončí bez blokace."""
     host = host.lower()
+    if kod == 403 and zakaz_skriptu(host):   # sem se běžně nedojde (pockej neodešle), ale 403 nikdy neopakovat
+        raise ZakazSkriptu(zakaz_skriptu(host))
     if kod < 400:
         with open(_soubor(host, "ok"), "w"):
             pass
@@ -232,6 +264,13 @@ def posoudit(host, co, kod, retry_after=None):
         proc = f"HTTP {kod}" + (f", Retry-After {retry_after}" if retry_after else "")
         zablokuj(host, proc, sekund)
         raise Zablokovano(_hlaska(host, time.time() + sekund, proc))
+
+
+def po_odpovedi(host, co, kod, hlavicka):
+    """Společně pro http.client i curl: posoudit kód (s Retry-After) a pak hlášení o docházejících dotazech.
+    hlavicka: funkce jméno → hodnota nebo None."""
+    posoudit(host, co, kod, hlavicka("Retry-After"))
+    hlavicky_limitu(host, hlavicka)
 
 
 _lokalni = threading.local()
@@ -255,8 +294,7 @@ def instaluj():
     def getresponse(self, *a, **k):
         r = get(self, *a, **k)
         host, co = getattr(_lokalni, "posledni", (self.host, "dotaz"))
-        posoudit(host, co, r.status, r.getheader("Retry-After"))
-        hlavicky_limitu(host, r.getheader)
+        po_odpovedi(host, co, r.status, r.getheader)
         return r
 
     http.client.HTTPConnection.putrequest = putrequest
@@ -267,8 +305,26 @@ HODNOTOVE = {"-e", "--referer", "-x", "--proxy", "-H", "--header", "-b", "--cook
              "-u", "--user", "-d", "--data", "--data-urlencode", "-F", "--form"}   # volby curl, jejichž hodnota může být adresa
 
 
+def hlavicky_ze_souboru(cesta):
+    """Hlavičky poslední odpovědi ze souboru curl -D (při -L je v něm víc odpovědí za sebou) → funkce jméno → hodnota."""
+    try:
+        with open(cesta, encoding="latin-1") as f:
+            radky = f.read().splitlines()
+    except OSError:
+        radky = []
+    hlavicky = {}
+    for radek in radky:
+        if radek.startswith("HTTP/"):   # začátek další odpovědi – platí jen hlavičky té poslední
+            hlavicky = {}
+        elif ":" in radek:
+            k, v = radek.split(":", 1)
+            hlavicky[k.strip().lower()] = v.strip()
+    return lambda jmeno: hlavicky.get(jmeno.lower())
+
+
 def curl(args, **kw):
-    """Spustí curl s limitem: počká podle první adresy, po odpovědi posoudí kód. Vrací CompletedProcess (stderr jako text)."""
+    """Spustí curl s limitem: počká podle první adresy, po odpovědi posoudí kód a hlavičky (Retry-After, RateLimit-*).
+    Vrací CompletedProcess (stderr jako text)."""
     urls = [a for i, a in enumerate(args) if re.match(r"https?://", a) and (i == 0 or args[i - 1] not in HODNOTOVE)]
     host = urllib.parse.urlsplit(urls[0]).hostname if urls else ""
     co = druh(urls[0]) if urls else "dotaz"
@@ -285,11 +341,32 @@ def curl(args, **kw):
             break
     else:
         args += ["-w", znacka]
-    p = subprocess.run(["curl", *args], **kw)
+    # Hlavičky odpovědi: vlastní -D <soubor> přečíst, jinak přidat svůj dočasný. „-D -“ (na stdout) nechat být –
+    # druhé -D by ho přebilo; pak se posoudí jen kód.
+    soubor_hlavicek, docasny = None, False
+    for i, x in enumerate(args[:-1]):
+        if x in ("-D", "--dump-header"):
+            soubor_hlavicek = None if args[i + 1] == "-" else args[i + 1]
+            break
+    else:
+        import tempfile
+        fd, soubor_hlavicek = tempfile.mkstemp(prefix="slusne_hlavicky_")
+        os.close(fd)
+        docasny = True
+        args += ["-D", soubor_hlavicek]
+    try:
+        p = subprocess.run(["curl", *args], **kw)
+        hlavicka = hlavicky_ze_souboru(soubor_hlavicek) if soubor_hlavicek else (lambda jmeno: None)
+    finally:
+        if docasny:
+            try:
+                os.remove(soubor_hlavicek)
+            except OSError:
+                pass
     kody = re.findall(r"SLUSNE (\d+)", p.stderr or "")
     p.stderr = re.sub(r"\n?SLUSNE \d+\n", "", p.stderr or "")
     if host and kody:
-        posoudit(host, co, int(kody[-1]))
+        po_odpovedi(host, co, int(kody[-1]), hlavicka)
     return p
 
 

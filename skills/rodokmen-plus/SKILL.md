@@ -137,7 +137,8 @@ Podrobně `reference/matriky.md`, portály `reference/portaly.md`.
 2. **Ověř přístupnost**: v archivu je svazek až po lhůtě od posledního zápisu (narození 100 let, sňatky 75, úmrtí 30).
    Mladší → matriční úřad, zapiš do `data/archivni_dotazy.md`.
 3. **Najdi svazek**: obec → farnost → archiv. ARON `aron_search.py`, SOA Třeboň `trebon.py`, Porta fontium
-   `portafontium.py`, SOA Praha `ebadatelna.py`, Praha `ahmp_search.sh`, MZA Brno `mza.py` (často za ALTCHA →
+   `portafontium.py`, SOA Praha `ebadatelna.py` (Třeboň a eBadatelna od 2. 11. 2026 zakázaly skripty – nástroj
+   skončí hláškou bez dotazu; uživatel svazek najde v prohlížeči a pošle trvalý odkaz/snímek, neobcházej), Praha `ahmp_search.sh`, MZA Brno `mza.py` (často za ALTCHA →
    skill `matriky-v-prohlizeci`). Knihu může stáhnout i uživatel ručně (složka s `obsah.txt`,
    `reference/portaly.md`). Sňatek hledej nejdřív ve farnosti nevěsty. Starší matriky (před ~1784) bývají ve faře
    sousedního města.
@@ -352,8 +353,8 @@ Vždy **projektovou kopii**, nikdy `SKILL_DIR/tools/` (zapisovala by do skillu; 
 | `kmotri.py [--min N]` | kmotři a svědci jako stopy: hrany `kmotr`/`svedek` + jména ze `shrnuti` zápisů, opakovaná příjmení |
 | `kontrola.py`, `kontrola_domy.py` | kontrola dat osob, domů a křížových odkazů, soukromí, kdy psát příběh |
 | `aron_search.py`, `aron_img.py` | ARON (SOA Zámrsk): matriky, sčítání, gruntovní knihy |
-| `trebon.py` | SOA Třeboň: matriky, rejstříky, sčítání, strom fondů (gruntovní knihy, urbáře) |
-| `portafontium.py`, `ebadatelna.py` | SOA Plzeň (matriky, okresní civilní matriky, sčítání lidu 1857–1921 po domech); SOA Praha (matriky i archiválie `a-…`) |
+| `trebon.py` | (od 2. 11. 2026 jen v prohlížeči, nástroj portál nedotazuje) SOA Třeboň: matriky, rejstříky, sčítání, strom fondů (gruntovní knihy, urbáře) |
+| `portafontium.py`, `ebadatelna.py` | SOA Plzeň (matriky, okresní civilní matriky, sčítání lidu 1857–1921 po domech); SOA Praha (matriky i archiválie `a-…`; eBadatelna od 2. 11. 2026 jen v prohlížeči) |
 | `slovakiana.py` | sčítací hárky 1930 celého Slovenska (Slovakiana, SNA; 1 dotaz za 10 s) |
 | `mza.py` | MZA Brno (Acta Publica) – detail knihy bývá za ALTCHA → `matriky-v-prohlizeci` |
 | `scitani_mza.py` | sčítací operáty MZA (Morava) přes Deepzoom dlaždice |

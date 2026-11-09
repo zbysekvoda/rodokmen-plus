@@ -78,7 +78,7 @@ KONTROLY = [
 ]
 # Portály, které před vstupem ověřují člověka (výpočet v prohlížeči). Nástroj to neobchází a skončí tímto kódem;
 # kontrola pak hlásí OK s poznámkou – server žije, nástroj ověření poznal, hledání jde jen v prohlížeči.
-OVERENI_CLOVEKA = {"litomerice": 5}
+OVERENI_CLOVEKA = {"litomerice": 5, "mza": 5}
 # Nástroje, které bez souhlasu uživatele (souhlas.py) nedotazují portál: bez souhlasu se kontroluje jen dostupnost serveru.
 SOUHLAS = {"holocaust": ("obeti", "https://www.holocaust.cz/databaze-obeti/"),
            "arolsen": ("arolsen", "https://collections.arolsen-archives.org/"),
@@ -159,6 +159,9 @@ def main():
                                    errors="replace", timeout=180)
                 vystup = p.stdout + p.stderr
                 ok = p.returncode == 0 and re.search(vzor, p.stdout, re.M) is not None
+                if not ok and "odmítá skripty (HTTP 403) – požadavek se neodeslal" in vystup:
+                    print(f"OK    {portal:13} {popis:28} (portál zakázal skripty – jen prohlížeč, viz slusne.py)")
+                    continue
                 if not ok and OVERENI_CLOVEKA.get(portal) == p.returncode:
                     print(f"OK    {portal:13} {popis:28} (portál ověřuje člověka – jen prohlížeč)")
                     continue

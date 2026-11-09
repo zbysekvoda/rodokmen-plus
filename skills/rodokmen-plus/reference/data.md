@@ -105,7 +105,17 @@ Export (`export_web.py`) pozná portrét podle podřetězce `portret` v klíči 
 písmen. Portrét musí mít právě jednu známou osobu, jinak ho přeskočí s varováním; na osobu bere první existující
 v pořadí `dokumenty.json` a na další upozorní. Portréty se nezobrazují v galerii dokumentů ani u osoby mezi dokumenty.
 Při odmítnutí použij klíč bez `portret`. **Osoba už portrét má:** nabídni ponechání, nebo nahrazení – starému pak
-dej klíč bez `portret` (`vyrez.py` s novým klíčem a úprava položky přes `zapis.py`), vrátí se mezi dokumenty.
+dej klíč bez `portret` (`zapis.py dokumenty <starý> --prejmenovat <nový>`), vrátí se mezi dokumenty.
+
+**Přejmenování dokumentu** (podle [xkraust/rodokmen-skill@79d3685](https://github.com/xkraust/rodokmen-skill/blob/79d36850afaa080b0ebcf70a368cbbb5237d700e/skills/rodokmen/tools/zapis.py)):
+```text
+python3 -I tools/zapis.py dokumenty jan_novak_1890_portret --prejmenovat jan_novak_1890 --nahled
+python3 -I tools/zapis.py dokumenty jan_novak_1890_portret --prejmenovat jan_novak_1890
+```
+Změní `img` v `dokumenty.json`, přejmenuje `<klíč>.jpg` ve `vyrezy/`, `zdroje/` a `web/public/`, klíč v
+`zvyrazneni.json`, `uvod.foto` ve `web.json` a odkazy `img/…`, `vyrezy/…`, `zdroje/…jpg` v datech a `web/src`.
+Kolizi s jiným dokumentem, mapou nebo matričním zápisem odmítne; při chybě vrátí provedené změny. `--nahled` jen vypíše,
+co by změnil. Originál v `dokumenty/` zůstane. Pak spusť `kontrola.py` a export webu.
 
 ## `web.json` – nastavení webu
 Viz `web.md`.
