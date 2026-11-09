@@ -111,12 +111,13 @@ příběhy, prameny s výřezy zápisů a tiráž. Tok:
    `"vse"` (všechny zápisy osob knihy s výřezem), `false` (žádné výřezy na kartách ani v pramenech).
    `"kniha": false` knihy vypne úplně (export nevyrábí vějíře pro knihy, stránka osoby nemá odkaz).
 2. `npm run data` (`export_web.py`) napíše `src/generated/kniha/fan-<id>.svg` pro každou osobu s ≥ 2 generacemi předků.
-   Vějíř v knize má plnou hloubku jako `fan_chart.py`, není omezený na `generaci` (ta platí jen pro karty).
+   Vějíř v knize má stejnou hloubku jako kapitoly (`generaci`): `export_web.py` volá `fan_chart.py --generaci <N>`.
+   Vějíř na `/vejir/` i plakát z `fan_chart.py` bez `--generaci` dál kreslí plnou hloubku.
 3. `npm run build` → tisková stránka `/kniha/<id>/` (Paged.js; v prohlížeči `/kniha/<id>/?tisk` otevře tisk).
 4. `python3 -I tools/kniha_pdf.py <id> [--web]` nebo `--vse [--web]` → `vystupy/kniha-<id>.pdf`. Nástroj sám spustí
    `npm install` / `npm run data` / `npm run build`, když `web/dist` knihu neobsahuje, obslouží dist lokálním serverem,
-   výřezy z `/img/` a `/zdroje/` zmenší na 1400 px (ImageMagick) a tiskne headless Chromem až po `window.knihaHotovo`.
-   Chrome jinde než ve výchozí cestě: proměnná `RODOKMEN_CHROME`. Ukázka (`jan-novak-1890`): 15 stran, ~0,5 MB.
+   výřezy z `/img/` a `/zdroje/` zmenší na 1100 px, JPEG kvalita 65 (ImageMagick; kniha se `zapisy: "vse"` má kolem 10 MB) a tiskne headless Chromem až po `window.knihaHotovo`.
+   Chrome jinde než ve výchozí cestě: proměnná `RODOKMEN_CHROME`; limit na dosazení jedné knihy (výchozí 180 s) `RODOKMEN_KNIHA_LIMIT_S`. Ukázka (`jan-novak-1890`): 15 stran, ~0,5 MB.
 5. S `--web` jde PDF i do `web/public/kniha/<id>.pdf` (a do `dist/`); odkaz „Kniha předků (PDF)“ na stránce osoby
    se objeví po dalším `npm run build`.
 
