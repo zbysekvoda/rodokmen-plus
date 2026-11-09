@@ -12,7 +12,7 @@ Aktualizace staršího projektu (znovu spustit na stejnou složku): tools/ se p�
 které se liší od nové šablony, taky – jejich staré verze se nejdřív uloží do pracovni/zaloha_web_<datum>/.
 web/src/local/ (vlastní komponenty, stránky a přesměrování projektu) se nepřepisuje ani nemaže.
 """
-import filecmp, os, shutil, sys, time
+import argparse, filecmp, os, shutil, sys, time
 for _s in (sys.stdout, sys.stderr):   # UTF-8 výstup i na Windows bez -X utf8 (cp1250 neumí třeba „→“)
     if hasattr(_s, "reconfigure"):
         _s.reconfigure(encoding="utf-8", errors="replace")
@@ -56,11 +56,20 @@ def copy_tree(src, dst, backup=None):
     return changed
 
 
-def main():
-    if len(sys.argv) < 2:
-        sys.exit(__doc__)
-    dst = os.path.abspath(os.path.expanduser(sys.argv[1]))
-    demo = "--ukazka" in sys.argv
+def parse_args(argv=None):
+    popis, _, epilog = __doc__.partition("\n\n")
+    p = argparse.ArgumentParser(prog="novy_projekt.py", description=popis.strip(), epilog=epilog.strip(),
+                                formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("cil", metavar="cílová_složka", help="složka projektu (vytvoří se, existující data se nepřepisují)")
+    p.add_argument("--ukazka", action="store_true",
+                   help="nakopíruje i vymyšlená ukázková data (rodina Novákových), aby šel web hned vyzkoušet")
+    return p.parse_args(argv)
+
+
+def main(argv=None):
+    args = parse_args(argv)
+    dst = os.path.abspath(os.path.expanduser(args.cil))
+    demo = args.ukazka
     os.makedirs(dst, exist_ok=True)
     copy_tree(os.path.join(SKILL, "template", "ukazka" if demo else "data"), os.path.join(dst, "data"))
     if demo:
