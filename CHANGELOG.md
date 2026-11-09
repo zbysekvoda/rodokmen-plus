@@ -24,6 +24,9 @@ Nápady a kód z forků původního rodokmen-skill (MIT). Zdrojové forky a comm
 ### Změněno
 - `slusne.py`: Retry-After a hlavičky RateLimit-*, sdílený limit pro všechny síťové nástroje.
 - Ukázkový projekt: křest Jana Nováka 1890 přesunut na snímek 119, aby seděl s orientací svazku ukazka01.
+- `novy_projekt.py`: argumenty přes argparse – `--help` vypíše nápovědu a nic nezaloží (dřív vznikla složka
+  „--help“), neznámá volba skončí chybou bez zápisu, `--ukazka` funguje před i za cílovou složkou.
+  Test `tests/test_novy_projekt.py`.
 
 ### Známé problémy
 - SOA Třeboň (`trebon.py`) a SOA Praha (`ebadatelna.py`) odmítají skripty (HTTP 403) – smoke FAIL.
