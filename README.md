@@ -150,6 +150,14 @@ skills/paralelni-badani/        pomocníci, větve, briefy, vlny příběhů
 - Claude Code s předplatným, které unese delší práci (velké kolo hledání stojí dost kreditů).
 - Python 3.9+, Node.js 20+ (nebo Bun), ImageMagick 7 a git – Claude vám s instalací pomůže.
 - Pro portály za ověřením (MZA Brno) Chrome s rozšířením Claude in Chrome. Bez něj zbytek funguje, jen Morava hůř.
+
+  **MZA Brno od 11/2026:** snímky matrik v Acta Publica chrání ověření ALTCHA, takže je jde prohlížet a stahovat
+  jen ručně v prohlížeči. Nástroj `mza.py` to pozná, skončí kódem 5 a vypíše odkaz na knihu; Claude ověření
+  neobchází ani nezkouší znovu – pošle vám odkaz, číslo knihy a které snímky potřebuje. Vy knihu otevřete
+  v Chromu a projdete ověřením; pak ji s vámi Claude čte v prohlížeči, nebo snímky uložíte do
+  `pracovni/mza_<id>_<název>_manual/` a skill s nimi pracuje jako s ručně staženou knihou
+  (postup v `skills/rodokmen-plus/reference/portaly.md`, „Ručně stažené knihy“). Hledání obcí a seznam knih
+  (`mza.py hledat`, `mza.py matriky`) fungují dál bez prohlížeče.
 - Volitelně SWI-Prolog (`swipl`) na dotazy o příbuzenství.
 
 ## Instalace
