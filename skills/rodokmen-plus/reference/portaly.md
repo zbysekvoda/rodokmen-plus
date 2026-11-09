@@ -6,13 +6,14 @@ Matriky jsou online u osmi státních archivů – podle toho, **kde předci ži
 |---|---|---|---|
 | SOA Zámrsk | východní Čechy (Hradecký a Pardubický kraj) | ARON – aron.vychodoceskearchivy.cz | **ano – hotové nástroje** |
 | SOA Praha | střední Čechy | eBadatelna – ebadatelna.soapraha.cz | **ano – nástroj `ebadatelna.py`** (i urbáře a gruntovní knihy) |
-| SOA Plzeň | západní Čechy | Porta fontium – portafontium.eu | **ano – nástroj `portafontium.py`** |
+| SOA Plzeň | západní Čechy | Porta fontium – portafontium.eu | **ano – nástroj `portafontium.py`** (i sčítání lidu 1857–1921 a okresní civilní matriky) |
 | SOA Třeboň | jižní Čechy | digi.ceskearchivy.cz | **ano – nástroj `trebon.py`** |
 | SOA Litoměřice | severní Čechy | Digitální badatelna – digi.soalitomerice.cz | **částečně – `litomerice.py`, `soal_zoomify.py`** (portál ověřuje člověka → knihu najdi v prohlížeči) |
 | AHMP | hl. m. Praha | katalog.ahmp.cz (Pragapublica) | **ano – `ahmp_search.sh`, `ahmp_scan.py`** |
 | MZA Brno | jižní Morava, Vysočina z části | Acta Publica – www.mza.cz/actapublica | částečně – v prohlížeči (postup níže) |
 | ZA Opava | severní Morava a Slezsko, Olomoucko a Litovelsko | Digitální badatelna – digi.archives.cz/da/ | **částečně – `soal_zoomify.py`** (jen s prohlížečem, CAPTCHU řeší uživatel) |
 | Národní archiv | židovské matriky (HBMa), soupisy; pražské policejní přihlášky 1850–1914 | badatelna.eu; digi.nacr.cz/prihlasky2 | židovské matriky **ano – `vademecum.py`**; přihlášky **ano – `policie_prihlasky.py`** |
+| Slovenský národný archív | sčítací hárky 1930 (a zčernené 1940) celého Slovenska – kdo bydlel v domě | Slovakiana – slovakiana.sk/scitacie-harky | **ano – `slovakiana.py`** (index obce; snímky jen vybraných hárků) |
 
 Adresy u nevyzkoušených portálů ověř při prvním použití (portály se mění). Pro pohraničí a mimo ČR viz `playbook.md` §2
 (Matricula pro Rakousko/Německo, Geneteka pro Polsko, FamilySearch pro Slovensko) a níže.
@@ -66,6 +67,21 @@ Adresy u nevyzkoušených portálů ověř při prvním použití (portály se m
   požadavkem (IIIF), `nahled` = 1/4. Číslo snímku = pořadí náhledu v prohlížeči; soubory nesou číslo folia
   (`dolni-bela-17_0951` = fol. 95), takže u knih se souvislou foliací je **snímek ≈ folio**.
 - `link <kniha> <snímek>` → trvalý odkaz, `svazek <kniha>` → `svazky.json` (klíč `pf_<kniha>`).
+- **Okresní civilní matriky** (lidé bez vyznání a civilní sňatky; většinou 1920–1949, některé knihy od 70. let 19. století;
+  okresní úřady Domažlice, Klatovy, Plzeň, Tachov a další): `portafontium.py fara okresni-urad/domazlice` → knihy jako u fary
+  (`domazlice-okresni-urad-01` …); dál `info`, `snimek`, `svazek`. Evangelické sbory stejně: `fara cirkev-evangelicka/<sbor>`
+  (neznámý název → nástroj vypíše možnosti; skupiny jsou na `https://www.portafontium.eu/contents/register`).
+- **Standesamt 1938–1945** (civilní matriky pohraničí za německé správy – všichni obyvatelé): `fara standesamt/okres-cheb/cheb`
+  (úřady okresu vypíše `fara standesamt/okres-cheb/x`).
+- **Sčítání lidu 1857–1921 po domech** (`https://www.portafontium.eu/contents/census`, ověřeno 8. 11. 2026) – dům ze zápisu
+  v matrice → celá domácnost se jmény, daty a místy narození. Rok 1921 je ve 28 soudních okresech (Domažlicko, Klatovsko,
+  Plzeňsko, Rokycansko, Tachovsko…), starší roky v méně z nich; Chebsko a Karlovarsko chybí.
+  1. `portafontium.py scitani "Kdyně" [rok]` (výchozí 1921; najde i německý název) → `id | obec | počet domů | okres`.
+     Poprvé načte přehledy všech okresů daného roku (~30 dotazů přes brzdu), pak jsou v `pracovni/.cache_pf/`. Rychleji přes
+     okres: `scitani` vypíše okresy, `scitani soap-do/1921/okres-kdyne` obce okresu (1 dotaz).
+  2. `portafontium.py domy <id>` → `číslo domu:id` všech domů obce a **tentýž dům v ostatních letech** (rok:id).
+  3. Id domu je `<kniha>` pro `info`, `snimek`, `link`, `svazek` (klíč `pf_<id>`) i pro `nahledy.py pf`; arch domu má jen
+     pár snímků. Zápis do dat s druhem `S`.
 - Bez prohlížečového User-Agentu portál vrací 403 (nástroj ho posílá). Jmenné hledání portál nemá – indexy jsou jen uvnitř knih
   (`*i`, `ooi`, `+i` v seznamu knih fary).
 
@@ -201,6 +217,24 @@ Adresy u nevyzkoušených portálů ověř při prvním použití (portály se m
   nad 20) – vypíše citaci a trvalý odkaz (`index.php?action=link&ref=czarch:CZ-100000010:874&karton=K&folium=F`).
 - **Nepokrývá Smíchov, Vinohrady, Žižkov, Karlín a další předměstí před 1922** (byla to samostatná města). Náboženství karty neuvádějí.
 
+## Slovakiana – sčítací hárky 1930 (`tools/slovakiana.py`, ověřeno 8. 11. 2026)
+Sčítací hárek ze sčítání lidu 1. 12. 1930 zachycuje jednu domácnost na Slovensku: jména, vztah k hlavě domácnosti, datum
+a místo narození, domovskou obec, náboženství, národnost, povolání. Most mezi matrikami a vzpomínkami rodiny.
+- `slovakiana.py hledat "Lopej" [--rok 1930] [--okres "Brezno nad Hronom"] [--stran N]` vypíše hárky obce seřazené podle čísla
+  domu a uloží index do `pracovni/slovakiana/<obec>.md` a `.json`. Hledání je fulltextové po 200 výsledcích (jeden dotaz
+  za 10 s); velká obec stojí i desítky dotazů – index pak ber z uloženého souboru. Číslo domu je číslo súpisné z pole ulice
+  (`-, -/68` = dům 68). Obec se stejným jménem ve více okresech → `--okres`.
+- `slovakiana.py harok <cair-id>` → popis hárku (škatule, hárek, den sčítání) a adresy originálů.
+  `slovakiana.py snimek <cair-id> <strana> pracovni/x.jpg` → jedna strana jako JPEG (originál JPEG 2000 jde do cache,
+  převod ImageMagick s JP2 nebo `sips` na macOS); `stahni <cair-id> …` (nejvýš 10) stáhne obě strany do `pracovni/slovakiana/`.
+- **Stahuj jen hárky, které čteš.** Snímkový server `content.slovakiana.sk` má v robots.txt `Disallow: /` a hárky příznak
+  `downloadable: false`; Slovakiana chce `Crawl-delay: 10` a brzda (`slusne.py`) to drží pro všechny její weby. Ostatní hárky
+  otevři v prohlížeči přes odkaz z indexu. Server snímků vracel 8. 11. 2026 náhodně HTTP 502 – nástroj skončí s hláškou,
+  spusť ho znovu za pár minut (nástroj sám neopakuje).
+- Hárky z roku 1940 jsou zčernené (osobní údaje) a snímky k nim Slovakiana nedává.
+- Do `data/zaznamy.json` dej jako odkaz `https://slovakiana.sk/scitacie-harky/<cair-id>` a jako zdroj „Sčítanie ľudu 1930,
+  Slovenský národný archív, škatuľa X, hárok Y“.
+
 ## Matricula (Rakousko, Bavorsko, Polsko…; data.matricula-online.eu) – `tools/matricula_*.sh`
 - Bez přihlášení. Seznam knih: `…/de/oesterreich/<diecéze>/<farnost>/?page=N`; snímek knihy `…/<id>/?pg=<snímek>`
   (zároveň trvalý odkaz).
@@ -220,9 +254,10 @@ Adresy u nevyzkoušených portálů ověř při prvním použití (portály se m
   Matricule. Aktivační odkaz z e-mailu otevřený přes Outlook (Safe Links) se „spotřebuje“ – ať ho uživatel zkopíruje
   do prohlížeče.
 
-## Slovensko, Maďarsko, Rumunsko (Banát, Sedmihradsko) – bez nástroje, jen návod
+## Slovensko, Maďarsko, Rumunsko (Banát, Sedmihradsko) – matriky bez nástroje, jen návod
 Slovenské, maďarské a rumunské archivní servery bývají pro skripty nedostupné nebo za Cloudflare (ověřeno 11/2026:
 hungaricana.hu HTTP 403, arhivelenationale.ro HTTP 503) – neobcházej, hledej v prohlížeči uživatele.
+Sčítací hárky 1930 ze Slovenska má nástroj – viz „Slovakiana“ výše; tady jen matriky a archivy.
 - **FamilySearch** je hlavní cesta (postup „FamilySearch v Chromu uživatele“ níže): katalog podle místa → „Church Books /
   Anyakönyvek / Cirkevná matrika“. Kolekce Slovakia Church and Synagogue Books má zindexované i sňatky a úmrtí
   (`q.spouseSurname`, datum úmrtí); sňatek najde index i ve farnosti nevěsty. Slovenské vesnice často nemají vlastní faru –

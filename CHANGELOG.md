@@ -12,6 +12,7 @@ Nápady a kód z forků původního rodokmen-skill (MIT). Zdrojové forky a comm
 - Místa: `mista.py` – Mapy.com s `MAPY_API_KEY` z prostředí (např. z Keychainu), bez klíče Nominatim + RÚIAN.
 - 2. sv. válka: `obeti.py`, `arolsen.py`, `mauthausen.py`, `vezni.py` a `souhlas.py` (souhlas s podmínkami
   portálů zapisuje jen uživatel; bez něj nástroje nedotazují a smoke končí kódem 4).
+- Sčítání lidu: `slovakiana.py` (hárky 1930 ze Slovakiany), `portafontium.py scitani/domy/fara`.
 - Židovské matriky a Litoměřice: `vademecum.py`, `litomerice.py`.
 - `kramerius.py --server` pro jiné knihovny s Kramerius v5.
 - Web: osobnosti, statistiky, portréty, věk u událostí, časová návaznost, vějíř s posunem/přibližováním
@@ -35,4 +36,3 @@ Nápady a kód z forků původního rodokmen-skill (MIT). Zdrojové forky a comm
 - Encyklopedie dějin města Brna má jen návod, bez nástroje.
 - Neověřeno živě: `mista.py` s `MAPY_API_KEY` (běh s klíčem nikdo nespustil), stažení karty z Arolsenu
   (`arolsen.py`).
-- Krok slovensko (`slovakiana.py`, sčítání lidu přes Slovakianu a Porta fontium) zatím ve větvi není sloučený.

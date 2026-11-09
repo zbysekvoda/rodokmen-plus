@@ -61,6 +61,19 @@ KONTROLY = [
     ("vademecum", "snímek", ["vademecum.py", "snimek", "81034f69-dfc6-4de8-ac9c-de097a9bf81f", "2", "{out}", "nahled"],
      r"permalink\?xid=81034f69", "vm.jpg"),
     ("litomerice", "hledání knih obce", ["litomerice.py", "hledat", "Úštěk"], r"^\S+ \| \d+ \|", None),
+    # sčítání lidu a civilní matriky: Porta fontium (SOA Plzeň) a Slovakiana (SNA, 1 dotaz za 10 s – kontrola trvá ~40 s)
+    ("portafontium", "sčítání 1921 okresu", ["portafontium.py", "scitani", "soap-do/1921/okres-kdyne"],
+     r"^34136377 \| Kdyně", None),
+    ("portafontium", "dům ze sčítání", ["portafontium.py", "info", "34136377"], r"Číslo domu: 1$", None),
+    ("portafontium", "civilní matriky okresu", ["portafontium.py", "fara", "okresni-urad/domazlice"],
+     r"^domazlice-okresni-urad-01 \|", None),
+    ("portafontium", "snímek sčítání", ["portafontium.py", "snimek", "34136377", "1", "{out}", "nahled"],
+     r"iipimage/34136377/", "pfs.jpg"),
+    ("slovakiana", "hárky obce 1930", ["slovakiana.py", "hledat", "Lopej", "--rok", "1930", "--stran", "1"],
+     r"^1930 \| .* \| cair-\w+ \|", None),
+    ("slovakiana", "popis hárku", ["slovakiana.py", "harok", "cair-ko27a1l"], r"Box number: 1233", None),
+    ("slovakiana", "snímek hárku", ["slovakiana.py", "snimek", "cair-ko27a1l", "1", "{out}"],
+     r"scitacie-harky/cair-ko27a1l", "sk.jpg"),
     ("terezin", "databáze vězňů", ["vezni.py", "hledat", "--prijmeni", "Novák", "--stran", "1"], r"pamatnik-terezin\.cz/vezen/", None),
 ]
 # Portály, které před vstupem ověřují člověka (výpočet v prohlížeči). Nástroj to neobchází a skončí tímto kódem;

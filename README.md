@@ -57,6 +57,15 @@ Nápady z forků původního skillu, přepsané na graf osob (licence MIT):
   a `tools/litomerice.py` – matriky SOA Litoměřice (hledání knih podle obce; portál teď ověřuje člověka, nástroj to
   neobchází) ze [hnizdiljan/rodokmen-skill@d172316](https://github.com/hnizdiljan/rodokmen-skill/tree/d172316bc190d0f44894fa67115505729d587c6a/skills/rodokmen/tools)
   (hnizdiljan, 0.7.0), síť přes `slusne.py`, snímky přes `soal_zoomify.py` a sdílenou cache,
+- `tools/slovakiana.py` – sčítací hárky 1930 ze Slovakiany (index obce, popis hárku, snímek strany; Crawl-delay 10 v `slusne.py`) ze
+  [jozefizso/rodokmen-skill@0fd808f](https://github.com/jozefizso/rodokmen-skill/blob/0fd808fe3833abe2b6f9ee956e2f302963d169e5/skills/rodokmen/tools/slovakiana.py)
+  (Jozef Izso, jozefizso, 0.10.0; fork ve verzi [38850a5](https://github.com/jozefizso/rodokmen-skill/tree/38850a5aa4dbebe3faf1eb6ed5c5e8c9007c2d68)),
+  snímky přes sdílenou cache,
+- sčítání lidu 1857–1921 po domech (`portafontium.py scitani`, `domy`, id domu místo knihy) a okresní civilní matriky,
+  Standesamt a evangelické sbory (`portafontium.py fara <skupina>/<úřad>`) ze
+  [xsigik/rodokmen-skill@3ffb2e2](https://github.com/xsigik/rodokmen-skill/commit/3ffb2e2fe9f8d1c6b31fc986330875af150f292f)
+  (Jakub Valenta, xsigik, #13; fork ve verzi [c262de7](https://github.com/xsigik/rodokmen-skill/tree/c262de702464b9743d4782abe1b296aa77bd34d4)),
+  síť přes `slusne.py` bez vlastních pauz a opakování,
 - portréty osob na webu (klíč obrázku s `portret`, na stránce osoby místo iniciály, mimo galerii dokumentů)
   a nabídka portrétu při zpracování fotografií v `SKILL.md` a `reference/data.md` ze
   [xkraust/rodokmen-skill@79d3685](https://github.com/xkraust/rodokmen-skill/commit/79d36850afaa080b0ebcf70a368cbbb5237d700e) (xkraust),
