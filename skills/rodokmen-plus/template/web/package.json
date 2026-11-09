@@ -19,7 +19,8 @@
     "@fontsource/source-sans-3": "^5.3.1",
     "@fontsource/source-serif-4": "^5.3.1",
     "astro": "^7.3.8",
-    "leaflet": "^1.9.4"
+    "leaflet": "^1.9.4",
+    "pagedjs": "0.4.3"
   },
   "devDependencies": {
     "pagefind": "^1.5.2"

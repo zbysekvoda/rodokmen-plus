@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kniha předků – návrh</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* Návrh vzhledu PDF „Kniha předků“. Vymyšlená rodina Novákových z template/ukazka. Stránky A4 v měřítku. */
+:root {
+  --paper: #f7f2e8; --ink: #2b2620; --muted: #7a6f60; --rule: #d8ccb6;
+  --accent: #8a3b2a; --gold: #b08a3e;
+  --doc: #3d6b4a; --prob: #b08a3e; --fam: #4a5f8a; --unk: #a59d90;
+  --desk: #e9e4da;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--desk); color: var(--ink); font: 15px/1.5 "Source Sans 3", sans-serif; }
+header.intro { max-width: 900px; margin: 0 auto; padding: 32px 16px 8px; }
+header.intro h1 { font: 600 28px "Newsreader", serif; margin: 0 0 6px; }
+header.intro p { margin: 0 0 6px; color: #555; }
+.spread { display: flex; flex-wrap: wrap; gap: 28px; justify-content: center; padding: 24px 16px 40px; }
+figure { margin: 0; }
+figcaption { font-size: 13px; color: #555; margin-top: 8px; max-width: 420px; }
+.page {
+  width: min(420px, calc(100vw - 32px)); aspect-ratio: 210 / 297; background: var(--paper);
+  box-shadow: 0 1px 2px rgba(0,0,0,.1), 0 8px 24px rgba(0,0,0,.12);
+  position: relative; overflow: hidden; padding: 34px 30px 30px;
+  font: 9.5px/1.45 "Newsreader", serif;
+  container-type: inline-size;
+}
+.page .run { position: absolute; top: 14px; left: 30px; right: 30px; display: flex; justify-content: space-between;
+  font: 600 7px "Source Sans 3"; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.page .folio { position: absolute; bottom: 14px; left: 0; right: 0; text-align: center; font: 8px "Source Sans 3"; color: var(--muted); }
+h2.ch { font: 400 22px/1.1 "Newsreader"; margin: 6px 0 2px; }
+.kicker { font: 600 7px "Source Sans 3"; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); }
+.rule { height: 1px; background: var(--rule); margin: 10px 0; }
+
+/* obálka */
+.cover { background: #2b2620; color: #f1e7d3; display: flex; flex-direction: column; align-items: center; text-align: center; padding-top: 50px; }
+.cover .kicker { color: var(--gold); }
+.cover h1 { font: 400 34px/1 "Newsreader"; margin: 10px 0 4px; }
+.cover .sub { font-style: italic; color: #cbbd9f; font-size: 12px; }
+.cover svg { width: 82%; margin-top: 22px; }
+.cover .names { position: absolute; bottom: 34px; left: 0; right: 0; font: 600 7.5px "Source Sans 3"; letter-spacing: .25em; color: var(--gold); }
+
+/* karty osob */
+.gen { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+.card { border-top: 2px solid var(--doc); padding-top: 5px; }
+.card.prob { border-color: var(--prob); } .card.fam { border-color: var(--fam); }
+.card .k { float: right; font: 600 7px "Source Sans 3"; color: var(--muted); }
+.card h3 { font: 600 11px "Newsreader"; margin: 0; }
+.card .y { color: var(--muted); font-style: italic; }
+.card ul { list-style: none; padding: 0; margin: 4px 0 0; }
+.card li::before { content: attr(data-s) " "; color: var(--accent); font-weight: 600; }
+.crop { margin-top: 5px; height: 34px; border: 1px solid var(--rule);
+  background: repeating-linear-gradient(170deg, #e6dcc6 0 3px, #efe6d2 3px 7px); position: relative; }
+.crop span { position: absolute; right: 4px; bottom: 2px; font: 6.5px "Source Sans 3"; color: var(--muted); }
+.legend { display: flex; gap: 10px; font: 7px "Source Sans 3"; color: var(--muted); margin-top: 8px; }
+.legend i { display: inline-block; width: 10px; height: 2px; vertical-align: middle; margin-right: 3px; }
+
+/* dům */
+.house-hero { height: 150px; margin: 8px -30px 10px; background:
+  linear-gradient(180deg, transparent 60%, var(--paper)),
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 420 150'%3E%3Crect width='420' height='150' fill='%23e3d6bb'/%3E%3Cg fill='none' stroke='%23a08a63' stroke-width='.8'%3E%3Cpath d='M0 110 C80 95 140 120 220 100 S360 90 420 105'/%3E%3Cpath d='M30 0 L60 150 M300 0 L270 150'/%3E%3C/g%3E%3Cg fill='%23c9b48c' stroke='%238a3b2a' stroke-width='.8'%3E%3Crect x='170' y='52' width='60' height='34'/%3E%3Crect x='238' y='60' width='30' height='26'/%3E%3C/g%3E%3Ctext x='182' y='74' font-family='serif' font-size='11' fill='%238a3b2a'%3E12%3C/text%3E%3C/svg%3E") center/cover; }
+.cap { font: italic 7.5px "Newsreader"; color: var(--muted); margin-top: -6px; }
+.owners { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 8.5px; }
+.owners td { border-bottom: 1px solid var(--rule); padding: 3px 0; vertical-align: top; }
+.owners td:first-child { width: 70px; color: var(--muted); font-family: "Source Sans 3"; font-size: 7.5px; }
+.owners .pred { color: var(--accent); font-weight: 600; }
+.owners .pred::after { content: " ◆"; font-size: 6px; }
+
+/* příběh */
+.story p { margin: 0 0 6px; text-align: justify; hyphens: auto; }
+.story p:first-of-type::first-letter { float: left; font: 400 34px/0.85 "Newsreader"; color: var(--accent); margin: 2px 4px 0 0; }
+.pull { border-left: 2px solid var(--gold); padding-left: 8px; font: italic 11px/1.35 "Newsreader"; margin: 10px 0; color: var(--accent); }
+.side { position: absolute; right: 30px; bottom: 40px; width: 120px; font: 7px/1.4 "Source Sans 3"; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 4px; }
+
+/* obsah */
+.toc { list-style: none; padding: 0; margin: 14px 0 0; counter-reset: c; }
+.toc li { display: flex; gap: 6px; padding: 4px 0; border-bottom: 1px dotted var(--rule); font-size: 10.5px; }
+.toc li::before { counter-increment: c; content: counter(c, upper-roman); width: 18px; color: var(--accent); font-size: 8px; padding-top: 2px; }
+.toc li span:first-child { flex: 1; } .toc li span:last-child { color: var(--muted); }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 16px; text-align: center; }
+.stats b { display: block; font: 400 22px "Newsreader"; color: var(--accent); }
+.stats span { font: 600 6.5px "Source Sans 3"; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+</style>
+</head>
+<body>
+<header class="intro">
+  <h1>Kniha předků – návrh vzhledu PDF</h1>
+  <p>Ukázka šesti stran A4 pro kořen <em>Jan Novák (1890)</em> z ukázkových dat. Papírový tón, serifová sazba (Newsreader – stejný font jako web), barva okraje karty = stav doložení.</p>
+  <p>Analýza: <code>docs/navrhy/export-pdf.md</code>.</p>
+</header>
+
+<div class="spread">
+  <figure>
+    <div class="page cover">
+      <div class="kicker">Kniha předků</div>
+      <h1>Jan Novák</h1>
+      <div class="sub">a jeho předci · 1712 – 1890</div>
+      <svg viewBox="-100 -100 200 108" aria-hidden="true">
+        <g fill="none" stroke="#b08a3e" stroke-width=".5">
+          <path d="M-90 0 A90 90 0 0 1 90 0"/><path d="M-70 0 A70 70 0 0 1 70 0"/>
+          <path d="M-50 0 A50 50 0 0 1 50 0"/><path d="M-30 0 A30 30 0 0 1 30 0"/>
+          <path d="M0 0 L0 -90"/><path d="M0 -30 L-21 -21 M0 -30 L21 -21"/>
+          <path d="M-21.2 -21.2 L-63.6 -63.6 M21.2 -21.2 L63.6 -63.6"/>
+          <path d="M-46.2 -19.1 L-83 -34.4 M46.2 -19.1 L83 -34.4 M-19.1 -46.2 L-34.4 -83 M19.1 -46.2 L34.4 -83"/>
+        </g>
+        <g fill="#f1e7d3" font-family="Newsreader" font-size="5" text-anchor="middle">
+          <text x="-25" y="-8">Novák</text><text x="25" y="-8">Dvořáková</text>
+        </g>
+        <circle r="10" fill="#8a3b2a"/>
+      </svg>
+      <div class="names">NOVÁK · POKORNÝ · DVOŘÁK · STEJSKAL</div>
+    </div>
+    <figcaption><b>Obálka.</b> Tmavá, s motivem vějíře předků (generuje se z grafu, ne obrázek). Dole rodová jména.</figcaption>
+  </figure>
+
+  <figure>
+    <div class="page">
+      <div class="run"><span>Kniha předků</span><span>Jan Novák</span></div>
+      <div class="kicker">Obsah</div>
+      <h2 class="ch">Šest generací, jeden kraj</h2>
+      <div class="stats">
+        <div><b>31</b><span>předků</span></div>
+        <div><b>6</b><span>generací</span></div>
+        <div><b>74 %</b><span>doloženo matrikou</span></div>
+      </div>
+      <ol class="toc">
+        <li><span>Vějíř předků</span><span>4</span></li>
+        <li><span>Rodiče a prarodiče</span><span>6</span></li>
+        <li><span>Praprarodiče a starší</span><span>12</span></li>
+        <li><span>Rody: Novák, Pokorný, Dvořák</span><span>22</span></li>
+        <li><span>Domy předků: Hořice čp. 12, Lhotka čp. 5</span><span>28</span></li>
+        <li><span>Příběh: Kovárna v Hořicích</span><span>34</span></li>
+        <li><span>Prameny a zápisy</span><span>40</span></li>
+      </ol>
+      <div class="folio">2</div>
+    </div>
+    <figcaption><b>Obsah a čísla.</b> Souhrn ze statistik webu; čísla stran doplní Paged.js (<code>target-counter</code>).</figcaption>
+  </figure>
+
+  <figure>
+    <div class="page">
+      <div class="run"><span>II · Rodiče a prarodiče</span><span>Generace 2–3</span></div>
+      <div class="kicker">Generace 2</div>
+      <h2 class="ch">Rodiče</h2>
+      <div class="gen">
+        <div class="card"><span class="k">č. 2</span><h3>Josef Novák</h3><div class="y">1862 – 1931</div>
+          <ul><li data-s="*">4. 2. 1862 Hořice čp. 12</li><li data-s="×">1888 Marie Dvořáková</li><li data-s="†">9. 11. 1931</li></ul>
+          <div class="crop"><span>N Hořice 1858–1870, f. 41</span></div></div>
+        <div class="card"><span class="k">č. 3</span><h3>Marie Dvořáková</h3><div class="y">1866 – 1940</div>
+          <ul><li data-s="*">1866 Lhotka čp. 5</li><li data-s="">švadlena</li><li data-s="†">1940</li></ul>
+          <div class="crop"><span>O Hořice 1888, f. 7</span></div></div>
+      </div>
+      <div class="rule"></div>
+      <div class="kicker">Generace 3</div>
+      <h2 class="ch">Prarodiče</h2>
+      <div class="gen">
+        <div class="card"><span class="k">č. 4</span><h3>Václav Novák</h3><div class="y">1830 – 1889</div><ul><li data-s="">kovář, Hořice čp. 12</li></ul></div>
+        <div class="card prob"><span class="k">č. 5</span><h3>Anna Stejskalová</h3><div class="y">asi 1834 – 1901</div><ul><li data-s="">věk dopočten z úmrtí</li></ul></div>
+        <div class="card fam"><span class="k">č. 6</span><h3>František Dvořák</h3><div class="y">1828 – ?</div><ul><li data-s="">chalupník, Lhotka čp. 5</li></ul></div>
+        <div class="card"><span class="k">č. 7</span><h3>Kateřina Pokorná</h3><div class="y">1835 – 1897</div><ul><li data-s="">z Lhotky</li></ul></div>
+      </div>
+      <div class="legend"><span><i style="background:var(--doc)"></i>matrika</span><span><i style="background:var(--prob)"></i>pravděpodobné</span><span><i style="background:var(--fam)"></i>od rodiny</span></div>
+      <div class="folio">6</div>
+    </div>
+    <figcaption><b>Generace.</b> Karta osoby: fakta se značkami * × †, výřez zápisu se signaturou, Kekulé jen jako tichá marginálie.</figcaption>
+  </figure>
+
+  <figure>
+    <div class="page">
+      <div class="run"><span>V · Domy předků</span><span>Hořice čp. 12</span></div>
+      <div class="kicker">Dům předků</div>
+      <h2 class="ch">Kovárna, Hořice čp. 12</h2>
+      <div class="house-hero"></div>
+      <div class="cap">Výřez z indikační skici stabilního katastru, 1842 (Archiv ČÚZK).</div>
+      <table class="owners">
+        <tr><td>1712–1748</td><td>Matěj Novák, kovář</td></tr>
+        <tr><td>1748–1790</td><td class="pred">Jiří Novák</td></tr>
+        <tr><td>1790–1831</td><td class="pred">Tomáš Novák</td></tr>
+        <tr><td>1831–1889</td><td class="pred">Václav Novák</td></tr>
+        <tr><td>1889–1931</td><td class="pred">Josef Novák</td></tr>
+        <tr><td>1931–</td><td>prodáno mimo rod</td></tr>
+      </table>
+      <div class="legend"><span>◆ přímý předek Jana Nováka</span></div>
+      <div class="folio">28</div>
+    </div>
+    <figcaption><b>Dům.</b> Stará mapa nebo foto domu, držitelé z gruntovnice; předci kořene zvýraznění.</figcaption>
+  </figure>
+
+  <figure>
+    <div class="page story">
+      <div class="run"><span>VI · Příběhy</span><span>Kovárna v Hořicích</span></div>
+      <div class="kicker">Příběh</div>
+      <h2 class="ch">Pět kovářů jednoho domu</h2>
+      <div class="rule"></div>
+      <p>Když Matěj Novák roku 1712 převzal kovárnu na kraji Hořic, stálo na místě dnešního čísla 12 jen roubené stavení s výhní pod přístřeškem. Gruntovní kniha ho zapisuje jako „kováře přespolního“ – přišel odjinud a do obce se přiženil.</p>
+      <p>Řemeslo pak v domě zůstalo pět generací. Syn přebíral po otci obvykle až po jeho smrti, což v matrikách prozrazují zápisy o sňatcích: synové se ženili pozdě, často až po třicítce.</p>
+      <div class="pull">„Kovář přespolní, na grunt přiženěný“ – gruntovní kniha, 1712</div>
+      <p>Konec rodu v kovárně přinesla až hospodářská krize. Josef Novák zemřel na podzim 1931 a dům byl ještě téhož roku prodán.</p>
+      <div class="side">Zdroje: GK Hořice 1700–1780, f. 112; N Hořice 1858–1870, f. 41.<br>Osoby: Matěj, Jiří, Tomáš, Václav a Josef Novákovi.</div>
+      <div class="folio">34</div>
+    </div>
+    <figcaption><b>Příběh.</b> Markdown příběhu, iniciála, citát z pramene; wiki odkazy <code>[[osoba:…]]</code> se v PDF mění na „→ s. 6“.</figcaption>
+  </figure>
+
+  <figure>
+    <div class="page">
+      <div class="run"><span>VII · Prameny</span><span>Zápisy</span></div>
+      <div class="kicker">Prameny</div>
+      <h2 class="ch">Zápis o křtu, 1890</h2>
+      <div class="crop" style="height:120px;margin:10px 0"><span>N Hořice 1883–1895, f. 88 · SOA Zámrsk</span></div>
+      <p style="margin:0 0 6px"><b>Přepis:</b> Dne 3. března 1890 pokřtěn Jan, syn Josefa Nováka, kováře v Hořicích čp. 12, a Marie roz. Dvořákové z Lhotky čp. 5. Kmotr: Jan Pokorný, sedlák z Lhotky.</p>
+      <div class="rule"></div>
+      <div class="kicker">Použité knihy</div>
+      <table class="owners">
+        <tr><td>SOA Zámrsk</td><td>N Hořice 1858–1870, 1883–1895; O Hořice 1880–1900</td></tr>
+        <tr><td>Archiv ČÚZK</td><td>Indikační skica Hořice 1842</td></tr>
+        <tr><td>Od rodiny</td><td>Vzpomínky Marie Novákové (zapsáno 2026)</td></tr>
+      </table>
+      <div class="folio">40</div>
+    </div>
+    <figcaption><b>Prameny.</b> Velký výřez s přepisem a seznam prošlých knih – kniha je ověřitelná, ne jen pěkná.</figcaption>
+  </figure>
+</div>
+</body>
+</html>

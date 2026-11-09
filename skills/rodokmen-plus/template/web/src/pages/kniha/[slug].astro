@@ -1,0 +1,54 @@
+---
+import Kniha from '../../layouts/Kniha.astro';
+import { people, lines, lineByK, statusClass } from '../../lib/data.js';
+import { bookSlugs, bookGenerations, bookYears } from '../../lib/kniha.js';
+
+export function getStaticPaths() {
+  return bookSlugs().map((slug) => ({ params: { slug } }));
+}
+const p = people[Astro.params.slug];
+const gens = bookGenerations(p.slug);
+const all = gens.flatMap((g) => g.people);
+const doc = all.filter(({ p }) => p.st === 'doc').length;
+const yearsOf = all.map(({ p }) => p.birth?.y).filter(Boolean);
+const oldest = yearsOf.length ? Math.min(...yearsOf) : null;
+const surnames = [...new Set(all.map(({ p }) => p.line && lineByK[p.line]?.name).filter(Boolean))];
+const romans = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
+---
+<Kniha title={`Kniha předků – ${p.name}`}>
+  <section class="cover">
+    <div class="kicker">Kniha předků</div>
+    <h1>{p.name}</h1>
+    <div class="sub">předci{oldest && ` · ${oldest} – ${p.birth?.y ?? ''}`}</div>
+    {surnames.length > 0 && <div class="names">{surnames.join(' · ').toUpperCase()}</div>}
+  </section>
+
+  <section class="toc-page">
+    <div class="kicker">Obsah</div>
+    <h2 class="ch">{gens.length + 1} generací</h2>
+    <div class="stats">
+      <div><b>{all.length}</b><span>předků</span></div>
+      <div><b>{gens.length}</b><span>generací předků</span></div>
+      <div><b>{all.length ? Math.round((100 * doc) / all.length) : 0} %</b><span>doloženo matrikou</span></div>
+    </div>
+    <ol class="toc">
+      {gens.map((g) => <li><a href={`#gen-${g.gen}`}>{g.title[0].toUpperCase() + g.title.slice(1)}</a></li>)}
+    </ol>
+  </section>
+
+  {gens.map((g, i) => (
+    <section class="gen-chapter" id={`gen-${g.gen}`}>
+      <div class="kicker">{romans[i] ?? i + 1} · Generace {g.gen + 1}</div>
+      <h2 class="ch">{g.title[0].toUpperCase() + g.title.slice(1)}</h2>
+      <ul class="gen-list">
+        {g.people.map(({ k, p: a }) => (
+          <li class={statusClass(a.st)}>
+            <span class="k">č. {k}</span>
+            <span class="n">{a.name}</span>
+            <span class="y">{bookYears(a)}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
+</Kniha>
