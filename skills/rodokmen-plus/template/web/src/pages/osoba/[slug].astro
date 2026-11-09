@@ -7,6 +7,9 @@ import MobileTree from '../../components/MobileTree.astro';
 import RecLinks from '../../components/RecLinks.astro';
 import Mentions from '../../components/Mentions.astro';
 import ViewSwitch from '../../components/ViewSwitch.astro';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { hasBook } from '../../lib/kniha.js';
 import { issues, people, families, lineByK, records, dateKey, href, statusClass, houses, houseTitle, span, birthOf, factWithAge } from '../../lib/data.js';
 
 export function getStaticPaths() {
@@ -19,6 +22,9 @@ const path = [...p.path].reverse().filter(Boolean);
 const lineSlug = p.lineSlug ?? null;
 const open = issues.filter((i) => i.people?.includes(p.slug) && !i.text.startsWith('Vyřešeno'));
 const onAxis = p.birth && (p.death || p.alive);
+// Kniha předků: tisk jen u osob s knihou, odkaz na PDF jen když ho tools/kniha_pdf.py --web uložil do public/kniha/ (build běží ve web/)
+const kniha = hasBook(p);
+const knihaPdf = kniha && existsSync(join(process.cwd(), 'public', 'kniha', `${p.slug}.pdf`));
 // rozšiřující bod projektu (po vzoru xsigik/rodokmen-skill@318a965): komponenty web/src/local/osoba/*.astro dostanou `p`;
 // p.extra = volná pole osoby z data/osoby.py (extra=dict(…)); klíče s „_“ na začátku jsou jen pro lokální komponenty
 const doplnky = Object.entries(import.meta.glob('../../local/osoba/*.astro', { eager: true })).sort(([a], [b]) => a.localeCompare(b)).map(([, m]) => m.default);
@@ -52,6 +58,8 @@ const fmt = (v) => Array.isArray(v) ? v.join(', ') : typeof v === 'object' ? JSO
       {p.k && <a class="chip" href={`/vejir/?o=${p.slug}`}>ve vějíři →</a>}
       <a class="chip" href={`/reka/?o=${p.slug}`}>Řeka kolem této osoby →</a>
       {onAxis && <a class="chip" href={`/osa/?o=${p.slug}`}>ukázat na ose →</a>}
+      {kniha && <a class="chip" href={`/kniha/${p.slug}/?tisk`}>Tisk knihy předků</a>}
+      {knihaPdf && <a class="chip" href={`/kniha/${p.slug}.pdf`} download>Kniha předků (PDF)</a>}
     </div>
   </div>
 

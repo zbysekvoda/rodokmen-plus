@@ -1,0 +1,27 @@
+---
+// Tiskový layout „Kniha předků“: bez navigace webu, sazbu stránek dělá Paged.js (lokální závislost, žádné CDN).
+import '../styles/kniha.css';
+import { config } from '../lib/data.js';
+const { title } = Astro.props;
+---
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{title} · {config.nazev || 'Rodokmen'}</title>
+  </head>
+  <body data-pagefind-ignore="all">
+    <slot />
+    <script>
+      // Paged.js z node_modules (zabalí Vite do /_astro/, žádné CDN); po dosazení nastaví window.knihaHotovo pro tisk z headless Chromu
+      import { Previewer } from 'pagedjs';
+      await document.fonts.ready;
+      await new Previewer().preview();
+      (window as any).knihaHotovo = true;
+      // tlačítko „Tisk“ na stránce osoby vede na /kniha/<id>/?tisk → po dosazení rovnou tiskový dialog prohlížeče
+      if (new URLSearchParams(location.search).has('tisk')) window.print();
+    </script>
+  </body>
+</html>

@@ -100,6 +100,31 @@ Patří do `web/src/local/`, který `novy_projekt.py` nikdy nepřepíše ani nes
   (statický web dostane přesměrovací stránku).
 Prázdný `local/` nevadí.
 
+## Kniha předků (PDF)
+Tisková kniha o předcích jedné osoby: obálka, statistiky, vějíř přes dvoustranu, karty osob po generacích, domy,
+příběhy, prameny s výřezy zápisů a tiráž. Tok:
+1. `data/web.json` → `kniha` (vše volitelné, výchozí hodnoty):
+   ```json
+   "kniha": {"generaci": 6, "domy": true, "pribehy": true, "zapisy": "vybrane"}
+   ```
+   `generaci` = počet generací karet včetně kořene; `zapisy`: `"vybrane"` (zápisy s přepisem nebo překladem, nejvýš 12),
+   `"vse"` (všechny zápisy osob knihy s výřezem), `false` (žádné výřezy na kartách ani v pramenech).
+   `"kniha": false` knihy vypne úplně (export nevyrábí vějíře pro knihy, stránka osoby nemá odkaz).
+2. `npm run data` (`export_web.py`) napíše `src/generated/kniha/fan-<id>.svg` pro každou osobu s ≥ 2 generacemi předků.
+   Vějíř v knize má plnou hloubku jako `fan_chart.py`, není omezený na `generaci` (ta platí jen pro karty).
+3. `npm run build` → tisková stránka `/kniha/<id>/` (Paged.js; v prohlížeči `/kniha/<id>/?tisk` otevře tisk).
+4. `python3 -I tools/kniha_pdf.py <id> [--web]` nebo `--vse [--web]` → `vystupy/kniha-<id>.pdf`. Nástroj sám spustí
+   `npm install` / `npm run data` / `npm run build`, když `web/dist` knihu neobsahuje, obslouží dist lokálním serverem,
+   výřezy z `/img/` a `/zdroje/` zmenší na 1400 px (ImageMagick) a tiskne headless Chromem až po `window.knihaHotovo`.
+   Chrome jinde než ve výchozí cestě: proměnná `RODOKMEN_CHROME`. Ukázka (`jan-novak-1890`): 15 stran, ~0,5 MB.
+5. S `--web` jde PDF i do `web/public/kniha/<id>.pdf` (a do `dist/`); odkaz „Kniha předků (PDF)“ na stránce osoby
+   se objeví po dalším `npm run build`.
+
+**Soukromí:** kniha bere žijící jako web (jen jméno a rok, odkazy na ně v příbězích jsou prostý text), ale obsahuje
+plné texty příběhů, poznámky, fakta, bydliště a přepisy zápisů. `citlive_schvaleno` web ani knihu nefiltruje – jen
+umlčí hlášku `kontrola.py`. Stažené PDF se šíří mimo přihlášení, proto před `--web` i před posláním PDF rodině
+vyřeš všechna `CITLIVÉ` (`soukromi.md`). Na serveru brána (Netlify i nginx) chrání `/kniha/<id>.pdf` i `/kniha/<id>/`.
+
 ## Vějíř jako plakát
 `python3 -I tools/fan_chart.py vystupy/` → SVG a HTML (a PNG, je-li nainstalovaný Google Chrome, na Windows i Microsoft Edge) k tisku.
 Opakovaný předek (sňatek příbuzných): sourozenci se stejnými rodiči sdílí ve vějíři jednu výseč rodičů (přerušovaný obrys), jinak se opakování kreslí jako šrafovaná značka „↺ viz č. N“ bez druhé kopie větve. Na webu vějíř přibližuje kolečko, touchpad i pinch (`lib/panzoom.js`), „Zpět na celý vějíř“ vrací celek.

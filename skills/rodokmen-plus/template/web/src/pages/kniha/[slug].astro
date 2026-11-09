@@ -1,0 +1,116 @@
+---
+// „Kniha předků“ pro jeden kořen (docs/navrhy/export-pdf.md, vzhled export-pdf-navrh.html). Stránkuje Paged.js v layoutu Kniha.
+import Kniha from '../../layouts/Kniha.astro';
+import Karta from '../../components/kniha/Karta.astro';
+import Dum from '../../components/kniha/Dum.astro';
+import Pramen from '../../components/kniha/Pramen.astro';
+import { config } from '../../lib/data.js';
+import { bookSlugs, bookData } from '../../lib/kniha.js';
+import { bookLinks } from '../../lib/kniha-vyber.js';
+
+export function getStaticPaths() {
+  return bookSlugs().map((slug) => ({ params: { slug } }));
+}
+const b = await bookData(Astro.params.slug);
+const { root: p, gens, houses, stories, sources, books, stats } = b;
+// vějíř z tools/fan_chart.py (export_web.py → src/generated/kniha/fan-<id>.svg), stejný algoritmus jako /vejir/
+const fans = import.meta.glob('../../generated/kniha/fan-*.svg', { query: '?raw', import: 'default' });
+const fanLoad = fans[`../../generated/kniha/fan-${p.slug}.svg`];
+const fan = fanLoad ? String(await fanLoad()) : '';
+const coverFan = fan.replace(/viewBox="0 0 (\d+) (\d+)"/, (_, w, h) => `viewBox="0 0 ${w} ${Math.round(h / 2) + 260}"`);
+const romans = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV'];
+const cap = (t) => t[0].toUpperCase() + t.slice(1);
+const pct = (n) => `${n} %`;
+const today = new Date().toLocaleDateString('cs-CZ', { day: 'numeric', month: 'long', year: 'numeric' });
+const toc = [
+  fan && { id: 'vejir', t: 'Vějíř předků' },
+  ...gens.map((g) => ({ id: `gen-${g.gen}`, t: cap(g.title) })),
+  houses.length && { id: 'domy', t: `Domy předků: ${houses.map(({ h }) => `${h.obec} čp. ${h.cp}`).join(', ')}` },
+  ...stories.map((s) => ({ id: `pribeh-${s.slug}`, t: `Příběh: ${s.title}` })),
+  { id: 'prameny', t: 'Prameny a zápisy' },
+  { id: 'tiraz', t: 'Tiráž' },
+].filter(Boolean);
+let ch = 0;
+---
+<Kniha title={`Kniha předků – ${p.name}`}>
+  <section class="cover">
+    <div class="kicker">Kniha předků</div>
+    <h1>{p.name}</h1>
+    <div class="sub">a {p.sex === 'F' ? 'její' : 'jeho'} předci{b.oldest && ` · ${b.oldest} – ${p.birth?.y ?? ''}`}</div>
+    {coverFan && <div class="cover-fan" set:html={coverFan} />}
+    {b.surnames.length > 0 && <div class="names">{b.surnames.join(' · ').toUpperCase()}</div>}
+  </section>
+
+  <section class="toc-page">
+    <div class="kicker">Obsah</div>
+    <h2 class="ch">{stats.generations + 1} generací</h2>
+    <div class="stats">
+      <div><b>{stats.ancestors}</b><span>předků</span></div>
+      <div><b>{stats.generations}</b><span>generací předků</span></div>
+      <div><b>{pct(stats.docPct)}</b><span>doloženo matrikou</span></div>
+    </div>
+    <ol class="toc">{toc.map((x, i) => <li><span class="n">{romans[i] ?? i + 1}</span><a href={`#${x.id}`}>{x.t}</a></li>)}</ol>
+  </section>
+
+  {fan && (
+    <>
+      <section class="fan-page fan-l" id="vejir">
+        <div class="kicker">{romans[ch++]} · Vějíř předků</div>
+        <h2 class="ch">Vějíř předků</h2>
+        <div class="fan-clip" set:html={fan} />
+      </section>
+      <section class="fan-page fan-r">
+        <div class="fan-clip" set:html={fan} />
+        <div class="legend"><span>uprostřed {p.name}, každý prstenec o generaci starší · vlevo otcova, vpravo matčina strana · bledší = pravděpodobné, šedé = neznámé</span></div>
+      </section>
+    </>
+  )}
+
+  {gens.map((g) => (
+    <section class="gen-chapter" id={`gen-${g.gen}`}>
+      <div class="kicker">{romans[ch++]} · Generace {g.gen + 1}</div>
+      <h2 class="ch">{cap(g.title)}</h2>
+      <div class="gen">{g.people.map(({ k, p: a, first }) => <Karta k={k} p={a} first={first} />)}</div>
+      <div class="legend"><span><i class="st-doc"></i>matrika</span><span><i class="st-prob"></i>pravděpodobné</span><span><i class="st-fam"></i>od rodiny</span><span><i class="st-unk"></i>neznámé</span></div>
+    </section>
+  ))}
+
+  {houses.length > 0 && (
+    <section class="chapter" id="domy">
+      <div class="kicker">{romans[ch++]} · Domy předků</div>
+      <h2 class="ch">Domy předků</h2>
+      {houses.map(({ h, pred }) => <Dum h={h} pred={pred} root={p} />)}
+    </section>
+  )}
+
+  {stories.map((s) => (
+    <section class="chapter story" id={`pribeh-${s.slug}`}>
+      <div class="kicker">{romans[ch++]} · Příběh</div>
+      <h2 class="ch">{s.title}</h2>
+      {s.lead && <p class="lead">{s.lead}</p>}
+      <div class="rule"></div>
+      <div class="story-body" set:html={bookLinks(s.html, b.targets)} />
+    </section>
+  ))}
+
+  <section class="chapter" id="prameny">
+    <div class="kicker">{romans[ch++]} · Prameny</div>
+    <h2 class="ch">Prameny a zápisy</h2>
+    {sources.map((r) => <Pramen r={r} />)}
+    {books.length > 0 && (
+      <div class="books">
+        <div class="kicker">Použité knihy</div>
+        <table class="owners">{books.map((x) => <tr><td>{x.archive}</td><td>{x.volumes.join('; ')}</td></tr>)}</table>
+      </div>
+    )}
+  </section>
+
+  <section class="colophon" id="tiraz">
+    <div class="kicker">Tiráž</div>
+    <p><b>Kniha předků – {p.name}</b><br />{config.nazev}</p>
+    <p>Vygenerováno {today} z dat rodokmenu (stejná data jako web). {config.zapati}</p>
+    <div class="legend col"><span><i class="st-doc"></i>doloženo matrikou nebo jiným pramenem</span><span><i class="st-prob"></i>pravděpodobné, dopočtené</span><span><i class="st-fam"></i>údaj od rodiny nebo z literatury</span><span><i class="st-unk"></i>zatím neznámé</span></div>
+    <p class="small">Žijící osoby jsou v knize uvedeny jen jménem a rokem narození. Kniha obsahuje osobní údaje rodiny – šiřte ji jen v rodině.</p>
+    <p class="small">Sázeno písmy Newsreader a Source Sans 3 (SIL OFL). Vytvořeno skillem rodokmen-plus.</p>
+  </section>
+</Kniha>
