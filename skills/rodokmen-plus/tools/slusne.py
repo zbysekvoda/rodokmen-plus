@@ -234,6 +234,13 @@ def posoudit(host, co, kod, retry_after=None):
         raise Zablokovano(_hlaska(host, time.time() + sekund, proc))
 
 
+def po_odpovedi(host, co, kod, hlavicka):
+    """Společně pro http.client i curl: posoudit kód (s Retry-After) a pak hlášení o docházejících dotazech.
+    hlavicka: funkce jméno → hodnota nebo None."""
+    posoudit(host, co, kod, hlavicka("Retry-After"))
+    hlavicky_limitu(host, hlavicka)
+
+
 _lokalni = threading.local()
 _instalovano = False
 
@@ -255,8 +262,7 @@ def instaluj():
     def getresponse(self, *a, **k):
         r = get(self, *a, **k)
         host, co = getattr(_lokalni, "posledni", (self.host, "dotaz"))
-        posoudit(host, co, r.status, r.getheader("Retry-After"))
-        hlavicky_limitu(host, r.getheader)
+        po_odpovedi(host, co, r.status, r.getheader)
         return r
 
     http.client.HTTPConnection.putrequest = putrequest
@@ -267,8 +273,26 @@ HODNOTOVE = {"-e", "--referer", "-x", "--proxy", "-H", "--header", "-b", "--cook
              "-u", "--user", "-d", "--data", "--data-urlencode", "-F", "--form"}   # volby curl, jejichž hodnota může být adresa
 
 
+def hlavicky_ze_souboru(cesta):
+    """Hlavičky poslední odpovědi ze souboru curl -D (při -L je v něm víc odpovědí za sebou) → funkce jméno → hodnota."""
+    try:
+        with open(cesta, encoding="latin-1") as f:
+            radky = f.read().splitlines()
+    except OSError:
+        radky = []
+    hlavicky = {}
+    for radek in radky:
+        if radek.startswith("HTTP/"):   # začátek další odpovědi – platí jen hlavičky té poslední
+            hlavicky = {}
+        elif ":" in radek:
+            k, v = radek.split(":", 1)
+            hlavicky[k.strip().lower()] = v.strip()
+    return lambda jmeno: hlavicky.get(jmeno.lower())
+
+
 def curl(args, **kw):
-    """Spustí curl s limitem: počká podle první adresy, po odpovědi posoudí kód. Vrací CompletedProcess (stderr jako text)."""
+    """Spustí curl s limitem: počká podle první adresy, po odpovědi posoudí kód a hlavičky (Retry-After, RateLimit-*).
+    Vrací CompletedProcess (stderr jako text)."""
     urls = [a for i, a in enumerate(args) if re.match(r"https?://", a) and (i == 0 or args[i - 1] not in HODNOTOVE)]
     host = urllib.parse.urlsplit(urls[0]).hostname if urls else ""
     co = druh(urls[0]) if urls else "dotaz"
@@ -285,11 +309,32 @@ def curl(args, **kw):
             break
     else:
         args += ["-w", znacka]
-    p = subprocess.run(["curl", *args], **kw)
+    # Hlavičky odpovědi: vlastní -D <soubor> přečíst, jinak přidat svůj dočasný. „-D -“ (na stdout) nechat být –
+    # druhé -D by ho přebilo; pak se posoudí jen kód.
+    soubor_hlavicek, docasny = None, False
+    for i, x in enumerate(args[:-1]):
+        if x in ("-D", "--dump-header"):
+            soubor_hlavicek = None if args[i + 1] == "-" else args[i + 1]
+            break
+    else:
+        import tempfile
+        fd, soubor_hlavicek = tempfile.mkstemp(prefix="slusne_hlavicky_")
+        os.close(fd)
+        docasny = True
+        args += ["-D", soubor_hlavicek]
+    try:
+        p = subprocess.run(["curl", *args], **kw)
+        hlavicka = hlavicky_ze_souboru(soubor_hlavicek) if soubor_hlavicek else (lambda jmeno: None)
+    finally:
+        if docasny:
+            try:
+                os.remove(soubor_hlavicek)
+            except OSError:
+                pass
     kody = re.findall(r"SLUSNE (\d+)", p.stderr or "")
     p.stderr = re.sub(r"\n?SLUSNE \d+\n", "", p.stderr or "")
     if host and kody:
-        posoudit(host, co, int(kody[-1]))
+        po_odpovedi(host, co, int(kody[-1]), hlavicka)
     return p
 
 
