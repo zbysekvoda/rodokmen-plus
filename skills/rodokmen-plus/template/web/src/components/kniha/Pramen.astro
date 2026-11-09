@@ -1,0 +1,15 @@
+---
+// Pramen: velký výřez zápisu se zvýrazněním, signatura (archiv, svazek, snímek), přepis originálu a překlad.
+import { anchorId } from '../../lib/kniha-vyber.js';
+const { r } = Astro.props;
+---
+<article class="source" id={anchorId('zdroj', r.key)}>
+  <h3>{r.title}{r.date && <span class="muted">, {r.date}</span>}</h3>
+  <figure class="crop big">
+    <span class="hl-wrap"><img src={`/img/${r.key}.jpg`} alt={`Výřez zápisu: ${r.title}`} />
+      {(r.boxes ?? []).map(([x0, y0, x1, y1]) => <span class="hl" style={`left:${x0 * 100}%;top:${y0 * 100}%;width:${(x1 - x0) * 100}%;height:${(y1 - y0) * 100}%`}></span>)}</span>
+    <figcaption>{[r.volume || r.vdesc, r.scan && `snímek ${r.scan}`, r.archive].filter(Boolean).join(' · ')}</figcaption>
+  </figure>
+  {r.orig && <p class="tr"><b>Přepis:</b> {r.orig}</p>}
+  {r.cs && <p class="tr"><b>Překlad:</b> {r.cs}</p>}
+</article>

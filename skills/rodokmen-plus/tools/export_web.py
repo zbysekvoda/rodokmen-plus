@@ -796,6 +796,26 @@ def main():
         subprocess.run([sys.executable, "-I", "-X", "utf8", os.path.join(TOOLS, "fan_chart.py"),
                         out, "--web", hrefs, "--koren", key], check=True, capture_output=True)
 
+    # „Kniha předků“ (/kniha/<id>/): vějíř od každé osoby s ≥ 2 generacemi předků (jako hasBook v web/src/lib/kniha.js),
+    # stejný fan_chart.py, jen bez odkazů; web.json → kniha: false knihy vypne
+    book_dir = os.path.join(gen_dir, "kniha")
+    shutil.rmtree(book_dir, ignore_errors=True)
+    if cfg.get("kniha", {}) is not False:
+        os.makedirs(book_dir, exist_ok=True)
+        no_links = os.path.join(book_dir, "_hrefs.json")
+        write(no_links, "{}")
+
+        def depth(s):
+            p = people.get(s)
+            return 0 if not p else max([1 + depth(x) for x in (p.get("father"), p.get("mother")) if x in people] or [0])
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(8) as ex:
+            list(ex.map(lambda s: subprocess.run([sys.executable, "-I", "-X", "utf8", os.path.join(TOOLS, "fan_chart.py"),
+                                                  os.path.join(book_dir, f"fan-{s}.svg"), "--web", no_links, "--koren", s],
+                                                 check=True, capture_output=True),
+                        [s for s in people if depth(s) >= 2]))
+        os.remove(no_links)
+
     gated = login_files(cfg)
 
     copied = 0

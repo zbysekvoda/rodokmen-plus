@@ -1,0 +1,27 @@
+---
+// Karta předka v kapitole generace: * × †, povolání, bydliště, výřez zápisu se signaturou; Kekulé jako marginálie,
+// barva horního okraje = stav doložení (statusClass jako web). Žijící jen jméno a rok narození (isPublic).
+import { records, statusClass, houses, houseTitle, span } from '../../lib/data.js';
+import { bookYears, isPublic, knihaConfig } from '../../lib/kniha.js';
+import { anchorId } from '../../lib/kniha-vyber.js';
+const { k, p, first } = Astro.props;
+const pub = isPublic(p);
+const MARK = /^\s*([*×†])\s*/;
+const facts = pub ? (p.facts ?? []).map((f) => { const m = MARK.exec(f); return m ? { s: m[1], t: f.slice(m[0].length) } : { s: '', t: f }; }) : [];
+const homes = pub ? (p.homes ?? []).map((b) => ({ s: '⌂', t: `${b.house && houses[b.house] ? houseTitle(houses[b.house]) : `${b.obec} čp. ${b.cp}`}${span(b.since, b.until) ? ` (${span(b.since, b.until)})` : ''}` })) : [];
+const rec = pub && knihaConfig.zapisy !== false ? (p.records ?? []).map((x) => records[x]).find((r) => r?.img) : null;
+const box = rec?.boxes?.[0];
+---
+<article class={`card ${statusClass(p.st)}`} id={first && pub ? anchorId('osoba', p.slug) : undefined}>
+  <span class="k">č. {k}</span>
+  <h3>{p.name}</h3>
+  <div class="y">{bookYears(p) || '?'}{!pub && ' · žijící'}{!first && ' · v rodokmenu znovu'}</div>
+  {first && (facts.length > 0 || homes.length > 0) && <ul>{[...facts, ...homes].map((f) => <li data-s={f.s}>{f.t}</li>)}</ul>}
+  {first && pub && p.note && <p class="note">{p.note}</p>}
+  {first && rec && (
+    <figure class="crop">
+      <img src={`/img/${rec.key}.jpg`} alt={`Výřez zápisu: ${rec.title}`} style={box ? `object-position: 50% ${((box[1] + box[3]) / 2) * 100}%` : undefined} />
+      <figcaption>{rec.volume || rec.vdesc}{rec.scan && `, sn. ${rec.scan}`}</figcaption>
+    </figure>
+  )}
+</article>
