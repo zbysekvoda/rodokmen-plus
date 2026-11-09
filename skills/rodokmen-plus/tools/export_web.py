@@ -797,13 +797,15 @@ def main():
                         out, "--web", hrefs, "--koren", key], check=True, capture_output=True)
 
     # „Kniha předků“ (/kniha/<id>/): vějíř od každé osoby s ≥ 2 generacemi předků (jako hasBook v web/src/lib/kniha.js),
-    # stejný fan_chart.py, jen bez odkazů; web.json → kniha: false knihy vypne
+    # stejný fan_chart.py, jen bez odkazů a do hloubky kapitol (kniha.generaci, jako knihaConfig v kniha.js);
+    # web.json → kniha: false knihy vypne
     book_dir = os.path.join(gen_dir, "kniha")
     shutil.rmtree(book_dir, ignore_errors=True)
     if cfg.get("kniha", {}) is not False:
         os.makedirs(book_dir, exist_ok=True)
         no_links = os.path.join(book_dir, "_hrefs.json")
         write(no_links, "{}")
+        book_gens = str((cfg["kniha"] if isinstance(cfg.get("kniha"), dict) else {}).get("generaci", 6))
 
         def depth(s):
             p = people.get(s)
@@ -811,7 +813,7 @@ def main():
         from concurrent.futures import ThreadPoolExecutor
         with ThreadPoolExecutor(8) as ex:
             list(ex.map(lambda s: subprocess.run([sys.executable, "-I", "-X", "utf8", os.path.join(TOOLS, "fan_chart.py"),
-                                                  os.path.join(book_dir, f"fan-{s}.svg"), "--web", no_links, "--koren", s],
+                                                  os.path.join(book_dir, f"fan-{s}.svg"), "--web", no_links, "--koren", s, "--generaci", book_gens],
                                                  check=True, capture_output=True),
                         [s for s in people if depth(s) >= 2]))
         os.remove(no_links)
