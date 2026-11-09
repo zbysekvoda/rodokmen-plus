@@ -10,6 +10,8 @@ for _s in (sys.stdout, sys.stderr):   # UTF-8 výstup i na Windows bez -X utf8 (
         _s.reconfigure(encoding="utf-8", errors="replace")
 
 TOOLS = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, TOOLS)
+from prostredi import magick_bin   # společné s export_web.py a kniha_pdf.py
 ROOT = os.path.dirname(TOOLS)
 if not os.path.exists(os.path.join(ROOT, "data", "STAV.md")):   # spuštěno ze složky skillu: data projektu tam nejsou, zápis by šel do skillu
     sys.exit(f"{os.path.basename(__file__)}: {ROOT} není složka projektu (chybí data/STAV.md). "
@@ -95,10 +97,6 @@ def year_key(text):
     parts = re.findall(r"\d+", t[:m.start()])
     d, mo = (parts + [0, 0])[:2] if len(parts) >= 2 else (0, (parts or [0])[0])
     return int(m.group(0)) * 10000 + int(mo) * 100 + int(d)
-
-
-def magick_bin():   # ImageMagick 7 (magick), jinak 6 (convert) – ten ale ne na Windows, tam je convert.exe jiný program
-    return shutil.which("magick") or (os.name != "nt" and shutil.which("convert")) or None
 
 
 def size(path):

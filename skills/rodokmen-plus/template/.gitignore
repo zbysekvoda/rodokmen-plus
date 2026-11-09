@@ -1,5 +1,8 @@
 # pracovní soubory a stažené stránky (nejdou na web ani do historie)
 pracovni/
+# PDF z tools/kniha_pdf.py (a další výstupy nástrojů) – do gitu nepatří
+vystupy/
+web/public/kniha/
 __pycache__/
 .DS_Store
 Thumbs.db
