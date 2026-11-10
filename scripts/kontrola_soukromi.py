@@ -9,9 +9,11 @@ Konec s kódem 1, když něco najde.
 import json, os, re, subprocess, sys
 
 POVOLENO = {"Zbyšek", "Voda", "Brno", "Praha", "Vídeň",   # autor pluginu; velká města (archivy, příklady)
-            "Petrovice"}                                   # příklad nejednoznačného názvu obce (ztotozneni-mist)
+            "Petrovice",   # příklad nejednoznačného názvu obce (ztotozneni-mist)
+            "Jihlava"}    # krajské město (test osy událostí na zemské hranici)
 UKAZKA = "skills/rodokmen-plus/template/ukazka"         # fiktivní rodina – její jména jsou povolená
-POVOLENE_RADKY = re.compile(r"Zbyšek Voda|Hradecký a Pardubický kraj")   # autor; název kraje, ne příjmení
+POVOLENE_RADKY = re.compile(r"Zbyšek Voda|Hradecký a Pardubický kraj|Jakub Valenta|Gregor Wolny|Karlova 190/1|„Chalupa, kde")
+# autor; název kraje; autor forku (MIT), autor vlastivědy, pražská adresa v testu RÚIAN, obecné slovo v příkladu
 MIN_DELKA = 4                                        # krátká slova („Na“, „Ves“) dávají jen šum
 
 
