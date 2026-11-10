@@ -6,7 +6,19 @@ Použití (z kořene projektu): python3 -I tools/napady.py [složka projektu]
 Hledá: svatby krátce před porodem (a „přesné trefy“ devět měsíců po svatbě), děti narozené před svatbou,
 velký věkový rozdíl manželů, sňatky velmi mladých a starých, vícenásobné sňatky, dlouhověkost, úmrtí matky
 krátce po porodu, úmrtí v letech epidemií a válek, rod v jednom domě po generace, předky v rodokmenu vícekrát,
-nejstarší předky, řemesla v rodech, narození o Vánocích.
+nejstarší předky, řemesla v rodech, narození o Vánocích, shluky úmrtí v obci porovnané s osou událostí.
+
+Shluky úmrtí (sekce „Shluky úmrtí v obci“): bere VŠECHNY osoby grafu (nejen předky; boční záznamy a „tataz“
+vynechává), obec úmrtí = místo z data/mista.json nalezené v faktu † (regulár „re“), jinak misto_osoby z udalosti.py.
+Pro každou obec spočítá úmrtí po rocích a za shluk označí rok s počtem
+    n ≥ max(3, průměr + 2·σ)
+kde průměr a σ (populační směrodatná odchylka) se počítají přes roky, ve kterých má obec aspoň jedno úmrtí.
+Proč: rodokmen nezná celkový počet obyvatel ani roky „bez úmrtí v datech“, takže nula by jen odrážela mezery
+v bádání; 2σ je obvyklá hranice „neobvykle vysoké“ hodnoty a minimum 3 brání tomu, aby za shluk prošly náhodné
+dvojice (u obce s pár roky dat bývá σ malá). U úplných dat se ke shluku vypíšou až tři měsíce s nejvíc úmrtími.
+Shluk se porovná s osou (tools/udalosti.json + data/udalosti.json, filtr místa jako udalosti.py --misto):
+události s dopadem na úmrtí, které zasahují do roku → „shoda s událostí X (od–do)“, jinak „bez známé
+události – hledat v obecní/farní kronice“. Nic se nezapisuje.
 
 Jsou to jen NÁMĚTY z dat – každý ověř v zápisu (data bývají nejistá) a teprve pak napiš do data/zajimavosti.md
 jako krátký příběh (viz reference/pribehy.md).
@@ -40,11 +52,64 @@ def epidemie():
     return {r: " a ".join(dict.fromkeys(v)) for r, v in out.items()}
 
 
+MESICE = "ledna února března dubna května června července srpna září října listopadu prosince".split()
+
+
+def obec_umrti(p, mista):
+    """Klíč obce z mista.json pro úmrtí: místo ve faktu †, jinak bydliště / místo narození (udalosti.misto_osoby)."""
+    import udalosti
+    for f in p.get("f", []):
+        if f.strip().startswith("†"):
+            for k, m in mista.items():
+                if re.search(m.get("re") or re.escape(k), f):
+                    return k
+    return udalosti.misto_osoby(p, mista)
+
+
+def shluky_umrti(osoby, mista, osa):
+    """[(obec, rok, počet, práh, [(měsíc, počet)], [události])] – roky s nadprůměrem úmrtí v obci (práh viz docstring)."""
+    import udalosti
+    roky, mesice = defaultdict(lambda: defaultdict(int)), defaultdict(lambda: defaultdict(int))
+    for p in osoby:
+        if p.get("druh") == "bocni" or p.get("tataz"):
+            continue
+        r = year_of(p, "†")
+        obec = obec_umrti(p, mista) if r else None
+        if not obec:
+            continue
+        roky[obec][r] += 1
+        d = event(p, "†")
+        if d:
+            mesice[(obec, d[0][0].year)][d[0][0].month] += 1
+    out = []
+    for obec, po_rocich in sorted(roky.items()):
+        n = list(po_rocich.values())
+        prumer = sum(n) / len(n)
+        sigma = (sum((x - prumer) ** 2 for x in n) / len(n)) ** 0.5
+        prah = max(3, prumer + 2 * sigma)
+        for r, c in sorted(po_rocich.items()):
+            if c >= prah:
+                m = sorted(mesice[(obec, r)].items(), key=lambda x: (-x[1], x[0]))
+                ev = [e for e in udalosti.v_rozsahu(osa, r, r, misto=obec, mista=mista) if e["dopad"].get("umrti")]
+                out.append((obec, r, c, prah, m, ev))
+    return out
+
+
+def radek_shluku(obec, r, c, prah, m, ev):
+    mes = f"; po měsících {', '.join(f'{MESICE[k - 1]} ({v})' for k, v in m[:3])}" if m else ""
+    if ev:
+        kdy = lambda e: e["od"][:4] if e["od"][:4] == e["do"][:4] else f"{e['od'][:4]}–{e['do'][:4]}"
+        sr = "shoda s událostí " + "; ".join(f"{e['nazev']} ({kdy(e)})" for e in ev)
+    else:
+        sr = "bez známé události – hledat v obecní/farní kronice"
+    return f"{obec} {r}: {c} úmrtí (práh {prah:.1f}{mes}) – {sr}"
+
+
 def load():
     ns = {}
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import graf; ns.update(graf.nacti_legacy())
     ns["kid"] = {k: i for i, k in ns["ids"].items()}       # Kekulé → id osoby (pro výpis)
-    return ns["P"], ns.get("LINES", {}), ns.get("SAME", {}), ns["kid"]
+    return ns["P"], ns.get("LINES", {}), ns.get("SAME", {}), ns["kid"], ns["GRAF"]
 
 
 def event(p, sym):
@@ -77,7 +142,7 @@ def line_of(k):
 
 
 def main():
-    P, LINES, SAME, KID = load()   # napady procházejí předky výchozí osoby (Kekulé = rodič–dítě v linii)
+    P, LINES, SAME, KID, GRAF = load()   # napady procházejí předky výchozí osoby (Kekulé = rodič–dítě v linii)
     real = {k: p for k, p in P.items() if k not in SAME}
     name = lambda k: f"{P[k]['n']} ({KID.get(SAME.get(k, k), k)})"
     ideas = defaultdict(list)
@@ -174,6 +239,10 @@ def main():
                     trades[LINES.get(line_of(k), ("?",))[0] if line_of(k) else "výchozí rodina"].add(t)
     for line, t in sorted(trades.items()):
         ideas["Řemesla a postavení v rodech"].append(f"{line}: {', '.join(sorted(t))[:300]}")
+
+    import udalosti
+    for sh in shluky_umrti(GRAF.osoby.values(), udalosti.nacti_mista(ROOT), udalosti.nacti_osu(ROOT)):
+        ideas["Shluky úmrtí v obci"].append(radek_shluku(*sh))
 
     if not ideas:
         print("Zatím nic – doplň do osob data narození, sňatků a úmrtí (fakta začínající *, ×, †).")
