@@ -19,9 +19,25 @@ for _s in (sys.stdout, sys.stderr):   # UTF-8 výstup i na Windows bez -X utf8 (
 
 ROOT = sys.argv[1] if len(sys.argv) > 1 else os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATE = r"(\d{1,2})\.\s*(\d{1,2})\.\s*(\d{4})"
-EPIDEMIE = {1771: "hladomor", 1772: "hladomor a tyfus", 1805: "tyfus", 1831: "cholera", 1832: "cholera", 1836: "cholera",
-            1849: "cholera", 1850: "cholera", 1855: "cholera", 1866: "cholera a prusko-rakouská válka",
-            1873: "cholera", 1918: "španělská chřipka", 1919: "španělská chřipka"}
+
+
+def epidemie():
+    """Rok → popis z osy událostí (tools/udalosti.json + data/udalosti.json): epidemie a hlad se smrtelným dopadem,
+    k nim jednoroční války téhož roku (víceleté války by zahltily výpis). Dřív natvrdo slovník EPIDEMIE."""
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import udalosti
+    osa = udalosti.nacti_osu(ROOT)
+    out = {}
+    for e in osa:
+        if e["kategorie"] in ("epidemie", "hlad") and e["dopad"].get("umrti"):
+            for r in range(udalosti.rok(e["od"]), udalosti.rok(e["do"]) + 1):
+                out.setdefault(r, []).append(re.sub(r"\s*\d{4}(–\d{4})?$", "", e["nazev"]).lower())
+    for e in osa:
+        if e["kategorie"] == "valka" and e["dopad"].get("umrti") and udalosti.rok(e["od"]) == udalosti.rok(e["do"]):
+            for r in range(udalosti.rok(e["od"]), udalosti.rok(e["do"]) + 1):
+                if r in out:
+                    out[r].append(e["nazev"][0].lower() + e["nazev"][1:])
+    return {r: " a ".join(dict.fromkeys(v)) for r, v in out.items()}
 
 
 def load():
@@ -65,6 +81,7 @@ def main():
     real = {k: p for k, p in P.items() if k not in SAME}
     name = lambda k: f"{P[k]['n']} ({KID.get(SAME.get(k, k), k)})"
     ideas = defaultdict(list)
+    EPIDEMIE = epidemie()
 
     for k, p in real.items():
         births, marr, deaths = event(p, "*"), event(p, "×"), event(p, "†")

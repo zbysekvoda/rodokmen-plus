@@ -59,12 +59,20 @@ class Osa(unittest.TestCase):
         self.assertLessEqual(max(rok(e["do"]) for e in self.osa), 1995)
 
     def test_epidemie_z_napadu(self):
-        sys.path.insert(0, TOOLS)
-        from napady import EPIDEMIE
-        epid = [e for e in self.osa if e["kategorie"] == "epidemie"]
-        for r in EPIDEMIE:
+        """Roky, které napady.py dřív bral ze slovníku EPIDEMIE, musí osa pokrýt (epidemie nebo hlad)."""
+        epid = [e for e in self.osa if e["kategorie"] in ("epidemie", "hlad")]
+        for r in (1771, 1772, 1805, 1831, 1832, 1836, 1849, 1850, 1855, 1866, 1873, 1918, 1919):
             with self.subTest(rok=r):
-                self.assertTrue(any(rok(e["od"]) <= r <= rok(e["do"]) for e in epid), f"{r} ({EPIDEMIE[r]}) chybí v ose")
+                self.assertTrue(any(rok(e["od"]) <= r <= rok(e["do"]) for e in epid), f"{r} chybí v ose")
+
+    def test_napady_bez_slovniku(self):
+        sys.path.insert(0, TOOLS)
+        import napady
+        self.assertFalse(hasattr(napady, "EPIDEMIE"))
+        ep = napady.epidemie()
+        self.assertEqual(ep[1855], "cholera")
+        self.assertEqual(ep[1866], "cholera a prusko-rakouská válka")
+        self.assertIn("španělská chřipka", ep[1918])
 
 
 if __name__ == "__main__":
