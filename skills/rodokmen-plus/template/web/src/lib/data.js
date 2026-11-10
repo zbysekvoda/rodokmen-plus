@@ -4,6 +4,8 @@ import site from '../data/site.json';
 export const { people, families, lines, stats, issues, hypotheses, docs, config } = site;
 export const houses = site.houses ?? {};
 export const villages = site.villages ?? {};
+/** Historický kontext (tools/udalosti.py): id → událost {od, do, nazev, text, kategorie, …}; jen ty, které se kryjí se životy osob. */
+export const events = Object.fromEntries((site.events ?? []).map((e) => [e.id, e]));
 export const houseList = Object.values(houses);
 /** „Horní Lhota čp. 12 – U Nováků“ */
 export const houseTitle = (h) => `${h.obec} čp. ${h.cp}${h.name ? ` – ${h.name}` : ''}`;
