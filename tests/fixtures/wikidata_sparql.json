@@ -1,0 +1,16 @@
+{"head": {"vars": ["e", "eLabel", "popis", "typLabel", "kdy", "zacatek", "konec"]},
+ "results": {"bindings": [
+  {"e": {"type": "uri", "value": "http://www.wikidata.org/entity/Q152497"},
+   "eLabel": {"type": "literal", "value": "Bitva u Hradce Králové"},
+   "popis": {"type": "literal", "value": "bitva prusko-rakouské války"},
+   "typLabel": {"type": "literal", "value": "bitva"},
+   "kdy": {"type": "literal", "value": "1866-07-03T00:00:00Z"}},
+  {"e": {"type": "uri", "value": "http://www.wikidata.org/entity/Q152497"},
+   "eLabel": {"type": "literal", "value": "Bitva u Hradce Králové"},
+   "typLabel": {"type": "literal", "value": "střetnutí"},
+   "kdy": {"type": "literal", "value": "1866-07-03T00:00:00Z"}},
+  {"e": {"type": "uri", "value": "http://www.wikidata.org/entity/Q99999"},
+   "eLabel": {"type": "literal", "value": "Velký požár města"},
+   "zacatek": {"type": "literal", "value": "1890-01-01T00:00:00Z"},
+   "konec": {"type": "literal", "value": "1891-01-01T00:00:00Z"}}
+ ]}}

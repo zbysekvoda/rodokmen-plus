@@ -388,7 +388,7 @@ Vždy **projektovou kopii**, nikdy `SKILL_DIR/tools/` (zapisovala by do skillu; 
 | `zapis.py <soubor> <klíč> <vstup.json> [--sloucit]` | změna jedné položky v JSON datech beze změny formátu |
 | `mista.py [pridej / znovu]`, `mista_domy.py ruian / okoli / hledej / pridej` | obce a domy (čp. z faktů osob) na mapu – Mapy.com s `MAPY_API_KEY` v prostředí (např. načtený z Keychainu, nikdy do chatu ani commitu), bez klíče fallback OSM Nominatim + RÚIAN, varuje na místa bez souřadnic; dům v RÚIAN (obec, parcela, k. ú., poloha) |
 | `napady.py` | náměty na zajímavosti z dat |
-| `udalosti.py` | osa historických událostí: `osoba <id>`, `rok <rok>`, `rozsah <od> <do>` (kontext k příběhům) |
+| `udalosti.py` | osa historických událostí: `osoba <id>`, `rok <rok>`, `rozsah <od> <do>` (kontext k příběhům); `wikidata <obec> [--okres]` vypíše jen **kandidáty** z Wikidat k ověření a ručnímu přepisu do `data/udalosti.json` (nic nezapisuje) |
 | `slusne.py`, `hlidac.py`, `zdravi.py`, `smoke_test.py [--plny]` | společný limit k archivům, hook proti obcházení, test nástrojů proti portálům (smoke_test: OK/FAIL po portálech) |
 | `export_web.py`, `export_web_domy.py`, `fan_chart.py` | data → web (osoby i domy); vějíř předků k tisku |
 | `kniha_pdf.py <id> \| --vse [--web]` | Kniha předků do PDF (`vystupy/kniha-<id>.pdf`, s `--web` i na web za bránu); `web.json` → `kniha`, `reference/web.md` |

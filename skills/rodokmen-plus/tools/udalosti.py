@@ -5,6 +5,7 @@ Použití (z kořene projektu):
   python3 tools/udalosti.py rok 1866 [--misto Holice]       # události platné v roce
   python3 tools/udalosti.py rozsah 1914 1920 [--misto X]    # události, které zasahují do intervalu
   python3 tools/udalosti.py osoba jan-novak-1890            # události za života osoby s jejím věkem
+  python3 tools/udalosti.py wikidata Holice [--okres] [--klic holice]  # KANDIDÁTI z Wikidat (jen výpis JSON)
 
 Volby: --projekt <složka> (výchozí: kořen projektu, ve kterém leží tools/), --kategorie epidemie,hlad
 
@@ -25,9 +26,12 @@ rok začátku události − rok narození (u události začaté před narozením
 Knihovna:  import udalosti; osa = udalosti.nacti_osu(projekt)  → seznam položek (plugin + projekt)
            udalosti.v_rozsahu(osa, od, do, misto=None, mista=None)
 Jsou to KONTEXT, ne fakta o osobě – vazbu na událost tvrdí jen zápis (viz docs/navrhy/historicky-kontext.md).
-Exit kódy: 0 v pořádku, 1 neznámá osoba / místo nebo chybná data.
+Wikidata: dotaz SPARQL na query.wikidata.org najde místo podle českého labelu (s --okres okres ČR) a události
+vázané přes P276 / P131 s datem P585 / P580 / P582. Vypíše JSON položky ve formátu data/udalosti.json
+(zdroj „Wikidata Q…“, jistota "obecne") jen ke kontrole – nic nezapisuje, přepis do projektu je ruční.
+Exit kódy: 0 v pořádku, 1 neznámá osoba / místo nebo chybná data, 2 chyba sítě (Wikidata).
 """
-import argparse, datetime, json, os, re, sys
+import argparse, datetime, json, os, re, sys, urllib.error, urllib.parse, urllib.request
 for _s in (sys.stdout, sys.stderr):
     if hasattr(_s, "reconfigure"):
         _s.reconfigure(encoding="utf-8", errors="replace")
@@ -151,6 +155,109 @@ def vypis(udalosti, vek_od=None):
         print(radek(e, None if vek_od is None else max(0, rok(e["od"]) - vek_od)))
 
 
+WD_URL = "https://query.wikidata.org/sparql"
+WD_TIMEOUT = 30
+
+
+def _verze():
+    try:
+        with open(os.path.join(ROOT, "VERZE"), encoding="utf-8") as f:
+            return f.read().strip()
+    except OSError:
+        return "dev"
+
+
+WD_UA = f"rodokmen-plus/{_verze()} (genealogy tool)"
+WD_KATEGORIE = (("bitv", "valka"), ("válk", "valka"), ("obléh", "valka"), ("epidemi", "epidemie"),
+                ("mor", "epidemie"), ("cholera", "epidemie"), ("hlad", "hlad"), ("požár", "zivel"),
+                ("povodeň", "zivel"), ("povodn", "zivel"), ("zemětřes", "zivel"), ("povstání", "povstani"),
+                ("vzpour", "povstani"), ("stávk", "povstani"))
+
+
+def wd_dotaz(nazev, okres=False, od=1620, limit=50):
+    """SPARQL: místo podle českého labelu v ČR (u okresu okres ČR Q548611), události v něm s datem od roku `od`."""
+    lit = json.dumps(nazev, ensure_ascii=False)
+    typ = "  ?misto wdt:P31 wd:Q548611 .\n" if okres else ""
+    vazba = "(wdt:P276|wdt:P131)/wdt:P131*" if okres else "wdt:P276|wdt:P131"
+    return f"""SELECT DISTINCT ?e ?eLabel ?popis ?typLabel ?kdy ?zacatek ?konec WHERE {{
+  ?misto rdfs:label {lit}@cs ; wdt:P17 wd:Q213 .
+{typ}  ?e {vazba} ?misto .
+  OPTIONAL {{ ?e wdt:P585 ?kdy }}
+  OPTIONAL {{ ?e wdt:P580 ?zacatek }}
+  OPTIONAL {{ ?e wdt:P582 ?konec }}
+  FILTER NOT EXISTS {{ ?e wdt:P31/wdt:P279* wd:Q39825 }}   # bez sčítání lidu (stovky položek na obec)
+  FILTER(BOUND(?kdy) || BOUND(?zacatek))
+  FILTER(YEAR(COALESCE(?kdy, ?zacatek)) >= {int(od)})
+  OPTIONAL {{ ?e wdt:P31 ?typ }}
+  OPTIONAL {{ ?e schema:description ?popis FILTER(LANG(?popis) = "cs") }}
+  SERVICE wikibase:label {{ bd:serviceParam wikibase:language "cs,en". }}
+}}
+ORDER BY COALESCE(?kdy, ?zacatek)
+LIMIT {int(limit)}"""
+
+
+def wd_stahni(dotaz, timeout=WD_TIMEOUT):
+    """Odpověď SPARQL (JSON) – jediné místo se sítí, v testech se nahrazuje."""
+    url = WD_URL + "?" + urllib.parse.urlencode({"query": dotaz, "format": "json"})
+    req = urllib.request.Request(url, headers={"User-Agent": WD_UA, "Accept": "application/sparql-results+json"})
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+        return json.load(r)
+
+
+def _wd_datum(v):
+    """'1866-07-03T00:00:00Z' → '1866-07-03'; přesnost na rok (01-01) se zkrátí na rok."""
+    m = re.match(r"^(\d{4})-(\d{2})-(\d{2})", (v or "").lstrip("+"))
+    if not m:
+        return None
+    return m.group(1) if (m.group(2), m.group(3)) == ("01", "01") else m.group(0)
+
+
+def _wd_kategorie(*texty):
+    t = " ".join(x for x in texty if x).lower()
+    return next((k for klic, k in WD_KATEGORIE if klic in t), "sprava")
+
+
+def _slug(s):
+    import unicodedata
+    s = unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode().lower()
+    return re.sub(r"[^a-z0-9]+", "-", s)[:40].strip("-") or "udalost"
+
+
+def wd_kandidati(odpoved, kde, okres=False):
+    """Řádky SPARQL → položky ve formátu data/udalosti.json (jedna na QID)."""
+    vysl = {}
+    for b in odpoved.get("results", {}).get("bindings", []):
+        g = lambda k: b.get(k, {}).get("value")
+        qid = (g("e") or "").rsplit("/", 1)[-1]
+        if not re.match(r"^Q\d+$", qid):
+            continue
+        od = _wd_datum(g("kdy")) or _wd_datum(g("zacatek"))
+        if not od or qid in vysl:
+            continue
+        do = _wd_datum(g("konec")) or od
+        nazev = g("eLabel") or qid
+        vysl[qid] = {"id": f"{od[:4]}-{_slug(nazev)}", "od": od, "do": do,
+                     "uroven": "region" if okres else "obec", "kde": [kde],
+                     "kategorie": _wd_kategorie(nazev, g("typLabel"), g("popis")), "nazev": nazev,
+                     "text": g("popis") or "", "dopad": {"umrti": False, "vojaci": False},
+                     "zdroj": f"Wikidata {qid}", "jistota": "obecne"}
+    return list(vysl.values())
+
+
+def wikidata(a):
+    try:
+        odp = wd_stahni(wd_dotaz(a.nazev, a.okres, a.od, a.limit))
+    except (urllib.error.URLError, OSError, ValueError) as e:
+        duvod = getattr(e, "reason", None) or e
+        print(f"Wikidata nejsou dostupná ({duvod}). Zkus to později.", file=sys.stderr)
+        return 2
+    kand = wd_kandidati(odp, a.klic or a.nazev, a.okres)
+    print(json.dumps(kand, ensure_ascii=False, indent=1))
+    print(f"{len(kand)} kandidátů z Wikidat – jen k ověření, nic se nezapsalo. Zkontroluj datum, kategorii,"
+          f" dopad a `kde`, pak ručně přepiš do data/udalosti.json.", file=sys.stderr)
+    return 0
+
+
 def parse_args(argv):
     popis, _, epilog = __doc__.partition("\n\n")
     p = argparse.ArgumentParser(prog="udalosti.py", description=popis.strip(), epilog=epilog.strip(),
@@ -167,11 +274,19 @@ def parse_args(argv):
     s.add_argument("--misto")
     o = sub.add_parser("osoba", help="události za života osoby s jejím věkem")
     o.add_argument("id")
+    w = sub.add_parser("wikidata", help="kandidáti událostí z Wikidat pro obec / okres (jen výpis JSON)")
+    w.add_argument("nazev", help="český název obce (nebo okresu s --okres)")
+    w.add_argument("--okres", action="store_true", help="název je okres ČR")
+    w.add_argument("--klic", help="klíč místa z data/mista.json pro pole kde (výchozí: název)")
+    w.add_argument("--od", type=int, default=1620, help="jen události od roku (výchozí 1620)")
+    w.add_argument("--limit", type=int, default=50, help="nejvýš řádků SPARQL (výchozí 50)")
     return p.parse_args(argv)
 
 
 def main(argv=None):
     a = parse_args(argv)
+    if a.prikaz == "wikidata":
+        return wikidata(a)
     projekt = os.path.abspath(a.projekt)
     osa, mista = nacti_osu(projekt), nacti_mista(projekt)
     kat = set(a.kategorie.split(",")) if a.kategorie else None
