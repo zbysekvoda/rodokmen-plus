@@ -21,7 +21,7 @@ Jeho syn [Jan](/osoba/jan-novak-1824/) převzal kovárnu a o dva roky později s
 přijela do Holic železnice a kovárna kromě koní kovala i kola vozů pro cukrovar.
 
 ## Poslední kovář
-[Jan Novák](/osoba/jan-novak-1890/) se vrátil z 1. světové války (jeho mladší bratr Václav padl na italské frontě)
+[Jan Novák](/osoba/jan-novak-1890/) se vrátil z 1. světové války (jeho mladší bratr Václav se podle rodiny z italské fronty nevrátil)
 a v červnu 1919 si vzal [Josefu Pokornou](/osoba/josefa-pokorna-1895/), dceru sedláka z Dolní Rovně. Kul až do smrti v roce 1944.
 Syn [František](/osoba/frantisek-novak-1921/) se v kovárně ještě vyučil, ale po válce nastoupil jako zámečník do továrny.
 Výheň v čp. 112 vyhasla. Dům ale v rodině zůstal a kovadlina stojí na dvoře dodnes.
