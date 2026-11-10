@@ -124,6 +124,21 @@ class ExportUkazky(unittest.TestCase):
             self.assertLessEqual(len(h["doba"]), 5)
             self.assertTrue(all(x["id"] in ids for x in h["doba"]))
 
+    def test_svet_kolem_generace_knihy(self):
+        """p.svet[g-1] = události pro generaci g od osoby (box „Svět kolem“ v Knize předků), id ze site.events."""
+        ids = {e["id"] for e in self.site["events"]}
+        lide = self.site["people"]
+        s_knihou = [p for p in lide.values() if p.get("svet")]
+        self.assertTrue(s_knihou)
+        for p in s_knihou:
+            rodice = [x for x in (p.get("father"), p.get("mother")) if x in lide]
+            self.assertTrue(rodice)
+            for g in p["svet"]:
+                self.assertLessEqual(len(g), 5)
+                self.assertTrue(set(g) <= ids)
+        self.assertTrue(any(3 <= len(g) <= 5 for p in s_knihou for g in p["svet"]))
+        self.assertNotIn("svet", next(p for p in lide.values() if not (p.get("father") or p.get("mother"))))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -784,6 +784,20 @@ def main():
     for h in houses.values():
         h["doba"] = ewd.doba_domu(h, osa_ud, mista_ud) if h.get("processed") else []
         event_ids.update(x["id"] for x in h["doba"])
+    # box „Svět kolem“ v Knize předků: generace g od kořene = Kekulé 2^g … 2^(g+1)-1 (jako bookGenerations v kniha.js)
+    kniha_cfg = cfg.get("kniha", {})
+    if kniha_cfg is not False:
+        k_gens = (kniha_cfg if isinstance(kniha_cfg, dict) else {}).get("generaci", 6)
+        for s_, p in people.items():
+            if not (p.get("father") or p.get("mother")):
+                continue
+            vrstva, out = [s_], []
+            for _ in range(1, k_gens):
+                vrstva = [x for q in vrstva for x in (people[q].get("father"), people[q].get("mother")) if x in people]
+                if not vrstva:
+                    break
+                out.append([e["id"] for e in ud.svet_kolem([O[x] for x in dict.fromkeys(vrstva)], osa_ud, mista_ud)])
+            p["svet"] = out
     events = [ud.pro_web(e) for e in osa_ud if e["id"] in event_ids]
 
     site = dict(config=public_cfg, events=events, places=places, houses=houses, root=root_id, roots=[dict(key=key, id=i, name=O[i]["n"]) for key, i in g.koreny.items() if i in people],

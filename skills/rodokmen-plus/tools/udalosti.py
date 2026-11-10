@@ -188,6 +188,17 @@ def kontext_osob(osoby, osa, mista, dnes=None):
     return [e for e in osa if e["id"] in ids]
 
 
+def svet_kolem(osoby, osa, mista, n=5, minimum=3, dnes=None):
+    """Box „Svět kolem“ v knize: nejvýznamnější události za životů skupiny osob (generace), chronologicky.
+    Kandidáti = kontext_osob, výběr = nejvyznamnejsi. Když limit na kategorii nechá méně než `minimum`
+    a kandidátů je víc, doplní se bez limitu na kategorii; [] = box vynechat."""
+    kand = kontext_osob(osoby, osa, mista, dnes)
+    vyber = nejvyznamnejsi(kand, n)
+    if len(vyber) < minimum and len(kand) > len(vyber):
+        vyber = nejvyznamnejsi(kand, minimum, na_kategorii=minimum)
+    return vyber
+
+
 def pro_web(e):
     """Položka osy pro data webu (bez zdrojových poznámek navíc); od/do jako roky pro osu."""
     return dict(id=e["id"], od=rok(e["od"]), do=rok(e["do"]), datum=[e["od"], e["do"]], nazev=e["nazev"], text=e.get("text", ""),
