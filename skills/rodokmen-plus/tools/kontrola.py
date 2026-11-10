@@ -14,6 +14,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data")
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))   # -I nepřidá složku skriptu sama
 import kontrola_domy  # noqa: E402
+import dolozeni  # noqa: E402
 
 
 def jload(name, default):
@@ -421,6 +422,10 @@ def main():
 
     wiki_odkazy(err, warn, g, O, LINES, kek, keys, D, obec_domu, dum_id, cfg)
     vecne_kontroly(err, warn, g, O, zaz, prep)
+    pribehy = ["zajimavosti.md", "zajimavosti_domy.md", "pribeh.md", "pribeh_domy.md",
+               *(x.get("soubor", "") for x in cfg.get("pribehy", []) if isinstance(x, dict))]
+    dolozeni.kontroluj(warn, [(f, open(os.path.join(DATA, f), encoding="utf-8").read())
+                              for f in dict.fromkeys(pribehy) if f and os.path.exists(os.path.join(DATA, f))])
 
     if not os.path.exists(os.path.join(DATA, "pribeh.md")) and LINES:
         hlavni = min(LINES)
