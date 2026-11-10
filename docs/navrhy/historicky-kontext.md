@@ -1,6 +1,6 @@
 # Historický kontext k životům předků
 
-Stav: analýza a návrh (2026-11-10). Nic se zatím neimplementuje.
+Stav: návrh schválen (2026-11-10), implementace v navazujících handoffech.
 
 ## Co už je
 - `tools/napady.py` má natvrdo slovník `EPIDEMIE` (13 let: cholera 1831–1873, hladomor 1771–72, španělská chřipka…)
@@ -80,7 +80,8 @@ Plugin nese jen `udalosti.json` s obecnou osou (ČR a země) a nástroje. Region
 
 Pořadí: 1 → 2 → (3, 4 paralelně) → 5 → 6. Úkoly 7 a 8 kdykoli po kroku 2.
 
-## Otevřené otázky
-- Hloubka osy: od 1620, nebo jen od zavedení matrik (~1650)? Návrh: od 1620.
-- Jak hustá má být osa ČR? Jen velké události (~100), nebo i zemské reformy a měny (~200)?
-- Na webu zobrazovat kontext defaultně, nebo jen přepínačem?
+## Rozhodnutí (Zbyšek, 2026-11-10)
+- Návrh schválen.
+- Osa začíná rokem 1620.
+- Hustota osy: ~200 položek (včetně zemských reforem a měn).
+- Web: kontext za přepínačem, výchozí stav zapnuto.
