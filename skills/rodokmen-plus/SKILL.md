@@ -24,6 +24,7 @@ Uživatel může začít kterýmkoli režimem a přepínat mezi nimi („teď se
 - `reference/data.md`, `reference-dum/data.md` – formát dat (osoby, domy),
 - `reference-dum/prameny.md` – **jaké prameny k domu existují a v jakém pořadí** (začátek režimu dům),
 - `reference/pribehy.md`, `reference-dum/pribehy.md`, `reference-dum/texty.md` – zajímavosti, příběhy, texty na web,
+- `reference/udalosti.md` – regionální historické události projektu (`data/udalosti.json`: kroniky, NDK, Wolny, Hosák),
 - `reference/web.md`, `reference/soukromi.md` (u domů přísnější `reference-dum/soukromi.md`),
 - `reference/playbook.md` – profesionální metodika (EN, dlouhá – čti jen potřebnou kapitolu).
 
@@ -293,6 +294,10 @@ jako `doc`; před velkým kolem si nech plán schválit (kredity).
 Podrobně `reference/pribehy.md` (rod), `reference-dum/pribehy.md` (dům), texty pro web `reference-dum/texty.md`.
 - **Zajímavosti** sbírej průběžně do `data/zajimavosti.md` a říkej je uživateli. Po kole `python3 -I tools/napady.py`
   (svatby krátce před porodem, rod v jednom domě, sňatky příbuzných, dlouhověkost, epidemie).
+- **Historický kontext:** k osobě `python3 -I tools/udalosti.py osoba <id>` (události za života s věkem), ke kapitole
+  `udalosti.py rozsah <od> <do>`, k roku `udalosti.py rok <rok>`. Událost uváděj jako kontext („v těch letech…“);
+  kauzální nebo účastnické tvrzení („zemřel kvůli choleře“, „zúčastnil se bitvy“, „padl“) jen s odkazem na zápis
+  (matrika, kronika, voj. záznam) – pravidla a příklady v `reference/pribehy.md` „Doložené vs. kontext“, `kontrola.py` upozorní.
 - **Osobnosti:** po kole spusť i `python3 -I tools/osobnosti.py` – vybere předky s výjimečným povoláním nebo
   postavením (kněz, starosta, důstojník…) s tipy, kde hledat víc. Potvrzené označ v `osoby.py` polem `vyz="krátký popis"`;
   web je ukáže nahoře na stránce „Osobnosti“. Stránka „Statistiky“ (`/statistiky/`) se počítá sama z dat.
@@ -361,7 +366,7 @@ Vždy **projektovou kopii**, nikdy `SKILL_DIR/tools/` (zapisovala by do skillu; 
 | `audit.py zadani <klic…> / nacti <odpoved.json>` | podklad pro nezávislý audit zápisu subagentem (přepis × výřez × graf, jiné výklady, kde hledat) a načtení jeho JSON; postup ve skillu `paralelni-badani` → Audit |
 | `osobnosti.py [--vse]` | významné osobnosti podle povolání ve faktech a pole `vyz` (stránka /osobnosti/) |
 | `kmotri.py [--min N]` | kmotři a svědci jako stopy: hrany `kmotr`/`svedek` + jména ze `shrnuti` zápisů, opakovaná příjmení |
-| `kontrola.py`, `kontrola_domy.py` | kontrola dat osob, domů a křížových odkazů, soukromí, kdy psát příběh |
+| `kontrola.py`, `kontrola_domy.py`, `dolozeni.py` | kontrola dat osob, domů a křížových odkazů, soukromí, kdy psát příběh, nedoložená spojení s událostmi v příbězích |
 | `aron_search.py`, `aron_img.py` | ARON (SOA Zámrsk): matriky, sčítání, gruntovní knihy |
 | `trebon.py` | (od 2. 11. 2026 jen v prohlížeči, nástroj portál nedotazuje) SOA Třeboň: matriky, rejstříky, sčítání, strom fondů (gruntovní knihy, urbáře) |
 | `portafontium.py`, `ebadatelna.py` | SOA Plzeň (matriky, okresní civilní matriky, sčítání lidu 1857–1921 po domech); SOA Praha (matriky i archiválie `a-…`; eBadatelna od 2. 11. 2026 jen v prohlížeči) |
@@ -383,6 +388,7 @@ Vždy **projektovou kopii**, nikdy `SKILL_DIR/tools/` (zapisovala by do skillu; 
 | `zapis.py <soubor> <klíč> <vstup.json> [--sloucit]` | změna jedné položky v JSON datech beze změny formátu |
 | `mista.py [pridej / znovu]`, `mista_domy.py ruian / okoli / hledej / pridej` | obce a domy (čp. z faktů osob) na mapu – Mapy.com s `MAPY_API_KEY` v prostředí (např. načtený z Keychainu, nikdy do chatu ani commitu), bez klíče fallback OSM Nominatim + RÚIAN, varuje na místa bez souřadnic; dům v RÚIAN (obec, parcela, k. ú., poloha) |
 | `napady.py` | náměty na zajímavosti z dat |
+| `udalosti.py` | osa historických událostí: `osoba <id>`, `rok <rok>`, `rozsah <od> <do>` (kontext k příběhům); `wikidata <obec> [--okres]` vypíše jen **kandidáty** z Wikidat k ověření a ručnímu přepisu do `data/udalosti.json` (nic nezapisuje) |
 | `slusne.py`, `hlidac.py`, `zdravi.py`, `smoke_test.py [--plny]` | společný limit k archivům, hook proti obcházení, test nástrojů proti portálům (smoke_test: OK/FAIL po portálech) |
 | `export_web.py`, `export_web_domy.py`, `fan_chart.py` | data → web (osoby i domy); vějíř předků k tisku |
 | `kniha_pdf.py <id> \| --vse [--web]` | Kniha předků do PDF (`vystupy/kniha-<id>.pdf`, s `--web` i na web za bránu); `web.json` → `kniha`, `reference/web.md` |

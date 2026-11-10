@@ -286,6 +286,25 @@ tr.anc td { background: var(--accent-soft); }
 .osa { display: block; font-family: var(--sans); }
 .osa-ms rect { fill: var(--accent); opacity: 0.08; }
 .osa-ms text { font-size: 10px; fill: var(--text-quiet); }
+/* historický kontext: tlumené šedé pásy s tečkovaným okrajem – odlišené od pruhů životů (doložená data v barvě rodu) */
+.osa-ev .pas { fill: var(--text-quiet); fill-opacity: 0.14; stroke: var(--text-quiet); stroke-opacity: 0.45; stroke-dasharray: 2 2; }
+.osa-ev .k-valka .pas, .osa-ev .k-povstani .pas { fill-opacity: 0.24; }
+.osa-ev .k-epidemie .pas, .osa-ev .k-hlad .pas { fill-opacity: 0.2; stroke-dasharray: 1 2; }
+.osa-ev text { font-size: 9.5px; font-style: italic; fill: var(--text-quiet); pointer-events: none; }
+.osa-ev .stin { fill: var(--text-quiet); opacity: 0; pointer-events: none; }
+.osa-ev .ev:hover .stin { opacity: 0.07; }
+.osa-ev .ev:hover .pas { fill-opacity: 0.35; }
+.osa-legend .lg.ctx { background: color-mix(in srgb, var(--text-quiet) 20%, transparent); border: 1px dashed var(--text-quiet); }
+.osa-ctx { font-style: italic; }
+/* řádek „Doba“ na kartě osoby / domu: kontext, ne fakt – tlumený, šedý, se štítkem */
+.doba { margin: 1rem 0; padding: 0.5rem 0.8rem; border-left: 3px dashed var(--rule); background: color-mix(in srgb, var(--text-quiet) 6%, transparent); color: var(--text-quiet); font-size: 0.9rem; border-radius: 0 6px 6px 0; }
+.doba .doba-h { font-size: 0.95rem; margin: 0 0 0.3rem; color: var(--text-quiet); font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+.kontext-stitek { font-size: 0.7rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; padding: 0.05rem 0.45rem; border: 1px dashed currentColor; border-radius: 999px; }
+.doba ul { margin: 0; padding-left: 1.1rem; }
+.doba li { margin: 0.1rem 0; font-style: italic; }
+.doba .doba-y { white-space: nowrap; }
+.doba .doba-pozn { margin: 0.35rem 0 0; font-size: 0.78rem; }
+.doba .doba-pozn a { color: inherit; }
 .osa-axis line { stroke: var(--rule); }
 .osa-axis text { font-size: 11px; fill: var(--text-quiet); text-anchor: middle; }
 .osa-heads text { font: 600 13px var(--serif); fill: var(--text-head); }

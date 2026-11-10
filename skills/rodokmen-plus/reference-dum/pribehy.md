@@ -22,6 +22,30 @@ Co najdeš při čtení, hned zapiš do `data/zajimavosti.md` (nadpis `##` + 2�
 
 Nejlepší 2–4 dej na úvod webu (`web.json` → `zajimavosti_na_uvodu`).
 
+## Doložené vs. kontext (historické události)
+Dějiny dávají příběhu kulisu, ale nesmí za předka vymýšlet osud. Události k historii domu a jeho obyvatel najdeš nástrojem
+`python3 -I tools/udalosti.py osoba <id>` (co se dělo za života, s věkem), `udalosti.py rok <rok>` a
+`udalosti.py rozsah <od> <do>` (kapitola, období držitele domu).
+
+- **Kontext smíš vždy:** „v těch letech zuřila v kraji cholera“, „žil v době napoleonských válek“, „za jeho mládí
+  zrušili robotu“. Říká, co se dělo kolem, ne co se stalo jemu.
+- **Kauzální nebo účastnické tvrzení o osobě jen s odkazem na zápis** (matrika, kronika, vojenský záznam – kmenový
+  list, VÚA): „zemřel kvůli choleře“, „zemřel na tyfus“, „zúčastnil se bitvy u…“, „padl v…“, „v důsledku hladomoru
+  odešli“. Odkaz `[[zdroj:<klíč>]]` nebo jmenovaný pramen patří do téže nebo sousední věty.
+- Bez zápisu buď přepiš na kontext, nebo přiznej původ („podle rodiny“, „nejspíš“), ale ne jako fakt.
+- Pozor na shodu dat: úmrtí v roce epidemie ještě neznamená úmrtí na epidemii – příčinu uvádí jen matrika zemřelých.
+
+| Špatně | Správně |
+|---|---|
+| Jan zemřel roku 1866 kvůli choleře. | Jan zemřel v září 1866, v roce, kdy krajem prošla cholera. |
+| Josef se zúčastnil bitvy u Hradce Králové. | Josef sloužil u 18. pěšího pluku ([[zdroj:kmenovy_list_josef]]), který bojoval u Hradce Králové. |
+| Václav padl na italské frontě. | Václav padl roku 1916 na Soči, jak zapsal farář do matriky zemřelých ([[zdroj:mat_z_1916]]). |
+| Anna zemřela na tyfus. (bez zápisu) | Anna zemřela na tyfus – příčinu uvádí matrika ([[zdroj:mat_z_1847]]). |
+
+`kontrola.py` vypíše upozornění u vět s „kvůli“, „v důsledku“, „následkem“, „zúčastnil(a) se“, „padl“ nebo „zemřel(a)
+na <epidemii>“, když v nich ani ve vedlejší větě není odkaz na zápis. Je to upozornění, ne chyba: zkontroluj, doplň zdroj,
+nebo přeformuluj.
+
 ## Příběh domu
 **Kdy:** když má hlavní dům zhruba 4 doložené držitele nebo pokrytí ~150 let (`kontrola.py` připomene).
 **Postup:**

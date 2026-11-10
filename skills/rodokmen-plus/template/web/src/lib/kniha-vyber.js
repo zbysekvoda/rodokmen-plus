@@ -61,3 +61,7 @@ export function usedBooks(recs) {
   return [...by].map(([archive, v]) => ({ archive, volumes: [...v].sort((x, y) => x.localeCompare(y, 'cs')) }))
     .sort((x, y) => x.archive.localeCompare(y.archive, 'cs'));
 }
+
+/** Box „Svět kolem“ u generace: id událostí z exportu (p.svet[gen - 1], výběr tools/udalosti.py → svet_kolem) → položky
+ *  z site.events; neznámá id vypadnou, nejvýš 5. Prázdný seznam = box vynechat. */
+export const svetKolem = (ids, events) => (ids ?? []).map((id) => events[id]).filter(Boolean).slice(0, 5);

@@ -75,6 +75,18 @@ h2.ch { font: 400 24pt/1.1 var(--kn-serif); margin: 4pt 0 10pt; }
 a { color: inherit; text-decoration: none; }
 a.ref::after { content: ' → s. ' target-counter(attr(href), page); font: 600 0.8em var(--kn-sans); color: var(--kn-accent); white-space: nowrap; }
 
+/* box „Svět kolem“: kontext, ne fakt – tisková podoba řádku „Doba“ z webu (global.css .doba): tlumený, šedý,
+   čárkovaný levý okraj, štítek KONTEXT; nikdy se nedělí přes stránku a nepřeteče (nejvýš 5 řádků) */
+.svet-kolem { break-inside: avoid; max-height: 60mm; overflow: hidden; margin: 2pt 0 12pt; padding: 5pt 9pt;
+  border-left: 1.5pt dashed var(--kn-rule); background: color-mix(in srgb, var(--kn-muted) 7%, transparent);
+  color: var(--kn-muted); font-size: 9pt; line-height: 1.35; }
+.svet-kolem .doba-h { display: flex; align-items: center; gap: 6pt; font: 600 7pt var(--kn-sans); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 3pt; }
+.svet-kolem .kontext-stitek { font: 500 6pt var(--kn-sans); letter-spacing: .08em; padding: 0 4pt; border: .6pt dashed currentColor; border-radius: 999px; }
+.svet-kolem ul { margin: 0; padding-left: 10pt; }
+.svet-kolem li { font-style: italic; margin: 1pt 0; }
+.svet-kolem .doba-y { font-style: normal; font: 7.5pt var(--kn-sans); white-space: nowrap; }
+.svet-kolem .doba-pozn { margin: 3pt 0 0; font: 6.5pt var(--kn-sans); }
+
 /* legenda stavů doložení */
 .legend { display: flex; flex-wrap: wrap; gap: 4pt 12pt; font: 7pt var(--kn-sans); color: var(--kn-muted); margin-top: 10pt; }
 .legend.col { flex-direction: column; }

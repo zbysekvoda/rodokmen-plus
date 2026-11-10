@@ -1,6 +1,6 @@
 // bun test tests/ – pravidla výběru obsahu „Knihy předků“ (template/web/src/lib/kniha-vyber.js)
 import { test, expect } from 'bun:test';
-import { zapisyMode, selectHouses, selectStories, bookLinks, selectRecords, usedBooks } from '../skills/rodokmen-plus/template/web/src/lib/kniha-vyber.js';
+import { zapisyMode, selectHouses, selectStories, bookLinks, selectRecords, usedBooks, svetKolem } from '../skills/rodokmen-plus/template/web/src/lib/kniha-vyber.js';
 
 const dateKey = (d) => Number((d.match(/\d{4}/) || ['9999'])[0]);
 
@@ -61,4 +61,12 @@ test('usedBooks: svazky po archivech bez duplicit', () => {
     { archive: 'Ostatní prameny', volumes: ['od rodiny'] },
     { archive: 'SOA Zámrsk', volumes: ['N Holice 1880', 'O Holice 1900'] },
   ]);
+});
+
+test('svetKolem: id → události, neznámá vypadnou, max 5, bez událostí prázdné', () => {
+  const ev = Object.fromEntries(['a', 'b', 'c', 'd', 'e', 'f'].map((id, i) => [id, { id, od: 1800 + i, do: 1800 + i, nazev: id }]));
+  expect(svetKolem(['a', 'x', 'b', 'c'], ev).map((e) => e.id)).toEqual(['a', 'b', 'c']);
+  expect(svetKolem(['a', 'b', 'c', 'd', 'e', 'f'], ev)).toHaveLength(5);
+  expect(svetKolem(undefined, ev)).toEqual([]);
+  expect(svetKolem([], ev)).toEqual([]);
 });

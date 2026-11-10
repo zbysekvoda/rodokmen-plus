@@ -12,6 +12,7 @@ for _s in (sys.stdout, sys.stderr):   # UTF-8 výstup i na Windows bez -X utf8 (
 TOOLS = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, TOOLS)
 from prostredi import magick_bin   # společné s export_web.py a kniha_pdf.py
+import udalosti                     # historický kontext (osa událostí pluginu + data/udalosti.json)
 ROOT = os.path.dirname(TOOLS)
 if not os.path.exists(os.path.join(ROOT, "data", "STAV.md")):   # spuštěno ze složky skillu: data projektu tam nejsou, zápis by šel do skillu
     sys.exit(f"{os.path.basename(__file__)}: {ROOT} není složka projektu (chybí data/STAV.md). "
@@ -174,6 +175,18 @@ def build_houses(D, recs, docs_cfg, obec_default=""):
         )
     houses = dict(sorted(houses.items(), key=lambda kv: (int(re.match(r"\d*", kv[1]["cp"]).group(0) or 99999), kv[1]["cp"])))
     return houses
+
+
+def doba_domu(h, osa, mista, n=5):
+    """Historický kontext domu: n nejvýznamnějších událostí za dobu, kterou pokrývají jeho dějiny (události a držitelé),
+    chronologicky jako [{id}]. Zemské události se filtrují podle obce domu (klíč v mista.json). Je to kontext, ne fakt o domu."""
+    roky = [int(y) for x in h.get("events", []) for y in re.findall(r"\b(1[5-9]\d\d|20\d\d)\b", x["year"])]
+    roky += [int(y) for o in h.get("owners", []) for y in re.findall(r"\b(1[5-9]\d\d|20\d\d)\b", f"{o['since']} {o['until']}")]
+    if not roky:
+        return []
+    misto = h.get("obec") if h.get("obec") in mista else None
+    kand = udalosti.v_rozsahu(osa, min(roky), max(roky), misto, mista)
+    return [dict(id=e["id"]) for e in udalosti.nejvyznamnejsi(kand, n)]
 
 
 if __name__ == "__main__":

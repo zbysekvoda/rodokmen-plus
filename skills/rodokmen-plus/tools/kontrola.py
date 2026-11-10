@@ -14,6 +14,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data")
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))   # -I nepřidá složku skriptu sama
 import kontrola_domy  # noqa: E402
+import dolozeni  # noqa: E402
 
 
 def jload(name, default):
@@ -210,14 +211,60 @@ def vecne_kontroly(err, warn, g, O, zaz, prep):
                                 f"čp. {', '.join(sorted(cisla, key=int))} – překlep, přečíslování, nebo jiný dům?")
 
 
+def kontrola_udalosti(cesta=None, osa=None):
+    """Chyby v projektové vrstvě historických událostí data/udalosti.json (reference/udalosti.md).
+    Chybějící soubor není chyba. Kategorie se berou z osy pluginu tools/udalosti.json."""
+    cesta = cesta or os.path.join(DATA, "udalosti.json")
+    if not os.path.exists(cesta):
+        return []
+    try:
+        with open(cesta, encoding="utf-8") as f:
+            polozky = json.load(f)
+    except (OSError, ValueError) as e:
+        return [f"data/udalosti.json není platný JSON: {e}"]
+    if not isinstance(polozky, list):
+        return ["data/udalosti.json musí být pole položek ([])"]
+    try:
+        with open(osa or os.path.join(os.path.dirname(os.path.abspath(__file__)), "udalosti.json"), encoding="utf-8") as f:
+            kategorie = {e["kategorie"] for e in json.load(f)}
+    except (OSError, ValueError, KeyError, TypeError):
+        kategorie = None
+    chyby, videna = [], set()
+    datum = re.compile(r"^\d{4}(-\d{2}(-\d{2})?)?$")
+    for i, e in enumerate(polozky):
+        if not isinstance(e, dict):
+            chyby.append(f"data/udalosti.json položka {i}: není objekt")
+            continue
+        kde = f"data/udalosti.json „{e.get('id') or f'položka {i}'}“"
+        for k in ("id", "od", "do", "nazev", "kategorie", "zdroj"):
+            if not isinstance(e.get(k), str) or not e[k].strip():
+                chyby.append(f"{kde}: chybí povinné pole „{k}“")
+        if isinstance(e.get("id"), str) and e["id"]:
+            if e["id"] in videna:
+                chyby.append(f"{kde}: duplicitní id")
+            videna.add(e["id"])
+        if kategorie and isinstance(e.get("kategorie"), str) and e["kategorie"] and e["kategorie"] not in kategorie:
+            chyby.append(f"{kde}: neznámá kategorie „{e['kategorie']}“ (povolené: {', '.join(sorted(kategorie))})")
+        od, do = e.get("od"), e.get("do")
+        if isinstance(od, str) and isinstance(do, str) and od and do:
+            if not (datum.match(od) and datum.match(do)):
+                chyby.append(f"{kde}: od/do musí být RRRR, RRRR-MM nebo RRRR-MM-DD")
+            elif (od + "-00-00")[:10] > (do + "-99-99")[:10]:
+                chyby.append(f"{kde}: rok od ({od}) je po do ({do})")
+    return chyby
+
+
 def main():
     err, warn = [], []
+    err += kontrola_udalosti()
     try:
         sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import graf
         g = graf.nacti()
         if not g.osoby:
             print("Rodokmen je zatím prázdný – založte první osobu do OSOBY a její id do KORENY['hlavni'].")
-            return
+            for e in err:
+                print("CHYBA:", e)
+            sys.exit(1 if err else 0)
         ns = g.legacy()
     except Exception as e:  # noqa: BLE001
         sys.exit(f"CHYBA: data/osoby.py nejde načíst: {e}")
@@ -421,6 +468,10 @@ def main():
 
     wiki_odkazy(err, warn, g, O, LINES, kek, keys, D, obec_domu, dum_id, cfg)
     vecne_kontroly(err, warn, g, O, zaz, prep)
+    pribehy = ["zajimavosti.md", "zajimavosti_domy.md", "pribeh.md", "pribeh_domy.md",
+               *(x.get("soubor", "") for x in cfg.get("pribehy", []) if isinstance(x, dict))]
+    dolozeni.kontroluj(warn, [(f, open(os.path.join(DATA, f), encoding="utf-8").read())
+                              for f in dict.fromkeys(pribehy) if f and os.path.exists(os.path.join(DATA, f))])
 
     if not os.path.exists(os.path.join(DATA, "pribeh.md")) and LINES:
         hlavni = min(LINES)
