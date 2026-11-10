@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.9.0
+
+### Přidáno
+- Historický kontext k životům předků: kurátorovaná osa událostí 1620–1990 (`tools/udalosti.json`) a projektová
+  vrstva regionálních událostí `data/udalosti.json` (návod `reference/udalosti.md`).
+- `udalosti.py`: `rok`, `rozsah`, `osoba` (události za života s věkem); `wikidata <obec>` vypíše kandidáty k ověření.
+- Web: pásy událostí na `/osa/` (přepínač) a řádek „Doba“ na kartě osoby a domu; kniha předků: box „Svět kolem“
+  u každé generace.
+- `napady.py`: epidemie z osy událostí a shluky úmrtí v obci porovnané s osou.
+- `kontrola.py`: upozornění na spojení osoby s událostí bez odkazu na pramen; pravidla doložené vs. kontext v návodu.
+
+### Změněno
+- Kniha předků: výřezy 1100 px / JPEG 65 (kniha se zápisy ~10 MB), vějíř jen do hloubky `kniha.generaci`,
+  nastavitelný limit a srozumitelná chyba při timeoutu.
+- Dokumentace: MZA od 11/2026 jen v prohlížeči (ALTCHA).
+
 ## 0.8.1
 
 ### Změněno
