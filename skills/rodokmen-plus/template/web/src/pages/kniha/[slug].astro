@@ -4,9 +4,10 @@ import Kniha from '../../layouts/Kniha.astro';
 import Karta from '../../components/kniha/Karta.astro';
 import Dum from '../../components/kniha/Dum.astro';
 import Pramen from '../../components/kniha/Pramen.astro';
-import { config } from '../../lib/data.js';
+import SvetKolem from '../../components/kniha/SvetKolem.astro';
+import { config, events } from '../../lib/data.js';
 import { bookSlugs, bookData } from '../../lib/kniha.js';
-import { bookLinks } from '../../lib/kniha-vyber.js';
+import { bookLinks, svetKolem } from '../../lib/kniha-vyber.js';
 
 export function getStaticPaths() {
   return bookSlugs().map((slug) => ({ params: { slug } }));
@@ -70,6 +71,7 @@ let ch = 0;
     <section class="gen-chapter" id={`gen-${g.gen}`}>
       <div class="kicker">{romans[ch++]} · Generace {g.gen + 1}</div>
       <h2 class="ch">{cap(g.title)}</h2>
+      <SvetKolem items={svetKolem(p.svet?.[g.gen - 1], events)} />
       <div class="gen">{g.people.map(({ k, p: a, first }) => <Karta k={k} p={a} first={first} />)}</div>
       <div class="legend"><span><i class="st-doc"></i>matrika</span><span><i class="st-prob"></i>pravděpodobné</span><span><i class="st-fam"></i>od rodiny</span><span><i class="st-unk"></i>neznámé</span></div>
     </section>
