@@ -24,6 +24,7 @@ Uživatel může začít kterýmkoli režimem a přepínat mezi nimi („teď se
 - `reference/data.md`, `reference-dum/data.md` – formát dat (osoby, domy),
 - `reference-dum/prameny.md` – **jaké prameny k domu existují a v jakém pořadí** (začátek režimu dům),
 - `reference/pribehy.md`, `reference-dum/pribehy.md`, `reference-dum/texty.md` – zajímavosti, příběhy, texty na web,
+- `reference/udalosti.md` – regionální historické události projektu (`data/udalosti.json`: kroniky, NDK, Wolny, Hosák),
 - `reference/web.md`, `reference/soukromi.md` (u domů přísnější `reference-dum/soukromi.md`),
 - `reference/playbook.md` – profesionální metodika (EN, dlouhá – čti jen potřebnou kapitolu).
 
