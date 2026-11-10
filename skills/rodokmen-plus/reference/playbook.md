@@ -434,6 +434,15 @@ Tests:
 ---
 
 
+### 5.6 Historical context in narratives (stories)
+When writing a story (`data/pribeh*.md`), pull the events around a life or period with `python3 -I tools/udalosti.py osoba <id>`
+(events during the person's lifetime, with age), `udalosti.py rok <year>` or `udalosti.py rozsah <from> <to>`.
+Use them as **context** ("cholera swept the region in those years"). A **causal or participatory** claim about a person
+("died because of cholera", "fought at Königgrätz", "fell at the Isonzo") needs a cited record — parish death register,
+chronicle, military record — in the same or adjacent sentence. A death in an epidemic year is not a death from the epidemic.
+Rules and examples: `reference/pribehy.md` and `reference-dum/pribehy.md`, section "Doložené vs. kontext";
+`kontrola.py` warns on unsourced causal/participatory phrasing. [RULE]
+
 ## 6. Paleography and glossary
 
 
