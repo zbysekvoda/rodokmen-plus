@@ -774,7 +774,19 @@ def main():
                 print(f"POZOR: dokument {d['img']} v data/dokumenty.json má neznámý příběh „{k}“ (možné: {', '.join(story_files)})")
         return [k for k in story_files if k in want or story_people[k] & set(doc_people(d))]
 
-    site = dict(config=public_cfg, places=places, houses=houses, root=root_id, roots=[dict(key=key, id=i, name=O[i]["n"]) for key, i in g.koreny.items() if i in people],
+    # historický kontext: osa pluginu + data/udalosti.json; do dat jen události, které se kryjí se životem některé osoby
+    # (nebo s dějinami domu); místně vázané podle místa osoby / obce domu. Je to kontext, ne fakt o osobě (tools/udalosti.py).
+    import udalosti as ud
+    osa_ud, mista_ud = ud.nacti_osu(ROOT), ud.nacti_mista(ROOT)
+    event_ids = {e["id"] for e in ud.kontext_osob([O[i] for i in people], osa_ud, mista_ud)}
+    for i, p in people.items():
+        p["doba"] = [dict(id=e["id"], vek=v) for e, v in ud.doba(O[i], osa_ud, mista_ud)]
+    for h in houses.values():
+        h["doba"] = ewd.doba_domu(h, osa_ud, mista_ud) if h.get("processed") else []
+        event_ids.update(x["id"] for x in h["doba"])
+    events = [ud.pro_web(e) for e in osa_ud if e["id"] in event_ids]
+
+    site = dict(config=public_cfg, events=events, places=places, houses=houses, root=root_id, roots=[dict(key=key, id=i, name=O[i]["n"]) for key, i in g.koreny.items() if i in people],
                 aliases={a: kslug[a] for a in SAME if a in kslug}, people=people,
                 families=families, records=records, lines=lines, milestones=jload("milniky.json", []),
                 villages=villages, issues=issues, stats=stats, hypotheses=hypotheses,

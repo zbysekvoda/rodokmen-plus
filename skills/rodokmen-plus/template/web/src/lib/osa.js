@@ -21,10 +21,30 @@ export function groupsOf(rows, sort) {
   return out;
 }
 
-// px na rok, výška řádku; vrací pozice řádků a nadpisů skupin
-export function layout(rows, { sort = 'rod', pxy = 6, hidden = new Set(), from, to = NOW + 4 } = {}) {
-  const ROW = 26, HEAD = 30, TOP = 34;
+// Historický kontext: pásy událostí (od–do) v pruzích nad osou životů. Pás je široký aspoň na svůj popisek.
+// Nejvýš maxLanes pruhů: události se rozmisťují od nejvýznamnějších (vaha z exportu) do prvního pruhu, kde se
+// nepřekryjí; co se nevejde, se při daném přiblížení nezobrazí (přiblížení uvolní místo). Vrací [{id, lane, x1, x2, w}].
+export const EV_LANE = 17;
+export function eventLanes(events, x, maxLanes = 5) {
+  const lanes = [], out = [];
+  for (const e of [...events].sort((a, b) => (b.vaha ?? 0) - (a.vaha ?? 0) || a.od - b.od || a.id.localeCompare(b.id))) {
+    const x1 = x(e.od), w = Math.max(3, x(e.do + 1) - x1), x2 = x1 + Math.max(w, e.nazev.length * 5.6 + 8);
+    const free = (l) => l.every(([a, b]) => x2 + 4 <= a || b + 4 <= x1);
+    let lane = lanes.findIndex(free);
+    if (lane < 0 && lanes.length < maxLanes) lane = lanes.push([]) - 1;
+    if (lane < 0) continue;
+    lanes[lane].push([x1, x2]);
+    out.push({ id: e.id, lane, x1, x2: x1 + w, w });
+  }
+  return { bands: out, lanes: lanes.length };
+}
+
+// px na rok, výška řádku; vrací pozice řádků a nadpisů skupin (a pásy kontextu, když events a ctx)
+export function layout(rows, { sort = 'rod', pxy = 6, hidden = new Set(), from, to = NOW + 4, events = [], ctx = false } = {}) {
+  const ROW = 26, HEAD = 30;
   const x = (y) => Math.round((y - from) * pxy * 10) / 10;
+  const ev = ctx && events.length ? eventLanes(events.filter((e) => e.do >= from), x) : { bands: [], lanes: 0 };
+  const evTop = 36, TOP = 34 + (ev.lanes ? ev.lanes * EV_LANE + 12 : 0);
   let y = TOP;
   const heads = [], pos = {};
   for (const g of groupsOf(rows.filter((r) => !hidden.has(r.line)), sort)) {
@@ -32,7 +52,7 @@ export function layout(rows, { sort = 'rod', pxy = 6, hidden = new Set(), from, 
     y += HEAD;
     for (const r of g.rows) { pos[r.id] = y; y += ROW; }
   }
-  return { x, heads, pos, height: y + 26, width: x(to) + 10 };
+  return { x, heads, pos, height: y + 26, width: x(to) + 10, ev: { ...ev, top: evTop, bottom: TOP - 6 } };
 }
 
 // tvar pruhu: vous na začátku (bl→bh), plný úsek, vous / rozplynutí na konci

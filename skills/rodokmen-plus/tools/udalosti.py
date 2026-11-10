@@ -141,6 +141,60 @@ def misto_osoby(p, mista):
     return None
 
 
+# Významnost pro výběr „Doba“ (web, kniha): kolik událostí z kategorie zasáhlo běžný život; dopad na úmrtí / odvody přidá.
+VAHA_KATEGORIE = {"valka": 6, "epidemie": 5, "hlad": 5, "rezim": 4, "povstani": 3, "mena": 3, "reforma": 3,
+                  "migrace": 3, "zivel": 3, "hospodarstvi": 2, "sprava": 1, "cirkev": 1}
+
+
+def vaha(e):
+    d = e.get("dopad") or {}
+    trvani = min(5, rok(e["do"]) - rok(e["od"]))
+    return (VAHA_KATEGORIE.get(e.get("kategorie"), 1) + 3 * bool(d.get("umrti")) + 2 * bool(d.get("vojaci"))
+            + 2 * bool(e.get("projekt")) + trvani / 5)
+
+
+def doba(p, osa, mista, n=5, dnes=None):
+    """Nejvýznamnějších n událostí za života osoby, chronologicky: [(událost, věk na začátku)]; [] když život nejde určit.
+    Místně vázané filtruje podle misto_osoby jako příkaz `osoba`."""
+    z = zivot(p, dnes)
+    if not z:
+        return []
+    nar, umr, _ = z
+    kand = v_rozsahu(osa, nar, umr, misto_osoby(p, mista), mista)
+    return [(e, rok(e["od"]) - nar) for e in nejvyznamnejsi(kand, n)]   # záporný věk = začalo před narozením
+
+
+def nejvyznamnejsi(kand, n=5, na_kategorii=2):
+    """n událostí podle váhy, chronologicky. Pestrost: nejvýš na_kategorii z jedné kategorie a nic, co leží celé uvnitř
+    už vybrané události stejné kategorie (totální nasazení uvnitř 2. světové války)."""
+    vyber = []
+    for e in sorted(kand, key=lambda e: (-vaha(e), e["od"], e["id"])):
+        stejne = [x for x in vyber if x["kategorie"] == e["kategorie"]]
+        if len(stejne) >= na_kategorii or any(rok(x["od"]) <= rok(e["od"]) and rok(e["do"]) <= rok(x["do"]) for x in stejne):
+            continue
+        vyber.append(e)
+        if len(vyber) == n:
+            break
+    return sorted(vyber, key=lambda e: (e["od"], e["id"]))
+
+
+def kontext_osob(osoby, osa, mista, dnes=None):
+    """Události, které se překrývají se životem aspoň jedné osoby (místně vázané jen pro místo té osoby)."""
+    ids = set()
+    for p in osoby:
+        z = zivot(p, dnes)
+        if z:
+            ids.update(e["id"] for e in v_rozsahu(osa, z[0], z[1], misto_osoby(p, mista), mista))
+    return [e for e in osa if e["id"] in ids]
+
+
+def pro_web(e):
+    """Položka osy pro data webu (bez zdrojových poznámek navíc); od/do jako roky pro osu."""
+    return dict(id=e["id"], od=rok(e["od"]), do=rok(e["do"]), datum=[e["od"], e["do"]], nazev=e["nazev"], text=e.get("text", ""),
+                kategorie=e.get("kategorie", ""), uroven=e.get("uroven", ""), kde=e.get("kde", []), zdroj=e.get("zdroj", ""),
+                projekt=bool(e.get("projekt")), vaha=round(vaha(e), 1))
+
+
 def radek(e, vek=None):
     kdy = e["od"][:4] if rok(e["od"]) == rok(e["do"]) else f"{e['od'][:4]}–{e['do'][:4]}"
     kde = "ČR" if e["uroven"] == "cr" else ", ".join(e["kde"])
