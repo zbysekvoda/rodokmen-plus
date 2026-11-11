@@ -164,3 +164,4 @@ a.ref::after { content: ' → s. ' target-counter(attr(href), page); font: 600 0
   .pagedjs_pages { padding: 24px 0; display: flex; flex-direction: column; align-items: center; }
   .pagedjs_page { margin: 0 auto 24px; box-shadow: 0 1px 2px rgba(0,0,0,.1), 0 8px 24px rgba(0,0,0,.12); }
 }
+.svet-kolem .doba-staty { margin: 0 0 2pt; font: 7.5pt var(--kn-sans); }

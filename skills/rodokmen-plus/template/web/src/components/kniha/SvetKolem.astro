@@ -1,13 +1,14 @@
 ---
 // Box „Svět kolem“ u generace v Knize předků: historický kontext (tools/udalosti.py → svet_kolem), NE fakt o předcích.
 // Tisková podoba řádku „Doba“ z webu (Doba.astro): tlumený styl, štítek KONTEXT, jen co se dělo, bez vazby na osoby.
-interface Props { items: { id: string; od: number; do: number; nazev: string; text?: string }[] }
-const { items = [] } = Astro.props;
+interface Props { items: { id: string; od: number; do: number; nazev: string; text?: string }[]; staty?: string[] }
+const { items = [], staty = [] } = Astro.props;
 const kdy = (e) => (e.od === e.do ? `${e.od}` : `${e.od}–${e.do}`);
 ---
-{items.length > 0 && (
+{(items.length > 0 || staty.length > 0) && (
   <aside class="svet-kolem doba" aria-label="Historický kontext doby">
     <div class="doba-h">Svět kolem <span class="kontext-stitek">kontext</span></div>
+    {staty.length > 0 && <p class="doba-staty">Státy: {staty.join(' → ')}</p>}
     <ul>
       {items.map((e) => <li><span class="doba-y">{kdy(e)}</span> <span class="doba-n">{e.nazev}</span></li>)}
     </ul>
