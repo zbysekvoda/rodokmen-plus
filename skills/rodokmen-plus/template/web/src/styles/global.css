@@ -493,3 +493,5 @@ main.full .tree-stage.is-dragging { cursor: grabbing; user-select: none; }
   main.full:has(.tree-stage) { height: calc(100dvh - 110px - env(safe-area-inset-bottom)); }
   main.full .tree-stage { cursor: auto; }
 }
+
+.doba-staty { margin: 0 0 .4em; }

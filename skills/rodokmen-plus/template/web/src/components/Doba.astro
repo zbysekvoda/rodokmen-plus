@@ -2,16 +2,25 @@
 // Řádek „Doba“: historický kontext (tools/udalosti.py → site.events), NE fakt o osobě či domu.
 // items = [{id, vek?}] z exportu; věk je věk osoby na začátku události (záporný = začala před narozením).
 import { events } from '../lib/data.js';
-interface Props { items: { id: string; vek?: number }[]; sex?: string }
-const { items = [], sex } = Astro.props;
+interface Props { items: { id: string; vek?: number }[]; sex?: string;
+  staty?: { id: string; nazev: string; zeme?: string; misto?: string; od: number; do: number; text?: string }[] }
+const { items = [], sex, staty = [] } = Astro.props;
+const rokNyni = new Date().getFullYear();
 const let_ = (n: number) => (n === 1 ? 'rok' : n >= 2 && n <= 4 ? 'roky' : 'let');
 const vek = (v?: number) => v == null ? '' : v < 0 ? 'před narozením' : v === 0 ? `v roce ${sex === 'F' ? 'jejího' : 'jeho'} narození` : `${v} ${let_(v)}`;
 const rows = items.map((x) => ({ ...x, e: events[x.id] })).filter((x) => x.e);
 const kdy = (e) => (e.od === e.do ? `${e.od}` : `${e.od}–${e.do}`);
 ---
-{rows.length > 0 && (
+{(rows.length > 0 || staty.length > 0) && (
   <section class="doba" aria-label="Historický kontext doby">
     <h2 class="doba-h">Doba <span class="kontext-stitek" title="Události, které se odehrály za života. Nejsou to doložená fakta o této osobě.">kontext</span></h2>
+    {staty.length > 0 && (
+      <p class="doba-staty"><span class="doba-staty-h">Stát:</span>{' '}
+        {staty.map((s, i) => (
+          <>{i > 0 && ' → '}<span title={`${s.text ?? ''}${s.misto ? `\nMísto: ${s.misto}` : ''}`}>{s.nazev}{s.zeme && <span class="doba-y"> ({s.zeme})</span>} <span class="doba-y">{s.od}–{s.do >= rokNyni ? '' : s.do}</span></span></>
+        ))}
+      </p>
+    )}
     <ul>
       {rows.map(({ e, vek: v }) => (
         <li title={`${e.text}${e.zdroj ? `\nZdroj: ${e.zdroj}` : ''}`}>

@@ -5,6 +5,7 @@ Použití (z kořene projektu):
   python3 tools/udalosti.py rok 1866 [--misto Holice]       # události platné v roce
   python3 tools/udalosti.py rozsah 1914 1920 [--misto X]    # události, které zasahují do intervalu
   python3 tools/udalosti.py osoba jan-novak-1890            # události za života osoby s jejím věkem
+  python3 tools/udalosti.py stat 1940 [--misto Holice]      # státní útvar (monarchie, republika…) v roce / místě
   python3 tools/udalosti.py wikidata Holice [--okres] [--klic holice]  # KANDIDÁTI z Wikidat (jen výpis JSON)
 
 Volby: --projekt <složka> (výchozí: kořen projektu, ve kterém leží tools/), --kategorie epidemie,hlad
@@ -29,6 +30,10 @@ Jsou to KONTEXT, ne fakta o osobě – vazbu na událost tvrdí jen zápis (viz 
 Wikidata: dotaz SPARQL na query.wikidata.org najde místo podle českého labelu (s --okres okres ČR) a události
 vázané přes P276 / P131 s datem P585 / P580 / P582. Vypíše JSON položky ve formátu data/udalosti.json
 (zdroj „Wikidata Q…“, jistota "obecne") jen ke kontrole – nic nezapisuje, přepis do projektu je ruční.
+Státy (tools/staty.json, projekt přebíjí přes data/staty.json): v jakém státě a režimu místo leželo. Výjimky
+z hlavní linie nesou `kde` s oblastí (hlucinsko, sudety, zaolzi, valticko, vitorazsko); místo ji dostane polem "oblast" v mista.json
+a pro dobu výjimky pak platí ona místo celostátní položky. `osoba` vypíše i státy za života osoby podle všech
+bydlišť (bydliste[].obec s od/do; bez bydliště podle místa narození).
 Exit kódy: 0 v pořádku, 1 neznámá osoba / místo nebo chybná data, 2 chyba sítě (Wikidata).
 """
 import argparse, datetime, json, os, re, sys, urllib.error, urllib.parse, urllib.request
@@ -39,6 +44,7 @@ for _s in (sys.stdout, sys.stderr):
 TOOLS = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(TOOLS)
 OSA = os.path.join(TOOLS, "udalosti.json")
+STATY = os.path.join(TOOLS, "staty.json")
 ZEME = ("cechy", "morava", "slezsko")
 KRAJE = {"Jihomoravský": "morava", "Zlínský": "morava", "Olomoucký": "morava", "Praha": "cechy",
          "Hlavní město Praha": "cechy", "Středočeský": "cechy", "Jihočeský": "cechy", "Plzeňský": "cechy",
@@ -199,6 +205,97 @@ def svet_kolem(osoby, osa, mista, n=5, minimum=3, dnes=None):
     return vyber
 
 
+def nacti_staty(projekt=None, staty=STATY):
+    """Státní útvary pluginu sloučené s data/staty.json projektu (stejné id přebíjí)."""
+    polozky = {e["id"]: e for e in _json(staty) or []}
+    if projekt:
+        for e in _json(os.path.join(projekt, "data", "staty.json")) or []:
+            polozky[e["id"]] = dict(e, projekt=True)
+    return list(polozky.values())
+
+
+def _datum(d, konec=False):
+    c = [int(x) for x in str(d).split("-")]
+    if len(c) == 1:
+        c += [12, 31] if konec else [1, 1]
+    elif len(c) == 2:
+        c.append(31 if konec and c[1] in (1, 3, 5, 7, 8, 10, 12) else 30 if konec and c[1] != 2 else 28 if konec else 1)
+    return datetime.date(*c)
+
+
+def staty_v_rozsahu(staty, od, do, misto=None, mista=None):
+    """Státní útvary, ve kterých místo leželo v letech [od, do], chronologicky: [{od, do, stat, zeme}] (od/do = date).
+    Položka s oblastí místa (mista.json "oblast") vytlačí po dobu své platnosti celostátní položky."""
+    m = (mista or {}).get(misto) or {}
+    oblast, z = m.get("oblast"), zeme_mista(m)
+    jeden_den = datetime.timedelta(days=1)
+    vyjimky = [s for s in staty if oblast and oblast in s["kde"]]
+    useky = [(_datum(s["od"]), _datum(s["do"], True), s) for s in vyjimky]
+    for s in staty:
+        if s in vyjimky or not set(s["kde"]) & set(ZEME) or (z and z not in s["kde"]):
+            continue
+        kusy = [(_datum(s["od"]), _datum(s["do"], True))]
+        for a2, b2, _ in useky[:len(vyjimky)]:
+            kusy = [k for a, b in kusy for k in ((a, min(b, a2 - jeden_den)), (max(a, b2 + jeden_den), b)) if k[0] <= k[1]]
+        useky += [(a, b, s) for a, b in kusy]
+    return [dict(od=a, do=b, stat=s, zeme=(s.get("zeme") or {}).get(oblast) or (s.get("zeme") or {}).get(z)) for a, b, s in sorted(useky, key=lambda u: u[0])
+            if a.year <= do and b.year >= od]
+
+
+def _bydliste_useky(p, mista, nar, umr):
+    """[(misto, od, do)] v letech z bydliste s obcí v mista.json; chybějící od/do doplní narození, další bydliště, úmrtí."""
+    b = sorted((x for x in p.get("bydliste", []) or [] if x.get("obec") in mista),
+               key=lambda x: x.get("od") or nar)
+    useky = []
+    for i, x in enumerate(b):
+        od = max(nar, x.get("od") or nar)
+        do = min(umr, x.get("do") or (b[i + 1].get("od") or umr if i + 1 < len(b) else umr))
+        if od <= do:
+            useky.append((x["obec"], od, do))
+    return useky
+
+
+def staty_osoby(p, staty, mista, dnes=None):
+    """Státy za života osoby podle všech jejích bydlišť (jinak podle místa narození): [{od, do, stat, zeme, misto}],
+    chronologicky, stejný stát po sobě sloučený. [] když život nejde určit."""
+    z = zivot(p, dnes)
+    if not z:
+        return []
+    nar, umr, _ = z
+    useky = _bydliste_useky(p, mista, nar, umr) or [(misto_osoby(p, mista), nar, umr)]
+    out = []
+    for misto, od, do in useky:
+        for u in staty_v_rozsahu(staty, od, do, misto, mista):
+            u["misto"] = misto
+            if out and out[-1]["stat"]["id"] == u["stat"]["id"]:
+                out[-1]["do"] = max(out[-1]["do"], u["do"])
+            else:
+                out.append(u)
+    return out
+
+
+def stat_pro_web(u, nar=None):
+    d = dict(id=u["stat"]["id"], nazev=u["stat"]["nazev"], zrizeni=u["stat"].get("zrizeni", ""), od=u["od"].year,
+             do=u["do"].year, zeme=u.get("zeme") or "", misto=u.get("misto") or "", text=u["stat"].get("text", ""))
+    if nar is not None:
+        d["vek"] = u["od"].year - nar
+    return d
+
+
+def staty_skupiny(osoby, staty, mista, dnes=None):
+    """Názvy států za životů skupiny osob (generace v knize), chronologicky podle prvního výskytu, bez opakování."""
+    vse = sorted((u for p in osoby for u in staty_osoby(p, staty, mista, dnes)), key=lambda u: u["od"])
+    return list(dict.fromkeys(u["stat"]["nazev"] for u in vse))
+
+
+def radek_statu(u, nar=None):
+    do = "" if u["do"].year >= datetime.date.today().year else u["do"].isoformat()
+    v = f" (věk {max(0, u['od'].year - nar)})" if nar is not None else ""
+    zeme = f", {u['zeme']}" if u["zeme"] else ""
+    zeme += f" ({u['misto']})" if u.get("misto") else ""
+    return f"{u['od'].isoformat()} – {do:10}{v}  {u['stat']['nazev']}{zeme} [{u['stat'].get('zrizeni', '')}]"
+
+
 def pro_web(e):
     """Položka osy pro data webu (bez zdrojových poznámek navíc); od/do jako roky pro osu."""
     return dict(id=e["id"], od=rok(e["od"]), do=rok(e["do"]), datum=[e["od"], e["do"]], nazev=e["nazev"], text=e.get("text", ""),
@@ -337,6 +434,9 @@ def parse_args(argv):
     s.add_argument("od", type=int)
     s.add_argument("do", type=int)
     s.add_argument("--misto")
+    t = sub.add_parser("stat", help="státní útvar v roce (s --misto včetně výjimek oblasti)")
+    t.add_argument("rok", type=int)
+    t.add_argument("--misto")
     o = sub.add_parser("osoba", help="události za života osoby s jejím věkem")
     o.add_argument("id")
     w = sub.add_parser("wikidata", help="kandidáti událostí z Wikidat pro obec / okres (jen výpis JSON)")
@@ -359,6 +459,10 @@ def main(argv=None):
     if misto and misto not in mista:
         print(f"Místo „{misto}“ není v data/mista.json.", file=sys.stderr)
         return 1
+    if a.prikaz == "stat":
+        for u in staty_v_rozsahu(nacti_staty(projekt), a.rok, a.rok, misto, mista):
+            print(radek_statu(u))
+        return 0
     if a.prikaz == "rok":
         vypis(v_rozsahu(osa, a.rok, a.rok, misto, mista, kat))
     elif a.prikaz == "rozsah":
@@ -384,6 +488,9 @@ def main(argv=None):
         print(f"{p.get('n', i)} ({i}), {nar}–{umr}{' (konec odhadem)' if odhad else ''}"
               f"{', místo ' + m if m else ', místo neurčeno'}")
         vypis(v_rozsahu(osa, nar, umr, m, mista, kat), vek_od=nar)
+        print("\nStát v místě osoby:")
+        for u in staty_osoby(p, nacti_staty(projekt), mista):
+            print("  " + radek_statu(u, nar))
     print("\nJe to kontext doby, ne fakt o osobě – vazbu na událost tvrdí jen zápis.")
     return 0
 

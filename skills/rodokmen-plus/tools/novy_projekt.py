@@ -83,7 +83,7 @@ def main(argv=None):
     tools = os.path.join(dst, "tools")
     os.makedirs(tools, exist_ok=True)
     for f in os.listdir(os.path.join(SKILL, "tools")):
-        if (f.endswith((".py", ".sh", ".pl")) or f == "udalosti.json") and f != "novy_projekt.py":
+        if (f.endswith((".py", ".sh", ".pl")) or f in ("udalosti.json", "staty.json")) and f != "novy_projekt.py":
             copy(os.path.join(SKILL, "tools", f), os.path.join(tools, f))   # nástroje vždy aktualizovat
             if f.endswith(".sh"):   # skill naklonovaný na Windows (core.autocrlf) má CRLF – Git Bash by skript nespustil
                 p = os.path.join(tools, f)

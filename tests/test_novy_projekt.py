@@ -60,7 +60,7 @@ class NovyProjekt(unittest.TestCase):
         self.assertLessEqual(soubory(os.path.join(SKILL, "template", data_src)), soubory(os.path.join(dst, "data")))
         self.assertEqual(soubory(os.path.join(SKILL, "template", "web")), soubory(os.path.join(dst, "web")))
         nastroje = {f for f in os.listdir(os.path.join(SKILL, "tools"))
-                    if (f.endswith((".py", ".sh", ".pl")) or f == "udalosti.json") and f != "novy_projekt.py"}
+                    if (f.endswith((".py", ".sh", ".pl")) or f in ("udalosti.json", "staty.json")) and f != "novy_projekt.py"}
         self.assertEqual(nastroje, set(os.listdir(os.path.join(dst, "tools"))))
         for name in ("CLAUDE.md", ".gitignore", ".gitattributes", "poznamky_pro_skill.md",
                      os.path.join(".claude", "launch.json"), os.path.join(".claude", "settings.json")):

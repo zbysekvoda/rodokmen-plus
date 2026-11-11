@@ -77,7 +77,7 @@ const fmt = (v) => Array.isArray(v) ? v.join(', ') : typeof v === 'object' ? JSO
     <table class="extra">{extra.map(([k, v]) => <tr><th scope="row">{k}</th><td>{fmt(v)}</td></tr>)}</table>
   )}
   {doplnky.map((Doplnek) => <Doplnek p={p} />)}
-  <Doba items={p.doba ?? []} sex={p.sex} />
+  <Doba items={p.doba ?? []} sex={p.sex} staty={p.staty ?? []} />
 
   {p.homes.length > 0 && (
     <>
