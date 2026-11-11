@@ -31,8 +31,9 @@ Wikidata: dotaz SPARQL na query.wikidata.org najde místo podle českého labelu
 vázané přes P276 / P131 s datem P585 / P580 / P582. Vypíše JSON položky ve formátu data/udalosti.json
 (zdroj „Wikidata Q…“, jistota "obecne") jen ke kontrole – nic nezapisuje, přepis do projektu je ruční.
 Státy (tools/staty.json, projekt přebíjí přes data/staty.json): v jakém státě a režimu místo leželo. Výjimky
-z hlavní linie nesou `kde` s oblastí (hlucinsko, sudety, zaolzi); místo ji dostane polem "oblast" v mista.json
-a pro dobu výjimky pak platí ona místo celostátní položky. `osoba` vypíše i státy za života osoby.
+z hlavní linie nesou `kde` s oblastí (hlucinsko, sudety, zaolzi, valticko, vitorazsko); místo ji dostane polem "oblast" v mista.json
+a pro dobu výjimky pak platí ona místo celostátní položky. `osoba` vypíše i státy za života osoby podle všech
+bydlišť (bydliste[].obec s od/do; bez bydliště podle místa narození).
 Exit kódy: 0 v pořádku, 1 neznámá osoba / místo nebo chybná data, 2 chyba sítě (Wikidata).
 """
 import argparse, datetime, json, os, re, sys, urllib.error, urllib.parse, urllib.request
@@ -237,14 +238,61 @@ def staty_v_rozsahu(staty, od, do, misto=None, mista=None):
         for a2, b2, _ in useky[:len(vyjimky)]:
             kusy = [k for a, b in kusy for k in ((a, min(b, a2 - jeden_den)), (max(a, b2 + jeden_den), b)) if k[0] <= k[1]]
         useky += [(a, b, s) for a, b in kusy]
-    return [dict(od=a, do=b, stat=s, zeme=(s.get("zeme") or {}).get(z)) for a, b, s in sorted(useky, key=lambda u: u[0])
+    return [dict(od=a, do=b, stat=s, zeme=(s.get("zeme") or {}).get(oblast) or (s.get("zeme") or {}).get(z)) for a, b, s in sorted(useky, key=lambda u: u[0])
             if a.year <= do and b.year >= od]
+
+
+def _bydliste_useky(p, mista, nar, umr):
+    """[(misto, od, do)] v letech z bydliste s obcí v mista.json; chybějící od/do doplní narození, další bydliště, úmrtí."""
+    b = sorted((x for x in p.get("bydliste", []) or [] if x.get("obec") in mista),
+               key=lambda x: x.get("od") or nar)
+    useky = []
+    for i, x in enumerate(b):
+        od = max(nar, x.get("od") or nar)
+        do = min(umr, x.get("do") or (b[i + 1].get("od") or umr if i + 1 < len(b) else umr))
+        if od <= do:
+            useky.append((x["obec"], od, do))
+    return useky
+
+
+def staty_osoby(p, staty, mista, dnes=None):
+    """Státy za života osoby podle všech jejích bydlišť (jinak podle místa narození): [{od, do, stat, zeme, misto}],
+    chronologicky, stejný stát po sobě sloučený. [] když život nejde určit."""
+    z = zivot(p, dnes)
+    if not z:
+        return []
+    nar, umr, _ = z
+    useky = _bydliste_useky(p, mista, nar, umr) or [(misto_osoby(p, mista), nar, umr)]
+    out = []
+    for misto, od, do in useky:
+        for u in staty_v_rozsahu(staty, od, do, misto, mista):
+            u["misto"] = misto
+            if out and out[-1]["stat"]["id"] == u["stat"]["id"]:
+                out[-1]["do"] = max(out[-1]["do"], u["do"])
+            else:
+                out.append(u)
+    return out
+
+
+def stat_pro_web(u, nar=None):
+    d = dict(id=u["stat"]["id"], nazev=u["stat"]["nazev"], zrizeni=u["stat"].get("zrizeni", ""), od=u["od"].year,
+             do=u["do"].year, zeme=u.get("zeme") or "", misto=u.get("misto") or "", text=u["stat"].get("text", ""))
+    if nar is not None:
+        d["vek"] = u["od"].year - nar
+    return d
+
+
+def staty_skupiny(osoby, staty, mista, dnes=None):
+    """Názvy států za životů skupiny osob (generace v knize), chronologicky podle prvního výskytu, bez opakování."""
+    vse = sorted((u for p in osoby for u in staty_osoby(p, staty, mista, dnes)), key=lambda u: u["od"])
+    return list(dict.fromkeys(u["stat"]["nazev"] for u in vse))
 
 
 def radek_statu(u, nar=None):
     do = "" if u["do"].year >= datetime.date.today().year else u["do"].isoformat()
     v = f" (věk {max(0, u['od'].year - nar)})" if nar is not None else ""
     zeme = f", {u['zeme']}" if u["zeme"] else ""
+    zeme += f" ({u['misto']})" if u.get("misto") else ""
     return f"{u['od'].isoformat()} – {do:10}{v}  {u['stat']['nazev']}{zeme} [{u['stat'].get('zrizeni', '')}]"
 
 
@@ -441,7 +489,7 @@ def main(argv=None):
               f"{', místo ' + m if m else ', místo neurčeno'}")
         vypis(v_rozsahu(osa, nar, umr, m, mista, kat), vek_od=nar)
         print("\nStát v místě osoby:")
-        for u in staty_v_rozsahu(nacti_staty(projekt), nar, umr, m, mista):
+        for u in staty_osoby(p, nacti_staty(projekt), mista):
             print("  " + radek_statu(u, nar))
     print("\nJe to kontext doby, ne fakt o osobě – vazbu na událost tvrdí jen zápis.")
     return 0

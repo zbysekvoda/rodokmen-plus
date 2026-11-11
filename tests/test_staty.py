@@ -10,7 +10,8 @@ sys.path.insert(0, TOOLS)
 import udalosti  # noqa: E402
 
 MISTA = {"Holice": {"zeme": "cechy"}, "Hlučín": {"zeme": "slezsko", "oblast": "hlucinsko"},
-         "Liberec": {"zeme": "cechy", "oblast": "sudety"}, "Brno": {"zeme": "morava"}}
+         "Liberec": {"zeme": "cechy", "oblast": "sudety"}, "Brno": {"zeme": "morava"},
+         "Valtice": {"zeme": "morava", "oblast": "valticko"}}
 
 
 class Staty(unittest.TestCase):
@@ -45,6 +46,25 @@ class Staty(unittest.TestCase):
         self.assertEqual(self.nazvy(1919, 1921, "Hlučín"), ["hlucinsko-nemecka-republika", "hlucinsko-csr"])
         u = udalosti.staty_v_rozsahu(self.staty, 1938, 1938, "Hlučín", MISTA)
         self.assertEqual([x["stat"]["id"] for x in u], ["hlucinsko-csr", "hlucinsko-nemecka-rise"])
+
+    def test_valticko(self):
+        self.assertEqual(self.nazvy(1915, 1925, "Valtice"), ["rakousko-uhersko", "valticko-rakousko", "csr-prvni"])
+        u = udalosti.staty_v_rozsahu(self.staty, 1850, 1850, "Valtice", MISTA)[0]
+        self.assertEqual(u["zeme"], "Arcivévodství Rakousy pod Enží")
+
+    def test_osoba_podle_bydlist(self):
+        p = {"n": "X", "f": ["* 1900 Holice", "† 1950"],
+             "bydliste": [{"obec": "Holice", "od": 1900, "do": 1930}, {"obec": "Liberec", "od": 1931}]}
+        u = udalosti.staty_osoby(p, self.staty, MISTA)
+        self.assertEqual([(x["stat"]["id"], x["misto"]) for x in u],
+                         [("rakousko-uhersko", "Holice"), ("csr-prvni", "Holice"), ("sudety-nemecka-rise", "Liberec"),
+                          ("csr-treti", "Liberec"), ("csr-komunisticka", "Liberec")])
+        self.assertEqual(udalosti.staty_skupiny([p], self.staty, MISTA)[:2],
+                         ["Rakousko-Uhersko", "Československá republika (první republika)"])
+
+    def test_osoba_bez_bydliste(self):
+        p = {"n": "X", "f": ["* 1940 Brno", "† 1941"]}
+        self.assertEqual([x["stat"]["id"] for x in udalosti.staty_osoby(p, self.staty, MISTA)], ["protektorat"])
 
     def test_projekt_prebiji(self):
         d = tempfile.mkdtemp()
