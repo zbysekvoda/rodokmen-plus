@@ -64,3 +64,11 @@ duplicitní id a `od` po `do`. Chybějící soubor chybou není.
 Zásady: jedna událost = jedna položka; nevymýšlej data ani počty, které pramen neuvádí; když se prameny
 liší, uveď oba ve `zdroj` a rozdíl v `text`. Kauzalitu k osobám (zemřel *kvůli* epidemii) z osy
 nevyvozuj – to musí stát v matrice nebo jiném pramenu.
+
+## Státní útvar místa (tools/staty.json)
+
+`udalosti.py stat <rok> --misto X` a výpis `osoba` řeknou, v jakém státě místo leželo (Habsburská monarchie →
+Rakouské císařství → Rakousko-Uhersko → ČSR → Protektorát → … → ČR), před rokem 1918 i s korunní zemí.
+Místo mimo hlavní linii označ v `data/mista.json` polem `"oblast"`: `hlucinsko` (Prusko 1742–1920),
+`sudety` (Německá říše 1938–45), `zaolzi` (Polsko 1938–39). Jiné výjimky (Valticko, Vitorazsko…) zapiš do
+`data/staty.json` ve stejném formátu s vlastní oblastí v `kde`. I stát je kontext, ne fakt ze zápisu.
