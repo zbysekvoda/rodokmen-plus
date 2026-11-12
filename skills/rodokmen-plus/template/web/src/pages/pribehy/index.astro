@@ -47,8 +47,8 @@ const filterLines = Object.values(lines).filter((l) => count[l.slug]).sort((a, b
       <div class="house-list" id="story-list">
         {short.map((s) => (
           <a class="card card-link" href={`/pribeh/${s.slug}/`} data-rody={s.rody.join(' ')}>
-            {s.skupina && <span class="small muted">{s.skupina}</span>}
-            <h3>{s.titulek}</h3>
+            {(s.skupina || s.rok) && <span class="small muted">{[s.skupina, s.rok].filter(Boolean).join(' · ')}</span>}
+            <h3>{s.rok ? s.titulek.replace(/\s*\([^()]*\)\s*$/, '') : s.titulek}</h3>
             {s.lead && <p class="small">{s.lead}</p>}
           </a>
         ))}

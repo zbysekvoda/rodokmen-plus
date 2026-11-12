@@ -4,7 +4,8 @@
 import Base from '../../layouts/Base.astro';
 import StoryDocs from '../../components/StoryDocs.astro';
 import StoryTree from '../../components/StoryTree.astro';
-import { lines, config } from '../../lib/data.js';
+import HouseLink from '../../components/HouseLink.astro';
+import { lines, config, people, records, href } from '../../lib/data.js';
 const files = import.meta.glob('../../generated/pribehy/*.md', { eager: true });
 export function getStaticPaths() {
   const all = import.meta.glob('../../generated/pribehy/*.md', { eager: true });
@@ -21,6 +22,13 @@ const me = i >= 0 ? short[i] : null;
 const prev = me && i > 0 ? short[i - 1] : null;
 const next = me && i < short.length - 1 ? short[i + 1] : null;
 const myLines = (me?.rody ?? []).map((r) => lines[r]).filter(Boolean);
+// zmínění lidé, zápisy a domy (export: osoby / zdroje / domy z odkazů v textu); náhledy nejvýš 4 zápisů, zbytek odkazem
+const myPeople = (me?.osoby ?? []).map((s) => people[s]).filter(Boolean);
+const myRecs = (me?.zdroje ?? []).map((k) => records[k]).filter(Boolean);
+const shownRecs = myRecs.slice(0, 4);
+const moreRecs = myRecs.slice(4);
+const myHouses = me?.domy ?? [];
+const initials = (n) => n.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('');
 ---
 <Base title={frontmatter.title} description={me?.lead || frontmatter.lead || undefined}>
   {me ? (
@@ -35,6 +43,39 @@ const myLines = (me?.rody ?? []).map((r) => lines[r]).filter(Boolean);
 
   {me ? (
     <>
+      {myPeople.length > 0 && (
+        <section class="story-people">
+          <h2 class="small muted">Lidé v příběhu</h2>
+          <div class="story-cards">
+            {myPeople.map((p) => (
+              <a class="card card-link story-person" href={href.person(p.slug)}>
+                <span class="ini" aria-hidden="true">{initials(p.name)}</span>
+                <span><strong>{p.name}</strong>{p.years && <span class="small muted"> {p.years}</span>}</span>
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
+      {myRecs.length > 0 && (
+        <section class="story-recs">
+          <h2 class="small muted">Zápisy</h2>
+          <div class="story-cards">
+            {shownRecs.map((r) => (
+              <a class="card card-link story-rec" href={href.record(r.key)}>
+                {r.img && <img src={`/img/${r.key}.jpg`} alt={`Výřez zápisu: ${r.title}`} loading="lazy" />}
+                <span class="small muted">{r.kindName} {r.date}</span>
+                <span class="small">{r.title}</span>
+              </a>
+            ))}
+          </div>
+          {moreRecs.length > 0 && (
+            <p class="small">Další zápisy: {moreRecs.map((r, j) => <>{j > 0 && ', '}<a href={href.record(r.key)}>{r.kindName} {r.date}</a></>)}</p>
+          )}
+        </section>
+      )}
+      {myHouses.length > 0 && (
+        <p class="small">Dům: {myHouses.map((h, j) => <>{j > 0 && ', '}<HouseLink slug={h} /></>)}</p>
+      )}
       {myLines.length > 0 && (
         <p class="chips">{myLines.map((l) => <a class="chip" href={`/rod/${l.slug}/`}><span class="dot" style={`background:${l.color}`}></span>rod {l.name}</a>)}</p>
       )}
@@ -53,3 +94,12 @@ const myLines = (me?.rody ?? []).map((r) => lines[r]).filter(Boolean);
 
   <StoryDocs story={slug} />
 </Base>
+<style>
+  .story-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: .6rem; margin: .4rem 0 1rem; }
+  .story-person { display: flex; gap: .6rem; align-items: center; }
+  .story-person .ini { flex: none; width: 2.2rem; height: 2.2rem; border-radius: 50%; display: grid; place-items: center;
+    background: var(--line, #e6e0d6); font-weight: 600; font-size: .85rem; }
+  .story-rec { display: flex; flex-direction: column; gap: .2rem; }
+  .story-rec img { width: 100%; height: 6rem; object-fit: cover; border-radius: 4px; }
+  .story-people h2, .story-recs h2 { margin: 1.4rem 0 0; font-size: .85rem; text-transform: uppercase; letter-spacing: .04em; }
+</style>

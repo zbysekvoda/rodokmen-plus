@@ -2,6 +2,14 @@
 
 ## Nevydáno
 
+### Přidáno
+- Web: stránka krátkého příběhu `/pribeh/<slug>/` ukazuje pod textem karty zmíněných osob, náhledy výřezů zmíněných
+  zápisů (nejvýš 4, zbytek odkazem) a odkazy na zmíněné domy. Export plní `kratkePribehy[].osoby / zdroje / domy`.
+- Pevná adresa krátkého příběhu: `## Nadpis {#muj-slug}` (slug z `{#…}`, do titulku se nepropíše); změna nadpisu pak
+  adresu nemění. Automatický slug z nadpisu pevný slug nikdy nezabere.
+- `kontrola.py` upozorní na dva příběhy se stejným slugem (krátké příběhy navzájem i proti `pribehy` ve `web.json`).
+- Rozcestník `/pribehy/`: rok z nadpisu („… (1858)“) se u karty krátkého příběhu ukáže nad titulkem (`kratkePribehy[].rok`).
+
 ### Opraveno
 - `staty.json`: revize dat a zdrojů – Slezsko v Rakouském císařství jako „Rakouské Slezsko (od 1849 Vévodství Horní
   a Dolní Slezsko)“, neexistující citace u ČSSR nahrazena ústavním zákonem č. 100/1960 Sb., u ČSFR doplněn zákon
