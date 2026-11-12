@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import FamilyMap from '../components/FamilyMap.astro';
 import { houseList, href, houseTitle, people, lines, config, span } from '../lib/data.js';
 
 // Česká čísla: plural(2, 'držitel', 'držitelé', 'držitelů') → „2 držitelé“; nula → '' (nuly nevypisujeme).
@@ -38,6 +39,7 @@ const groups = Object.entries(houseList.filter((h) => !featuredSet.has(h.slug)).
 
 const villages = [...new Set(houseList.map((h) => h.obec))];
 const villageOrder = [...new Set([...featured.map((h) => h.obec), ...groups.map((g) => g.obec)])];
+const mapped = houseList.filter((h) => h.lat != null).length;
 const done = houseList.filter((h) => h.processed).length;
 const manyVillages = villages.length > 1;
 const asSelect = villages.length > 8;
@@ -47,6 +49,8 @@ const showToggle = done > 0 && done < houseList.length;
   <h1>Domy, kde žili naši předci</h1>
   <p class="lead"><a href="/mapa/">Mapa míst →</a></p>
   <p class="lead">{plural(houseList.length, 'dům', 'domy', 'domů')}{manyVillages && ` ve ${villages.length} obcích`}.{done > 0 && <> U {done === 1 ? 'jednoho' : done} máme zpracované celé dějiny – kdo dům držel, kdo v něm bydlel, staré mapy.</>}</p>
+
+  {mapped > 0 && <FamilyMap height="360px" compact showPlaces={false} />}
 
   {(manyVillages || showToggle) && (
     <div class="domy-filtr">

@@ -3,7 +3,7 @@
 import 'leaflet/dist/leaflet.css';
 import site from '../data/site.json';
 import { lineByK, people, href, houseList, houseTitle } from '../lib/data.js';
-const { height = '70vh', compact = false, showHouses = true } = Astro.props;
+const { height = '70vh', compact = false, showHouses = true, showPlaces = true } = Astro.props;
 const ROOT_COLOR = '#8a6d52';
 const lines = Object.fromEntries(Object.values(lineByK).map((l) => [l.k, { name: l.name, color: l.color, slug: l.slug }]));
 lines[0] = { name: 'rodiče a prarodiče', color: ROOT_COLOR, slug: null };
@@ -13,7 +13,7 @@ const houses = showHouses ? houseList.filter((h) => h.lat != null).map((h) => ({
   title: houseTitle(h), url: href.house(h.slug), lat: h.lat, lon: h.lon, approx: h.approx, center: h.center, obec: h.obec, done: h.processed,
   who: h.ancestors.map((s) => [people[s].name, people[s].years, href.person(s)]),
 })) : [];
-const payload = JSON.stringify({ places: site.places, lines, names, compact, houses });
+const payload = JSON.stringify({ places: showPlaces ? site.places : [], lines, names, compact, houses });
 ---
 <div class="fmap" style={`height:${height}`} data-map={payload}></div>
 {!compact && (
@@ -113,8 +113,9 @@ const payload = JSON.stringify({ places: site.places, lines, names, compact, hou
           (h.done ? 'dějiny domu zpracované<br>' : '') + (h.center ? '<span class="y">poloha domu neznámá – bod je jen u středu obce</span><br>' : h.approx ? '<span class="y">poloha podle dnešního čp. – nejistá (možné přečíslování)</span><br>' : '') + who, { maxHeight: 260 })
         .bindTooltip(esc(h.title));
       (groups.domy ??= L.layerGroup().addTo(map)).addLayer(m);
+      if (!places.length) bounds.push(pos);   // mapa jen s domy: výřez podle domů
     }
-    if (bounds.length) map.fitBounds(L.latLngBounds(bounds), { padding: [20, 20], maxZoom: 11 });
+    if (bounds.length) map.fitBounds(L.latLngBounds(bounds), { padding: [20, 20], maxZoom: places.length ? 11 : 15 });
     else map.setView([49.8, 15.5], 7);
     const respread = () => spread.forEach((f) => f());
     map.on('zoomend', respread);
