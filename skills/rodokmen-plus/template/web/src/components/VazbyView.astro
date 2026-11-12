@@ -3,6 +3,7 @@
 // Rozložení počítá prohlížeč (lib/vazby.js) kolem osoby ?o=<id> (výchozí první kořen z KORENY), zoom lib/panzoom.js.
 import Base from '../layouts/Base.astro';
 import ViewSwitch from './ViewSwitch.astro';
+import OsaSwitch from './OsaSwitch.astro';
 import { people, families, roots } from '../lib/data.js';
 import { compact } from '../lib/vazby.js';
 const { view, title, hint } = Astro.props;
@@ -11,7 +12,7 @@ const names = Object.values(people).map((p) => [p.slug, `${p.name}${p.birth?.y ?
 ---
 <Base title={title} full>
   <div class="fan-bar vz-bar" data-view={view}>
-    <ViewSwitch current={{ osa: 'osa', vejir: 'vejir-cas', reka: 'reka' }[view]} />
+    {view === 'osa' ? <OsaSwitch current="vazby" /> : <ViewSwitch current={{ vejir: 'vejir-cas', reka: 'reka' }[view]} />}
     <strong>{title}</strong>
     <form class="vz-pick" autocomplete="off">
       <input list="vz-names" placeholder="Kolem osoby…" aria-label="Zobrazit kolem osoby" />

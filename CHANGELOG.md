@@ -1,5 +1,14 @@
 # Changelog
 
+## Nevydáno
+
+### Změněno
+- Web: přepínač pohledů u Stromu (`ViewSwitch.astro`) ukazuje jen hlavní pohledy – Generace, Rody, Vějíř, Celý strom
+  a Seznam předků (dřív „Předci“); Vějíř v čase a Řeka času jsou schované pod „Další pohledy ▾“ (adresy beze změny,
+  aktivní pohled se zvýrazní i v rozbalovací nabídce).
+- Web: Osa s vazbami (`/osa-vazby/`) patří pod Časovou osu – obě stránky mají přepínač „Všichni / Přímí předci
+  s vazbami“ (`OsaSwitch.astro`) a v menu se zvýrazní „Časová osa“ místo „Strom“.
+
 ## 0.13.0
 
 ### Přidáno
