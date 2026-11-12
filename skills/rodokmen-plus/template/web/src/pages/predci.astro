@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import ViewSwitch from '../components/ViewSwitch.astro';
 import PersonLink from '../components/PersonLink.astro';
-import { people, lineByK, href, genName, statusClass } from '../lib/data.js';
+import { people, lineByK, href, genName, statusClass, pocty } from '../lib/data.js';
 const list = Object.values(people).filter((p) => p.k).sort((a, b) => a.k - b.k); // jen předci výchozí osoby (Kekulé)
 const gens = [...new Set(list.map((p) => p.gen))];
 ---
@@ -10,6 +10,7 @@ const gens = [...new Set(list.map((p) => p.gen))];
   <ViewSwitch current="predci" />
   <h1>Všichni předci</h1>
   <p class="lead">Po generacích, v pořadí podle Kekulého čísla (otec má číslo 2n, matka 2n + 1). U každé generace vidíte, kolik předků z možného počtu už známe – ty ostatní teprve hledáme. Podívejte se, <a href="/hledame/">co ještě hledáme</a>, třeba víte víc.</p>
+  <p><strong>{pocty.predku}</strong> známých předků ve <strong>{pocty.generaci}</strong> generacích (výchozí osobu nepočítáme).</p>
   {gens.map((g) => (
     <>
       <h2>{genName(g)} <span class="muted small">({list.filter((p) => p.gen === g).length} z {2 ** g})</span></h2>

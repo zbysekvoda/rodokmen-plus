@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.12.0
+
+### Opraveno
+- Web: jedna definice počtu předků a generací (`lib/predci.js` → `pocty` v `lib/data.js`) pro úvod, `/statistiky/`
+  i `/predci/`. Předek = osoba s Kekulého číslem k > 1 (výchozí osobu nepočítáme, implex jednou), generací = nejvyšší
+  generace předků. Dřív úvod nepočítal kořen a statistiky ano (rozdíl o 1) a generace se lišily o 1.
+- Web: odstavce `uvod.odstavce` v `web.json` umí placeholdery `{predku}`, `{generaci}`, `{osob}` doplněné při buildu –
+  místo ručně psaných čísel, která zastarávají.
+
 ## 0.11.0
 
 ### Změněno

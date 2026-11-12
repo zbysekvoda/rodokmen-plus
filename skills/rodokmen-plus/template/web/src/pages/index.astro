@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
-import { stats, lines, href, config, linesTitle } from '../lib/data.js';
+import { stats, lines, href, config, linesTitle, pocty } from '../lib/data.js';
+import { doplnPocty } from '../lib/predci.js';
 import fan from '../generated/fan.svg?raw';
 import MobileTree from '../components/MobileTree.astro';
 import FamilyMap from '../components/FamilyMap.astro';
@@ -20,7 +21,7 @@ const storyCount = (config.pribehy ?? []).length + (config.kratkePribehy ?? []).
     <section class="teaser">
       <div>
         {uvod.nadpis && <h2>{uvod.nadpis}</h2>}
-        {(uvod.odstavce ?? []).map((t) => <p>{t}</p>)}
+        {(uvod.odstavce ?? []).map((t) => <p>{doplnPocty(t, pocty)}</p>)}
         {config.maPribeh && <a class="btn" href="/pribeh-rodu/">{config.pribeh?.tlacitko || `Přečíst: ${pribeh.title}`} →</a>}
         {config.pribehDomuStranka && <a class="btn" href="/pribeh-domu/">Přečíst: {pribehDomu.title} →</a>}
         {storyCount > 0 && <a class="btn btn-quiet" href="/pribehy/">Všechny příběhy ({storyCount}) →</a>}
@@ -44,9 +45,9 @@ const storyCount = (config.pribehy ?? []).length + (config.kratkePribehy ?? []).
   )}
 
   <div class="stats">
-    <div><strong>{stats.ancestors}</strong>známých předků</div>
+    <div><strong>{pocty.predku}</strong>známých předků</div>
     <div><strong>{stats.documented}</strong>doloženo matrikou</div>
-    <div><strong>{stats.generations}</strong>generací</div>
+    <div><strong>{pocty.generaci}</strong>generací</div>
     <div><strong>{stats.records}</strong>matričních zápisů</div>
   </div>
 

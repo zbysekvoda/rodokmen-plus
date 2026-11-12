@@ -41,6 +41,9 @@ export const depthOf = (p) => {
 };
 /** Počet známých předků včetně osoby (osoba ve více větvích se počítá vícekrát, jako dřív). */
 export const knownOf = (p) => (p ? 1 + knownOf(people[p.father]) + knownOf(people[p.mother]) : 0);
+import { pocetPredku } from './predci.js';
+/** Jediný zdroj počtu předků a generací pro úvod, /statistiky/ i /predci/. */
+export const pocty = { ...pocetPredku(people), osob: Object.keys(people).length };
 export const lineByK = Object.fromEntries(Object.values(lines).map((l) => [l.k, l]));
 
 export const href = {

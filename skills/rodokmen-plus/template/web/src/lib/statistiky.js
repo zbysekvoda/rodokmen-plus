@@ -3,7 +3,7 @@
 // https://github.com/hnizdiljan/rodokmen-skill/blob/d172316bc190d0f44894fa67115505729d587c6a/skills/rodokmen/tools/statistiky.py
 // Data a věk bere z lib/data.js (parseDate, birthOf, ageAt), aby věk seděl se stránkou osoby a časovou osou.
 // Počítají se jen předci (p.k ≥ 1) s nějakým doložením (st ≠ unk); boční příbuzní ne.
-import { people, recordList, parseDate, birthOf, ageAt } from './data.js';
+import { people, pocty, recordList, parseDate, birthOf, ageAt } from './data.js';
 
 const MESICE = ['leden', 'únor', 'březen', 'duben', 'květen', 'červen', 'červenec', 'srpen', 'září', 'říjen', 'listopad', 'prosinec'];
 
@@ -128,9 +128,9 @@ const sumWith = (v) => ({ prumer: avg(v.map((x) => x.val)), nejmladsi: v.length 
 
 export const stat = {
   prehled: {
-    predku: anc.length,
+    predku: pocty.predku,
     dolozeno: anc.filter((p) => p.st === 'doc').length,
-    generaci: gens.length ? Math.max(...gens.map((g) => g.name)) + 1 : 0,
+    generaci: pocty.generaci,
     zapisu: recordList.length,
     nejstarsi_narozeni: firstBirth,
     prijmeni: new Set(anc.map((p) => p.name.split(/\s+/).at(-1).replace(/[?()]/g, '').replace(/ová$/, ''))).size,

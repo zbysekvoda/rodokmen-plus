@@ -627,7 +627,7 @@ def main():
 
     known = [p for p in people.values() if p["k"] and p["k"] > 1]
     stats = dict(houses=len(houses), housesDone=sum(h["processed"] for h in houses.values()), ancestors=len(known), documented=sum(p["st"] == "doc" for p in known), records=len(records),
-                 generations=max(p["gen"] for p in people.values() if p["gen"] is not None) + 1, people=len(people))
+                 generations=max((p["gen"] for p in known), default=0),   # jako lib/predci.js: generace předků bez kořene people=len(people))
     hypotheses = [dict(line=h.get("rod"), title=h.get("nadpis", "Hypotéza"), text=h.get("text", ""),
                        items=[dict(name=a, text=b) for a, b in h.get("polozky", [])],
                        records=[r for r in h.get("zaznamy", []) if r in recs]) for h in leg["HYPOTEZY"]]
