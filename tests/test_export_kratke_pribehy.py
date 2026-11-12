@@ -7,6 +7,8 @@ import json, os, shutil, subprocess, sys, tempfile, unittest
 
 SKILL = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "skills", "rodokmen-plus")
 TOOLS = os.path.join(SKILL, "tools")
+ZAPISY = ["ukazka_krest_jan_novak_1890", "ukazka_snatek_jan_novak_josefa_pokorna_1919", "holice_snatek_vaclav_novak_barbora_mala_1884",
+          "horni_roven_snatek_josef_pokorny_barbora_sladkova_1894", "ostretin_snatek_josef_kral_johana_markova_1892"]
 
 
 class KratkePribehy(unittest.TestCase):
@@ -21,7 +23,11 @@ class KratkePribehy(unittest.TestCase):
         with open(os.path.join(cls.dir, "data", "zajimavosti.md"), "a", encoding="utf-8") as f:
             f.write("\n## Kovárna\nÚvod skupiny.\n\n### Výheň z roku 1786\nPrvní věta o výhni. Druhá věta.\n\n"
                     "### Kovadlina\nViz [[pribeh:vyhen-z-roku-1786]] a [[osoba:jan-novak-1890]].\n\n"
-                    "## Kovárna!\nSlug by byl stejný jako u příběhu z web.json, dostane příponu.\n")
+                    "## Kovárna!\nSlug by byl stejný jako u příběhu z web.json, dostane příponu.\n\n"
+                    "## Přejmenovaný nadpis (1858) {#pevna-adresa}\nKřest [[osoba:jan-novak-1890]], zápisy "
+                    + ", ".join(f"[[zdroj:{k}]]" for k in ZAPISY) + " a znovu [[zdroj:" + ZAPISY[0] + "]].\n\n"
+                    "## Jiný příběh {#pevna-adresa}\nStejný pevný slug – export přidá příponu, kontrola.py upozorní.\n\n"
+                    "## Pevná adresa\nAutomatický slug nezabere pevný slug {#…}.\n")
         r = subprocess.run([sys.executable, "-I", os.path.join(cls.dir, "tools", "export_web.py")], cwd=cls.dir,
                            capture_output=True, text=True, encoding="utf-8")
         assert r.returncode == 0, r.stdout + r.stderr
@@ -83,6 +89,34 @@ class KratkePribehy(unittest.TestCase):
 
     def test_rody_z_osob(self):
         self.assertTrue(self.kratke["cholera-v-roce-1855"]["rody"])
+
+    def test_zminene_osoby_a_zapisy(self):
+        x = self.kratke["pevna-adresa"]
+        self.assertEqual(x["osoby"], ["jan-novak-1890"])
+        self.assertEqual(x["zdroje"], ZAPISY)          # bez duplicit, v pořadí textu; šablona ukáže 4 a zbytek odkazem
+        self.assertEqual(x["domy"], [])
+
+    def test_bez_odkazu_prazdne_seznamy(self):
+        x = self.kratke["vyhen-z-roku-1786"]
+        self.assertEqual((x["osoby"], x["zdroje"], x["domy"]), ([], [], []))
+
+    def test_pevny_slug(self):
+        x = self.kratke["pevna-adresa"]
+        self.assertEqual(x["titulek"], "Přejmenovaný nadpis (1858)")   # {#…} se do titulku nepropíše
+        self.assertEqual(x["rok"], "1858")
+        self.assertNotIn("{#", self.cti("pevna-adresa"))
+        self.assertEqual(self.site["config"]["zajimavostiKotvy"]["přejmenovaný-nadpis-1858"], "pevna-adresa")
+        self.assertIn("pevna-adresa-2", self.kratke)   # duplicitní {#slug}
+        self.assertEqual(self.kratke["pevna-adresa-2"]["titulek"], "Jiný příběh")
+        self.assertEqual(self.kratke["pevna-adresa-3"]["titulek"], "Pevná adresa")   # automatický slug pevný nezabere
+
+    def test_kontrola_hlasi_duplicitni_slug(self):
+        r = subprocess.run([sys.executable, "-I", os.path.join(self.dir, "tools", "kontrola.py")], cwd=self.dir,
+                           capture_output=True, text=True, encoding="utf-8")
+        out = r.stdout + r.stderr
+        self.assertIn("Jiný příběh", out)
+        self.assertIn("/pribeh/pevna-adresa/", out)
+        self.assertIn("„Pevná adresa“", out)
 
 
 if __name__ == "__main__":
