@@ -684,11 +684,17 @@ def main():
             subs = re.split(r"^### +(.+)$", body, flags=re.M)
             items = list(zip(subs[1::2], subs[2::2])) if len(subs) > 1 else [(head, body)]
             for title, b in items:
-                title = title.strip()
-                out.append(dict(slug=short_slug(title, taken), titulek=title, telo=b.strip() + "\n", soubor=fname,
-                                skupina=head.strip() if len(subs) > 1 else "", kotva=gh_slug(title)))
+                # „## Nadpis {#muj-slug}“ – pevná adresa nezávislá na nadpisu ({#…} se do titulku nepropíše)
+                m = re.match(r"(.*?)\s*\{#([a-z0-9][a-z0-9-]*)\}\s*$", title.strip())
+                title = (m.group(1) if m else title).strip()
+                slug = short_slug(m.group(2), taken) if m else short_slug(title, taken | fixed_slugs)
+                rok = re.search(r"\((\d{4}(?:\s*[–-]\s*\d{4})?)\)\s*$", title)
+                out.append(dict(slug=slug, titulek=title, telo=b.strip() + "\n", soubor=fname, rok=rok.group(1) if rok else "",
+                                skupina=re.sub(r"\s*\{#[^}]*\}\s*$", "", head.strip()) if len(subs) > 1 else "", kotva=gh_slug(title)))
         return out
     taken_slugs = {x["slug"] for x in extra_stories}
+    # pevné slugy {#…} mají přednost: automatický slug z nadpisu je nikdy nezabere (duplicitu {#…} hlásí kontrola.py)
+    fixed_slugs = set(re.findall(r"^###? .*\{#([a-z0-9][a-z0-9-]*)\}\s*$", md("zajimavosti.md") + "\n" + md("zajimavosti_domy.md"), re.M)) - taken_slugs
     short_stories = split_stories(md("zajimavosti.md"), "zajimavosti.md", taken_slugs) \
         + split_stories(house_links(md("zajimavosti_domy.md")), "zajimavosti_domy.md", taken_slugs)
 
@@ -790,11 +796,15 @@ def main():
     for i, x in enumerate(short_stories):
         body = render(x["telo"], x["soubor"], (f"/pribeh/{x['slug']}/", x["titulek"]))
         x["lead"] = first_sentence(body)
-        x["rody"] = list(dict.fromkeys(people[o]["lineSlug"] for o in re.findall(r"\]\(/osoba/([^/\s)#?]+)/\)", body)
-                                       if people[o].get("lineSlug")))
+        zmin = lambda kind: list(dict.fromkeys(re.findall(rf"\]\(/{kind}/([^/\s)#?]+)/\)", body)))
+        x["osoby"] = [o for o in zmin("osoba") if o in people]
+        x["zdroje"] = [z for z in zmin("zdroj") if z in recs]
+        x["domy"] = [d for d in zmin("dum") if d in houses]
+        x["rody"] = list(dict.fromkeys(people[o]["lineSlug"] for o in x["osoby"] if people[o].get("lineSlug")))
         write(os.path.join(story_dir, x["slug"] + ".md"),
               f"---\ntitle: {yq(x['titulek'])}\nlead: ''\nkratky: true\n---\n{body}")
-    public_cfg["kratkePribehy"] = [dict(slug=x["slug"], titulek=x["titulek"], lead=x["lead"], skupina=x["skupina"], rody=x["rody"])
+    public_cfg["kratkePribehy"] = [dict(slug=x["slug"], titulek=x["titulek"], lead=x["lead"], skupina=x["skupina"], rody=x["rody"],
+                                        rok=x["rok"], osoby=x["osoby"], zdroje=x["zdroje"], domy=x["domy"])
                                    for x in short_stories]
     # staré adresy /zajimavosti/#<kotva nadpisu> → stránka příběhu (přesměruje pages/zajimavosti.astro)
     public_cfg["zajimavostiKotvy"] = {x["kotva"]: x["slug"] for x in short_stories}
