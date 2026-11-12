@@ -639,6 +639,7 @@ def main():
     # příběh domu (data/pribeh_domy.md) patří jen hlavnímu domu z web_domy.json, ne každému zpracovanému domu
     story_house = house_slug(village_name, jload("web_domy.json", {}).get("hlavni_dum", ""))
     public_cfg["pribehDum"] = story_house if story_house in houses and has_house_story else None
+    public_cfg["hlavniDum"] = story_house if story_house in houses else None   # zvýrazněný nahoře na /domy/
     # oba příběhy zvlášť: /pribeh-rodu/ = příběh rodu (pribeh.md, jinak příběh domu), /pribeh-domu/ = příběh domu, když jsou oba
     public_cfg["pribehDomuStranka"] = has_house_story and os.path.exists(os.path.join(DATA, "pribeh.md"))
     # další příběhy (např. jednoho rodu) z web.json „pribehy“: [{slug, titulek, soubor}] → /pribeh/<slug>/

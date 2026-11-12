@@ -1,5 +1,10 @@
 # Changelog
 
+## Nevydáno
+
+### Změněno
+- Web `/domy/`: domy seskupené po obcích (obce podle počtu předků, uvnitř podle předků a čp.), nahoře hlavní dům (`web_domy.json` → `hlavni_dum`, nově `config.hlavniDum`) a až 5 domů s příběhem; karty vypisují jen nenulové údaje a místo počtu předků rody a rozsah let; filtr obce (tlačítka, u víc než 8 obcí výběr) a přepínač „jen se zpracovanými dějinami“. U jedné obce bez nadpisů skupin.
+
 ## 0.13.0
 
 ### Přidáno
