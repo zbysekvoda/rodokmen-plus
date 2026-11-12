@@ -1,40 +1,136 @@
 ---
 import Base from '../layouts/Base.astro';
-import PersonLink from '../components/PersonLink.astro';
-import { houseList, href, houseTitle } from '../lib/data.js';
-const done = houseList.filter((h) => h.processed);
-const rest = houseList.filter((h) => !h.processed);
-const byVillage = Object.entries(rest.reduce((a, h) => ((a[h.obec] ??= []).push(h), a), {})).sort(([a], [b]) => a.localeCompare(b, 'cs'));
+import { houseList, href, houseTitle, people, lines, config, span } from '../lib/data.js';
+
+// Česká čísla: plural(2, 'držitel', 'držitelé', 'držitelů') → „2 držitelé“; nula → '' (nuly nevypisujeme).
+const plural = (n, one, few, many) => (n ? `${n} ${n === 1 ? one : n < 5 ? few : many}` : '');
+const lineName = Object.fromEntries(Object.values(lines).map((l) => [l.slug, l.name]));
+
+/** Údaje karty – jen nenulové. */
+function facts(h) {
+  const counts = h.processed
+    ? [plural(h.owners?.length ?? 0, 'držitel', 'držitelé', 'držitelů'), plural(h.people?.length ?? 0, 'obyvatel', 'obyvatelé', 'obyvatel'), plural(h.events?.length ?? 0, 'událost', 'události', 'událostí')].filter(Boolean).join(', ')
+    : '';
+  const rody = [...new Set(h.ancestors.map((s) => lineName[people[s]?.lineSlug]).filter(Boolean))];
+  const years = (h.family ?? []).flatMap((f) => [f.since, f.until]).filter((y) => typeof y === 'number');
+  const range = years.length ? span(Math.min(...years), Math.max(...years)) : '';
+  const who = rody.length ? rody.join(', ') : h.ancestors.length ? h.ancestors.slice(0, 3).map((s) => people[s]?.name).filter(Boolean).join(', ') + (h.ancestors.length > 3 ? ' …' : '') : '';
+  return { counts, family: [who, range].filter(Boolean).join(' · ') };
+}
+
+const mainSlug = config.hlavniDum ?? config.pribehDum ?? null;
+const hasStory = (h) => h.slug === config.pribehDum || (h.mentions?.length ?? 0) > 0;
+// Nahoře hlavní dům a nejvýš 5 dalších domů s příběhem (nejvíc předků); ostatní s příběhem zůstanou ve své obci se štítkem.
+const featured = houseList
+  .filter((h) => h.slug === mainSlug || hasStory(h))
+  .sort((a, b) => (b.slug === mainSlug) - (a.slug === mainSlug) || b.ancestors.length - a.ancestors.length)
+  .slice(0, mainSlug ? 6 : 5);
+const featuredSet = new Set(featured.map((h) => h.slug));
+
+const cpNum = (h) => parseInt(h.cp, 10) || 99999;
+const groups = Object.entries(houseList.filter((h) => !featuredSet.has(h.slug)).reduce((a, h) => ((a[h.obec] ??= []).push(h), a), {}))
+  .map(([obec, list]) => ({
+    obec,
+    list: list.sort((a, b) => b.ancestors.length - a.ancestors.length || cpNum(a) - cpNum(b)),
+    n: new Set(houseList.filter((h) => h.obec === obec).flatMap((h) => h.ancestors)).size,
+  }))
+  .sort((a, b) => b.n - a.n || a.obec.localeCompare(b.obec, 'cs'));
+
+const villages = [...new Set(houseList.map((h) => h.obec))];
+const villageOrder = [...new Set([...featured.map((h) => h.obec), ...groups.map((g) => g.obec)])];
+const done = houseList.filter((h) => h.processed).length;
+const manyVillages = villages.length > 1;
+const asSelect = villages.length > 8;
+const showToggle = done > 0 && done < houseList.length;
 ---
 <Base title="Domy" wide>
   <h1>Domy, kde žili naši předci</h1>
   <p class="lead"><a href="/mapa/">Mapa míst →</a></p>
-  <p class="lead">{houseList.length} domů ve {byVillage.length + (done.length ? 1 : 0)} obcích. U {done.length === 1 ? 'jednoho' : done.length} máme zpracované celé dějiny – kdo dům držel, kdo v něm bydlel, staré mapy. U ostatních zatím jen to, kdo z rodiny v nich žil.</p>
+  <p class="lead">{plural(houseList.length, 'dům', 'domy', 'domů')}{manyVillages && ` ve ${villages.length} obcích`}.{done > 0 && <> U {done === 1 ? 'jednoho' : done} máme zpracované celé dějiny – kdo dům držel, kdo v něm bydlel, staré mapy.</>}</p>
 
-  {done.length > 0 && (
-    <>
-      <h2>Dějiny zpracované</h2>
-      <div class="house-list">
-        {done.map((h) => (
-          <a class="card card-link" href={href.house(h.slug)}>
-            <h3>{houseTitle(h)}</h3>
-            <p class="small">{h.owners.length} držitelů, {h.people.length} obyvatel, {h.events.length} událostí</p>
-            <p class="small muted">Předkové: {h.ancestors.length}</p>
-          </a>
-        ))}
-      </div>
-    </>
+  {(manyVillages || showToggle) && (
+    <div class="domy-filtr">
+      {manyVillages && asSelect && (
+        <label class="small">Obec:{' '}
+          <select id="obec-filtr">
+            <option value="">všechny obce</option>
+            {villageOrder.map((o) => <option value={o}>{o}</option>)}
+          </select>
+        </label>
+      )}{' '}
+      {manyVillages && !asSelect && (
+        <div class="chips" role="group" aria-label="Obec">
+          <button type="button" class="chip" data-obec="" aria-pressed="true">Všechny obce</button>
+          {villageOrder.map((o) => <button type="button" class="chip" data-obec={o} aria-pressed="false">{o}</button>)}
+        </div>
+      )}
+      {showToggle && <label class="small"><input type="checkbox" id="jen-zpracovane" /> jen se zpracovanými dějinami</label>}
+    </div>
   )}
 
-  <h2>Zatím nezpracované</h2>
-  {byVillage.map(([obec, list]) => (
-    <>
-      <h3>{obec}</h3>
-      <ul>
-        {list.map((h) => (
-          <li><a href={href.house(h.slug)}>čp. {h.cp}</a> – {h.ancestors.map((s, i) => <>{i > 0 && ', '}<PersonLink slug={s} /></>)}</li>
-        ))}
-      </ul>
-    </>
+  {featured.length > 0 && (
+    <section class="domy-skupina" data-skupina="">
+      {manyVillages && <h2>{featured.length === 1 && featured[0].slug === mainSlug ? 'Náš dům' : 'Naše domy a domy s příběhem'}</h2>}
+      <div class="house-list">
+        {featured.map((h) => {
+          const f = facts(h);
+          return (
+            <a class={`card card-link dum-karta${h.slug === mainSlug ? ' dum-hlavni' : ''}`} href={href.house(h.slug)} data-obec={h.obec} data-done={h.processed ? '1' : '0'}>
+              <h3>{houseTitle(h)}</h3>
+              {h.slug === mainSlug && <p class="small muted">Hlavní dům rodu</p>}
+              {f.counts && <p class="small">{f.counts}</p>}
+              {f.family && <p class="small muted">{f.family}</p>}
+            </a>
+          );
+        })}
+      </div>
+    </section>
+  )}
+
+  {groups.map((g) => (
+    <section class="domy-skupina" data-skupina={g.obec}>
+      {manyVillages && <h2>{g.obec} <span class="small muted">{plural(g.list.length, 'dům', 'domy', 'domů')}{g.n > 0 && ` · ${plural(g.n, 'předek', 'předkové', 'předků')}`}</span></h2>}
+      <div class="house-list">
+        {g.list.map((h) => {
+          const f = facts(h);
+          return (
+            <a class="card card-link dum-karta" href={href.house(h.slug)} data-obec={h.obec} data-done={h.processed ? '1' : '0'}>
+              <h3>{manyVillages ? `čp. ${h.cp}${h.name ? ` – ${h.name}` : ''}` : houseTitle(h)}</h3>
+              {hasStory(h) && <p class="small muted">Má příběh</p>}
+              {f.counts && <p class="small">{f.counts}</p>}
+              {f.family && <p class="small muted">{f.family}</p>}
+            </a>
+          );
+        })}
+      </div>
+    </section>
   ))}
 </Base>
+
+<style>
+  .domy-filtr { margin: 0.5rem 0 1rem; }
+  .dum-hlavni { border-color: var(--accent, currentColor); border-width: 2px; }
+  .domy-skupina[hidden] { display: none; }
+</style>
+
+<script>
+  const chips = [...document.querySelectorAll<HTMLButtonElement>('.domy-filtr button[data-obec]')];
+  const only = document.getElementById('jen-zpracovane') as HTMLInputElement | null;
+  let obec = '';
+  function apply() {
+    document.querySelectorAll<HTMLElement>('.dum-karta').forEach((c) => {
+      c.hidden = (!!obec && c.dataset.obec !== obec) || (!!only?.checked && c.dataset.done !== '1');
+    });
+    document.querySelectorAll<HTMLElement>('.domy-skupina').forEach((s) => {
+      s.hidden = !s.querySelector('.dum-karta:not([hidden])');
+    });
+  }
+  chips.forEach((b) => b.addEventListener('click', () => {
+    obec = b.dataset.obec ?? '';
+    chips.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    apply();
+  }));
+  only?.addEventListener('change', apply);
+  const sel = document.getElementById('obec-filtr') as HTMLSelectElement | null;
+  sel?.addEventListener('change', () => { obec = sel.value; apply(); });
+</script>

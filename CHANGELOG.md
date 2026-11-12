@@ -1,5 +1,35 @@
 # Changelog
 
+## Nevydáno
+
+### Přidáno
+- Web: stránka krátkého příběhu `/pribeh/<slug>/` ukazuje pod textem karty zmíněných osob, náhledy výřezů zmíněných
+  zápisů (nejvýš 4, zbytek odkazem) a odkazy na zmíněné domy. Export plní `kratkePribehy[].osoby / zdroje / domy`.
+- Pevná adresa krátkého příběhu: `## Nadpis {#muj-slug}` (slug z `{#…}`, do titulku se nepropíše); změna nadpisu pak
+  adresu nemění. Automatický slug z nadpisu pevný slug nikdy nezabere.
+- `kontrola.py` upozorní na dva příběhy se stejným slugem (krátké příběhy navzájem i proti `pribehy` ve `web.json`).
+- Rozcestník `/pribehy/`: rok z nadpisu („… (1858)“) se u karty krátkého příběhu ukáže nad titulkem (`kratkePribehy[].rok`).
+
+### Opraveno
+- `staty.json`: revize dat a zdrojů – Slezsko v Rakouském císařství jako „Rakouské Slezsko (od 1849 Vévodství Horní
+  a Dolní Slezsko)“, neexistující citace u ČSSR nahrazena ústavním zákonem č. 100/1960 Sb., u ČSFR doplněn zákon
+  č. 101/1990 Sb. a mezidobí „Československá federativní republika“, opravený titul Plačkových *Prajzáků*,
+  upřesněné texty k Vratislavskému míru (1742) a připojení Zaolzí k Říši (1939).
+
+### Změněno
+- Web: pohled Rody u Stromu se jmenuje „Pásy rodů“ (přepínač i nadpis `/pasy/`). Prázdné sloupce prarodičů
+  a prázdné řádky generací se nevykreslují, chybějící rody nahradí věta s odkazem na Co hledáme; když zbydou
+  méně než dva pásy (kořen doložený jen z jedné strany), pásy se rozpadnou o generaci výš.
+- Web: přepínač pohledů u Stromu (`ViewSwitch.astro`) ukazuje jen hlavní pohledy – Generace, Rody, Vějíř, Celý strom
+  a Seznam předků (dřív „Předci“); Vějíř v čase a Řeka času jsou schované pod „Další pohledy ▾“ (adresy beze změny,
+  aktivní pohled se zvýrazní i v rozbalovací nabídce).
+- Web: Osa s vazbami (`/osa-vazby/`) patří pod Časovou osu – obě stránky mají přepínač „Všichni / Přímí předci
+  s vazbami“ (`OsaSwitch.astro`) a v menu se zvýrazní „Časová osa“ místo „Strom“.
+- Web `/domy/`: domy seskupené po obcích (obce podle počtu předků, uvnitř podle předků a čp.), nahoře hlavní dům (`web_domy.json` → `hlavni_dum`, nově `config.hlavniDum`) a až 5 domů s příběhem; karty vypisují jen nenulové údaje a místo počtu předků rody a rozsah let; filtr obce (tlačítka, u víc než 8 obcí výběr) a přepínač „jen se zpracovanými dějinami“. U jedné obce bez nadpisů skupin.
+- Web: `/strom-cely/` se otevře vycentrovaný na kořen (nebo osobu z `?o=`) se zoomem, při kterém jsou vidět rodiče
+  a prarodiče. Výchozí pohled kreslí kořen a 3 generace předků (na mobilu 2), protože v plné hloubce leží rodiče
+  tisíce px od sebe. Plnou hloubku ukáže tlačítko „Všechny generace“ (`#cele`), tlačítko „Na kořen“ vrátí výchozí pohled.
+
 ## 0.13.0
 
 ### Přidáno

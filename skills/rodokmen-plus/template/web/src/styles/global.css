@@ -354,6 +354,16 @@ tr.anc td { background: var(--accent-soft); }
 .view-switch a { padding: 0.2rem 0.75rem; text-decoration: none; color: var(--text); }
 .view-switch a + a { border-left: 1px solid var(--rule); }
 .view-switch a:hover, .view-switch a[aria-current] { background: var(--surface-head); color: var(--on-head); }
+.view-switch-wrap { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; max-width: 100%; }
+.view-more { position: relative; font-size: 0.85rem; }
+.view-more summary { list-style: none; cursor: pointer; padding: 0.2rem 0.75rem; border: 1px solid var(--rule); border-radius: 999px; white-space: nowrap; }
+.view-more summary::-webkit-details-marker { display: none; }
+.view-more summary:hover, .view-more[data-active] summary { background: var(--surface-head); color: var(--on-head); }
+.view-more-menu { position: absolute; z-index: 20; right: 0; top: calc(100% + 0.25rem); display: flex; flex-direction: column; min-width: 10rem; background: var(--surface-raised); border: 1px solid var(--rule); border-radius: var(--radius); box-shadow: 0 4px 14px rgb(0 0 0 / 0.15); overflow: hidden; }
+.view-more-menu a { padding: 0.35rem 0.75rem; text-decoration: none; color: var(--text); white-space: nowrap; }
+.view-more-menu a + a { border-top: 1px solid var(--rule); }
+@media (max-width: 600px) { .view-more-menu { right: auto; left: 0; } }
+.view-more-menu a:hover, .view-more-menu a[aria-current] { background: var(--surface-head); color: var(--on-head); }
 .person-cols { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 1.5rem; align-items: start; }
 .person-cols > aside { position: sticky; top: 1rem; }
 .person-cols > aside h2 { margin-top: 0; }
@@ -470,7 +480,7 @@ kbd { font: 0.72rem ui-monospace, monospace; border: 1px solid var(--rule); bord
 
 /* Rodové pásy (/pasy/) */
 .pasy { display: grid; gap: 0; }
-.pasy-row { display: grid; grid-template-columns: 8rem repeat(4, minmax(0, 1fr)); gap: 0 10px; }
+.pasy-row { display: grid; grid-template-columns: 8rem repeat(var(--n, 4), minmax(0, 1fr)); gap: 0 10px; }
 .pasy-gen { padding: 0.8rem 0 0; font: 600 0.72rem var(--sans); letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-quiet); border-top: 1px solid var(--rule); }
 .pasy-heads .pasy-gen { border: 0; }
 .pasy-head { display: flex; flex-direction: column; gap: 2px; padding: 0.6rem 0.7rem; border-top: 4px solid var(--c); border-radius: 6px 6px 0 0; background: color-mix(in srgb, var(--c) 12%, var(--surface)); color: var(--text); text-decoration: none; }
@@ -479,12 +489,12 @@ kbd { font: 0.72rem ui-monospace, monospace; border: 1px solid var(--rule); bord
 .pasy-p { display: flex; flex-direction: column; gap: 1px; padding: 0.4rem 0.6rem; background: var(--surface-raised); border: 1px solid var(--rule); border-radius: 6px; color: var(--text); text-decoration: none; font-size: 0.88rem; line-height: 1.3; }
 .pasy-p:hover { border-color: var(--accent); }
 .pasy-p.st-prob, .pasy-p.st-mh, .pasy-p.st-fam { border-style: dashed; }
-.pasy-base { display: grid; grid-template-columns: 8rem repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 10px; align-items: center; }
+.pasy-base { display: grid; grid-template-columns: 8rem repeat(var(--m, 2), minmax(0, 1fr)); gap: 10px; margin-top: 10px; align-items: center; }
 .pasy-base .pasy-gen { border: 0; padding: 0; }
 .pasy-me { text-align: center; }
 .pasy-tabs { display: none; }
 @media (max-width: 720px) {
-  .pasy-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0.5rem 0 0.8rem; border-bottom: 1px solid var(--rule); }
+  .pasy-tabs { display: grid; grid-template-columns: repeat(var(--n, 4), minmax(0, 1fr)); margin: 0.5rem 0 0.8rem; border-bottom: 1px solid var(--rule); }
   .pasy-tabs button { font: inherit; font-size: 0.85rem; background: none; border: 0; border-bottom: 3px solid transparent; padding: 0.7rem 0.2rem; color: var(--text-quiet); cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .pasy-tabs button[aria-selected='true'] { border-bottom-color: var(--c); color: var(--text); font-weight: 600; }
   .pasy-row { grid-template-columns: 1fr; }

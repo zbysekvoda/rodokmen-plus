@@ -85,6 +85,31 @@ VEK = {"snatek": (14, 85), "porod_matka": (12, 55), "porod_otec": (14, 80)}
 TOLERANCE_OTEC_DNY = 300   # dítě může přijít až ~9–10 měsíců po smrti otce
 
 
+def slugy_pribehu(warn, cfg):
+    """Krátké příběhy (## / ### v zajimavosti*.md) mají adresu /pribeh/<slug>/ – z {#slug} za nadpisem, jinak z nadpisu.
+    Dva příběhy se stejným slugem: export druhému přidá příponu -2 a adresa se tiše změní."""
+    kde = {x.get("slug"): "data/web.json „pribehy“" for x in cfg.get("pribehy", []) if isinstance(x, dict) and x.get("slug")}
+    for f in ("zajimavosti.md", "zajimavosti_domy.md"):
+        path = os.path.join(DATA, f)
+        if not os.path.exists(path):
+            continue
+        text = re.sub(r"<!--.*?-->", "", open(path, encoding="utf-8").read(), flags=re.S)
+        for sec in re.split(r"^(?=## )", text, flags=re.M):
+            heads = re.findall(r"^### +(.+)$", sec, re.M) or re.findall(r"^## +(.+)$", sec, re.M)
+            for h in heads:
+                m = re.match(r"(.*?)\s*\{#([a-z0-9][a-z0-9-]*)\}\s*$", h.strip())
+                if m:
+                    slug = m.group(2)
+                else:
+                    slug = slugify(h)
+                    slug = (slug[:80].rsplit("-", 1)[0] if len(slug) > 80 else slug) or "pribeh"
+                if slug in kde:
+                    warn.append(f"data/{f}: příběh „{h.strip()}“ má stejný slug /pribeh/{slug}/ jako {kde[slug]} – "
+                                f"export mu přidá příponu -2; dej jednomu z nich jiný {{#slug}}")
+                else:
+                    kde[slug] = f"„{h.strip()}“ (data/{f})"
+
+
 def udalost(p, znak):
     """První přesné datum události z faktů („* 12. 3. 1873 …“, „† 1902“) → (datetime.date, jen_rok) nebo None.
     Odhady a rozmezí („asi“, „před“, „po“, „1831–1843“, „1831?“) se přeskakují – z nich chybu dovodit nejde."""
@@ -467,6 +492,7 @@ def main():
                         f"přidej úryvek textu s tím slovem do web.json „citlive_schvaleno“")
 
     wiki_odkazy(err, warn, g, O, LINES, kek, keys, D, obec_domu, dum_id, cfg)
+    slugy_pribehu(warn, cfg)
     vecne_kontroly(err, warn, g, O, zaz, prep)
     pribehy = ["zajimavosti.md", "zajimavosti_domy.md", "pribeh.md", "pribeh_domy.md",
                *(x.get("soubor", "") for x in cfg.get("pribehy", []) if isinstance(x, dict))]
