@@ -2,6 +2,12 @@
 
 ## Nevydáno
 
+### Opraveno
+- `staty.json`: revize dat a zdrojů – Slezsko v Rakouském císařství jako „Rakouské Slezsko (od 1849 Vévodství Horní
+  a Dolní Slezsko)“, neexistující citace u ČSSR nahrazena ústavním zákonem č. 100/1960 Sb., u ČSFR doplněn zákon
+  č. 101/1990 Sb. a mezidobí „Československá federativní republika“, opravený titul Plačkových *Prajzáků*,
+  upřesněné texty k Vratislavskému míru (1742) a připojení Zaolzí k Říši (1939).
+
 ### Změněno
 - Web: přepínač pohledů u Stromu (`ViewSwitch.astro`) ukazuje jen hlavní pohledy – Generace, Rody, Vějíř, Celý strom
   a Seznam předků (dřív „Předci“); Vějíř v čase a Řeka času jsou schované pod „Další pohledy ▾“ (adresy beze změny,
