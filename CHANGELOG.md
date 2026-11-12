@@ -26,6 +26,9 @@
 - Web: Osa s vazbami (`/osa-vazby/`) patří pod Časovou osu – obě stránky mají přepínač „Všichni / Přímí předci
   s vazbami“ (`OsaSwitch.astro`) a v menu se zvýrazní „Časová osa“ místo „Strom“.
 - Web `/domy/`: domy seskupené po obcích (obce podle počtu předků, uvnitř podle předků a čp.), nahoře hlavní dům (`web_domy.json` → `hlavni_dum`, nově `config.hlavniDum`) a až 5 domů s příběhem; karty vypisují jen nenulové údaje a místo počtu předků rody a rozsah let; filtr obce (tlačítka, u víc než 8 obcí výběr) a přepínač „jen se zpracovanými dějinami“. U jedné obce bez nadpisů skupin.
+- Web: `/strom-cely/` se otevře vycentrovaný na kořen (nebo osobu z `?o=`) se zoomem, při kterém jsou vidět rodiče
+  a prarodiče. Výchozí pohled kreslí kořen a 3 generace předků (na mobilu 2), protože v plné hloubce leží rodiče
+  tisíce px od sebe. Plnou hloubku ukáže tlačítko „Všechny generace“ (`#cele`), tlačítko „Na kořen“ vrátí výchozí pohled.
 
 ## 0.13.0
 
