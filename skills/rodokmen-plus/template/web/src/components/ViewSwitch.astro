@@ -6,7 +6,7 @@ const { slug = null, current = null } = Astro.props;
 const q = slug ? `?o=${slug}` : '';
 const views = [
   ['strom', 'Generace', `/strom/${slug ? '#' + slug : ''}`],
-  ['pasy', 'Rody', '/pasy/'],
+  ['pasy', 'Pásy rodů', '/pasy/'],
   ['vejir', 'Vějíř', `/vejir/${q}`],
   ['cely', 'Celý strom', `/strom-cely/${q}`],
   ['predci', 'Seznam předků', '/predci/'],
