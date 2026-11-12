@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.12.1
+
+### Opraveno
+- `export_web.py`: syntaktická chyba ve `stats` z 0.12.0 (komentář uprostřed víceřádkového volání).
+
 ## 0.12.0
 
 ### Opraveno
