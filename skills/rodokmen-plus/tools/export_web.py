@@ -61,6 +61,9 @@ def strip_comments(md):
     return re.sub(r"<!--.*?-->\n?", "", md, flags=re.S)
 
 
+ZKRATKY = {"čp", "č", "sv", "roz", "tzv", "např", "st", "ml", "srov", "kn", "sn", "fol", "str", "tj", "ev", "r", "cca", "resp", "p", "pí"}
+
+
 def slugify(text):
     t = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode().lower()
     return re.sub(r"[^a-z0-9]+", "-", t).strip("-")
@@ -658,6 +661,51 @@ def main():
         text = open(path, encoding="utf-8").read() if os.path.exists(path) else ""
         return strip_comments(re.sub(r"^# .*\n", "", text, count=1))
 
+    # Krátké příběhy: každá zajímavost (## Nadpis v zajimavosti.md a zajimavosti_domy.md) má vlastní stránku /pribeh/<slug>/.
+    # Když má ## pod sebou ### položky, je ## jen skupina (dům, ves, rodina) a stránku dostane každá ###.
+    gh_slug = lambda t: re.sub(r"\s", "-", re.sub(r"[^\w\s-]", "", re.sub(r"<[^>]+>", "", t).lower()))   # id nadpisu jako github-slugger v Astru
+
+    def short_slug(title, taken):
+        base = slugify(title)
+        if len(base) > 80:
+            base = base[:80].rsplit("-", 1)[0]
+        base = base or "pribeh"
+        slug, i = base, 1
+        while slug in taken:
+            i += 1
+            slug = f"{base}-{i}"
+        taken.add(slug)
+        return slug
+
+    def split_stories(text, fname, taken):
+        out, sections = [], re.split(r"^## +(.+)$", text, flags=re.M)[1:]
+        for head, body in zip(sections[::2], sections[1::2]):
+            subs = re.split(r"^### +(.+)$", body, flags=re.M)
+            items = list(zip(subs[1::2], subs[2::2])) if len(subs) > 1 else [(head, body)]
+            for title, b in items:
+                title = title.strip()
+                out.append(dict(slug=short_slug(title, taken), titulek=title, telo=b.strip() + "\n", soubor=fname,
+                                skupina=head.strip() if len(subs) > 1 else "", kotva=gh_slug(title)))
+        return out
+    taken_slugs = {x["slug"] for x in extra_stories}
+    short_stories = split_stories(md("zajimavosti.md"), "zajimavosti.md", taken_slugs) \
+        + split_stories(house_links(md("zajimavosti_domy.md")), "zajimavosti_domy.md", taken_slugs)
+
+    def first_sentence(text):
+        """První věta krátkého příběhu bez odkazů a značek – perex na rozcestníku."""
+        t = re.sub(r"<[^>]+>", "", text)
+        t = re.sub(r"!?\[([^\]]*)\]\([^)]*\)", r"\1", t)
+        t = re.sub(r"(\*\*|__|`)", "", t)
+        t = re.sub(r"\*(\S[^*]*)\*", r"\1", t)
+        t = " ".join(t.split())
+        for m in re.finditer(r"[.!?…]+[“\"]?(?=\s+[„\"A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ]|$)", t):
+            word = t[:m.start()].rsplit(" ", 1)[-1].lower()
+            if m.group(0).startswith(".") and (word in ZKRATKY or len(word) == 1):
+                continue
+            t = t[:m.end()]
+            break
+        return t if len(t) <= 240 else t[:240].rsplit(" ", 1)[0] + "…"
+
     # Wiki odkazy v příbězích a zajímavostech: [[osoba:id]], [[osoba:id|popisek]], [[dum:obec-cp]], [[zdroj:klic]],
     # [[rod:slug]], [[misto:Obec]], [[pribeh:slug]] (slug z web.json „pribehy“ → /pribeh/<slug>/). Export je rozbalí na markdown odkazy; neplatný cíl zastaví export.
     # Zároveň vzniká zpětný index „Zmíněno v příběhu“ (osoba, dům, zápis) s kotvou odstavce.
@@ -677,7 +725,7 @@ def main():
         if kind == "misto" and slugify(x) in villages:
             return slugify(x), villages[slugify(x)]["name"]
         if kind == "pribeh":
-            st = next((s_ for s_ in extra_stories if s_["slug"] == x), None)
+            st = next((s_ for s_ in extra_stories + short_stories if s_["slug"] == x), None)
             if st:
                 return x, st["titulek"]
         return None
@@ -726,9 +774,6 @@ def main():
         return house_links(strip_comments(open(path, encoding="utf-8").read())) if os.path.exists(path) else empty
     for src, dst in (("archivni_dotazy.md", "dotazy.md"), ("research_log.md", "denik.md")):
         write(os.path.join(gen_dir, dst), md(src))
-    # zajímavosti z rodokmenu i z dějin domů na jedné stránce (duplicity se hlídají v datech, ne tady)
-    write(os.path.join(gen_dir, "zajimavosti.md"), render(md("zajimavosti.md").rstrip() + "\n\n" + house_links(md("zajimavosti_domy.md")).strip() + "\n",
-                                                          "zajimavosti.md", ("/zajimavosti/", "Zajímavosti")))
     main_story = "pribeh.md" if os.path.exists(os.path.join(DATA, "pribeh.md")) else "pribeh_domy.md"
     write(os.path.join(gen_dir, "pribeh.md"), render(story(main_story, "---\ntitle: Příběh\nlead: ''\n---\n"), main_story, ("/pribeh-rodu/", "Příběh")))
     write(os.path.join(gen_dir, "pribeh_domu.md"), render(story("pribeh_domy.md", "---\ntitle: Příběh domu\nlead: ''\n---\n"), "pribeh_domy.md",
@@ -739,14 +784,27 @@ def main():
     for x in extra_stories:
         write(os.path.join(story_dir, x["slug"] + ".md"),
               render(story(x["soubor"], f"---\ntitle: {x['titulek']}\nlead: ''\n---\n"), x["soubor"], (f"/pribeh/{x['slug']}/", x["titulek"])))
-    # karty zajímavostí na úvodu vedou na kotvu nadpisu (id jako github-slugger v Astru); kotva = text nadpisu, jinak začátek nadpisu = nadpis karty
-    zaj = open(os.path.join(gen_dir, "zajimavosti.md"), encoding="utf-8").read()
-    heads = [h.strip() for h in re.findall(r"^#{2,3}\s+(.*)$", zaj, re.M)]
-    gh_slug = lambda t: re.sub(r"\s", "-", re.sub(r"[^\w\s-]", "", re.sub(r"<[^>]+>", "", t).lower()))
+    # krátké příběhy (zajímavosti) – jeden soubor na příběh; perex = první věta, rody podle zmíněných osob
+    yq = lambda t: "'" + t.replace("'", "''") + "'"
+    for i, x in enumerate(short_stories):
+        body = render(x["telo"], x["soubor"], (f"/pribeh/{x['slug']}/", x["titulek"]))
+        x["lead"] = first_sentence(body)
+        x["rody"] = list(dict.fromkeys(people[o]["lineSlug"] for o in re.findall(r"\]\(/osoba/([^/\s)#?]+)/\)", body)
+                                       if people[o].get("lineSlug")))
+        write(os.path.join(story_dir, x["slug"] + ".md"),
+              f"---\ntitle: {yq(x['titulek'])}\nlead: ''\nkratky: true\n---\n{body}")
+    public_cfg["kratkePribehy"] = [dict(slug=x["slug"], titulek=x["titulek"], lead=x["lead"], skupina=x["skupina"], rody=x["rody"])
+                                   for x in short_stories]
+    # staré adresy /zajimavosti/#<kotva nadpisu> → stránka příběhu (přesměruje pages/zajimavosti.astro)
+    public_cfg["zajimavostiKotvy"] = {x["kotva"]: x["slug"] for x in short_stories}
+    old = os.path.join(gen_dir, "zajimavosti.md")
+    if os.path.exists(old):
+        os.remove(old)
+    # karty na úvodu vedou na stránku krátkého příběhu; kotva = text nadpisu, jinak začátek nadpisu = nadpis karty
     for c in public_cfg.get("zajimavosti_na_uvodu", []):
         want = c.get("kotva") or c.get("nadpis", "")
-        h = next((h for h in heads if h == want), None) or next((h for h in heads if h.startswith(want)), None)
-        c["href"] = "/zajimavosti/" + (f"#{gh_slug(h)}" if h else "")
+        h = next((x for x in short_stories if x["titulek"] == want), None) or next((x for x in short_stories if x["titulek"].startswith(want)), None)
+        c["href"] = f"/pribeh/{h['slug']}/" if h else "/pribehy/"
         if not h:
             print(f"POZOR: karta zajímavosti „{want}“ v data/web.json nemá nadpis v zajímavostech – doplňte pole kotva")
     if wiki_err:
@@ -762,7 +820,7 @@ def main():
 
     # galerie příběhu: dokument patří příběhu, když v něm vystupuje osoba z dokumentu (odkaz [[osoba:…]]),
     # nebo když ho příběh jmenuje v poli „pribeh“ dokumentu (pribehy | pribeh-domu | slug z web.json „pribehy“, i seznam)
-    story_files = {"pribehy": "pribeh.md", "pribeh-domu": "pribeh_domu.md", **{x["slug"]: os.path.join("pribehy", x["slug"] + ".md") for x in extra_stories}}
+    story_files = {"pribehy": "pribeh.md", "pribeh-domu": "pribeh_domu.md", **{x["slug"]: os.path.join("pribehy", x["slug"] + ".md") for x in extra_stories + short_stories}}
     story_people = {k: set(re.findall(r"\]\(/osoba/([^/\s)#?]+)/\)", open(os.path.join(gen_dir, f), encoding="utf-8").read()))
                     for k, f in story_files.items()}
 
@@ -878,7 +936,7 @@ def main():
     # odkazy v textech, které nikam nevedou (adresa osoby se změní třeba doplněním roku narození: jan-novak → jan-novak-1798)
     targets = dict(osoba=people, zdroj=recs, rod=lines, rodina=families, dum=houses)
     texts = {f: open(os.path.join(gen_dir, f), encoding="utf-8").read()
-             for f in ("pribeh.md", "pribeh_domu.md", "zajimavosti.md", *(os.path.join("pribehy", x["slug"] + ".md") for x in extra_stories))}
+             for f in ("pribeh.md", "pribeh_domu.md", *(os.path.join("pribehy", x["slug"] + ".md") for x in extra_stories + short_stories))}
     texts["web.json"] = json.dumps(cfg, ensure_ascii=False)
     texts["osoby.py (hypotézy)"] = json.dumps(hypotheses, ensure_ascii=False)
     broken = [(f, m.group(0)) for f, t in texts.items()

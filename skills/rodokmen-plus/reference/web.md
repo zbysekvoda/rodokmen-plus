@@ -1,7 +1,7 @@
 # Rodinný web – stavba, nastavení, zveřejnění
 
 Web je statický (Astro + vyhledávání Pagefind), data bere z `data/` přes `tools/export_web.py`.
-Stránky: úvod (lákadlo, statistiky, zajímavosti, mapa, rody, vějíř), příběh, zajímavosti, osobnosti (pole `vyz`), statistiky, rody, stránka rodu,
+Stránky: úvod (lákadlo, statistiky, zajímavosti, mapa, rody, vějíř), příběhy (rozcestník `/pribehy/`; každá zajímavost je krátký příběh s vlastní stránkou `/pribeh/<slug>/`), osobnosti (pole `vyz`) a statistiky (obojí v menu), rody, stránka rodu,
 mapa (OpenStreetMap), vějíř přes celou obrazovku s hledáním, seznam předků, zápisy (s výřezem, rámečkem, přepisem
 a překladem), stránka osoby, rodiny, „Co hledáme“, výzkumný deník, hledání.
 
@@ -30,6 +30,8 @@ Náhled spouštěj na pozadí a uživateli pošli odkaz. Vzhled si ověř sám (
  "zajimavosti_na_uvodu": [{"nadpis": "Nejstarší předek", "text": "Kovář Jan, asi 1825."}]
 }
 ```
+Položku z menu schová `"menu_skryt": ["/osobnosti/"]` (stránka zůstane dostupná adresou).
+
 - `kontakt.jmeno` je ve 3. pádě („Napište Petrovi na …“).
 - **Přihlášení:** otázka, na kterou zná odpověď jen rodina (ne snadno dohledatelná na sociálních sítích).
   Odpověď se porovnává bez diakritiky a velkých písmen. Na serveru i v cookie prohlížeče je jen její otisk (SHA-256),

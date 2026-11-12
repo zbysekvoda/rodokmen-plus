@@ -1,9 +1,9 @@
 ---
-// Další příběhy (např. příběh jednoho rodu) z data/web.json „pribehy“: [{slug, titulek, soubor}].
-// Export je zapíše do src/generated/pribehy/<slug>.md, stránka je /pribeh/<slug>/.
+// Stránka jednoho příběhu: velké příběhy z data/web.json „pribehy“ ([{slug, titulek, soubor}]) i krátké příběhy –
+// každá zajímavost z data/zajimavosti*.md (frontmatter kratky: true). Export je zapíše do src/generated/pribehy/<slug>.md.
 import Base from '../../layouts/Base.astro';
 import StoryDocs from '../../components/StoryDocs.astro';
-import { lines } from '../../lib/data.js';
+import { lines, config } from '../../lib/data.js';
 const files = import.meta.glob('../../generated/pribehy/*.md', { eager: true });
 export function getStaticPaths() {
   const all = import.meta.glob('../../generated/pribehy/*.md', { eager: true });
@@ -13,17 +13,41 @@ const { slug } = Astro.params;
 const { Content, frontmatter } = files[`../../generated/pribehy/${slug}.md`];
 // rod z frontmatteru (rod: slug rodu) – odkaz na stránku rodu
 const line = frontmatter.rod ? lines[frontmatter.rod] : null;
+// krátký příběh: rody podle zmíněných osob, předchozí / další v pořadí ze souboru
+const short = config.kratkePribehy ?? [];
+const i = short.findIndex((s) => s.slug === slug);
+const me = i >= 0 ? short[i] : null;
+const prev = me && i > 0 ? short[i - 1] : null;
+const next = me && i < short.length - 1 ? short[i + 1] : null;
+const myLines = (me?.rody ?? []).map((r) => lines[r]).filter(Boolean);
 ---
-<Base title={frontmatter.title}>
-  <p class="crumbs"><a href="/pribehy/">příběhy</a>{line && <> · <a href={`/rod/${line.slug}/`}>{line.name}</a></>} · <a href="/zajimavosti/">další zajímavosti</a></p>
+<Base title={frontmatter.title} description={me?.lead || frontmatter.lead || undefined}>
+  {me ? (
+    <p class="crumbs"><a href="/pribehy/">příběhy</a> · <a href="/pribehy/#kratke">krátké příběhy</a>{me.skupina && <> · {me.skupina}</>}</p>
+  ) : (
+    <p class="crumbs"><a href="/pribehy/">příběhy</a>{line && <> · <a href={`/rod/${line.slug}/`}>{line.name}</a></>}</p>
+  )}
   <h1>{frontmatter.title}</h1>
   {frontmatter.lead && <p class="lead">{frontmatter.lead}</p>}
   <div class="prose"><Content /></div>
 
-  <div class="next-step">
-    <p><strong>Chcete víc?</strong> {line ? 'Všechny osoby rodu a jejich zápisy najdete na stránce rodu, další' : 'Další'} objevy v zajímavostech.</p>
-    {line && <a class="btn" href={`/rod/${line.slug}/`}>Rod {line.name} →</a>} <a class="btn" href="/zajimavosti/">Zajímavosti →</a>
-  </div>
+  {me ? (
+    <>
+      {myLines.length > 0 && (
+        <p class="chips">{myLines.map((l) => <a class="chip" href={`/rod/${l.slug}/`}><span class="dot" style={`background:${l.color}`}></span>rod {l.name}</a>)}</p>
+      )}
+      <nav class="story-nav" aria-label="Další příběhy">
+        {prev ? <a rel="prev" href={`/pribeh/${prev.slug}/`}><span class="small muted">← Předchozí</span>{prev.titulek}</a> : <span></span>}
+        <a class="all" href="/pribehy/#kratke">Všechny příběhy</a>
+        {next ? <a rel="next" href={`/pribeh/${next.slug}/`}><span class="small muted">Další →</span>{next.titulek}</a> : <span></span>}
+      </nav>
+    </>
+  ) : (
+    <div class="next-step">
+      <p><strong>Chcete víc?</strong> {line ? 'Všechny osoby rodu a jejich zápisy najdete na stránce rodu, další' : 'Další'} vyprávění mezi příběhy.</p>
+      {line && <a class="btn" href={`/rod/${line.slug}/`}>Rod {line.name} →</a>} <a class="btn" href="/pribehy/">Další příběhy →</a>
+    </div>
+  )}
 
   <StoryDocs story={slug} />
 </Base>

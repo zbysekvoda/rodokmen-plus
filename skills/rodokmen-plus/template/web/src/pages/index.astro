@@ -10,6 +10,8 @@ import { frontmatter as pribehDomu } from '../generated/pribeh_domu.md';
 const lineList = Object.values(lines).sort((a, b) => a.k - b.k);
 const uvod = config.uvod ?? {};
 const cards = config.zajimavosti_na_uvodu ?? [];
+// další příběhy (velké z web.json „pribehy“ i krátké) jsou na rozcestníku /pribehy/ – na úvodu jen hlavní příběh a jeden odkaz
+const storyCount = (config.pribehy ?? []).length + (config.kratkePribehy ?? []).length;
 ---
 <Base title="" wide>
   <h1>{config.nazev || 'Rodokmen'}</h1>
@@ -21,7 +23,7 @@ const cards = config.zajimavosti_na_uvodu ?? [];
         {(uvod.odstavce ?? []).map((t) => <p>{t}</p>)}
         {config.maPribeh && <a class="btn" href="/pribeh-rodu/">{config.pribeh?.tlacitko || `Přečíst: ${pribeh.title}`} →</a>}
         {config.pribehDomuStranka && <a class="btn" href="/pribeh-domu/">Přečíst: {pribehDomu.title} →</a>}
-        {(config.pribehy ?? []).map((p) => <a class="btn" href={`/pribeh/${p.slug}/`}>Přečíst: {p.titulek} →</a>)}
+        {storyCount > 0 && <a class="btn btn-quiet" href="/pribehy/">Všechny příběhy ({storyCount}) →</a>}
       </div>
       {uvod.foto && (
         <a href={config.maPribeh ? '/pribeh-rodu/' : `/img/${uvod.foto}.jpg`}><img src={`/img/${uvod.foto}.jpg`} alt={uvod.foto_popis || ''} /></a>
@@ -36,7 +38,7 @@ const cards = config.zajimavosti_na_uvodu ?? [];
         {pribeh.lead && <p>{pribeh.lead}</p>}
         <a class="btn" href="/pribeh-rodu/">{config.pribeh?.tlacitko || 'Přečíst příběh'} →</a>
         {config.pribehDomuStranka && <a class="btn" href="/pribeh-domu/">Přečíst: {pribehDomu.title} →</a>}
-        {(config.pribehy ?? []).map((p) => <a class="btn" href={`/pribeh/${p.slug}/`}>Přečíst: {p.titulek} →</a>)}
+        {storyCount > 0 && <a class="btn btn-quiet" href="/pribehy/">Všechny příběhy ({storyCount}) →</a>}
       </div>
     </section>
   )}
@@ -50,13 +52,13 @@ const cards = config.zajimavosti_na_uvodu ?? [];
 
   {cards.length > 0 && (
     <>
-      <h2>Zajímavosti</h2>
+      <h2>Krátké příběhy</h2>
       <div class="grid2">
         {cards.map((c) => (
-          <a class="card card-link" href={c.href ?? '/zajimavosti/'}><h3>{c.nadpis}</h3><p class="small muted">{c.text}</p></a>
+          <a class="card card-link" href={c.href ?? '/pribehy/'}><h3>{c.nadpis}</h3><p class="small muted">{c.text}</p></a>
         ))}
       </div>
-      <p><a href="/zajimavosti/">Všechny zajímavosti →</a></p>
+      <p><a href="/pribehy/">Všechny příběhy →</a></p>
     </>
   )}
 

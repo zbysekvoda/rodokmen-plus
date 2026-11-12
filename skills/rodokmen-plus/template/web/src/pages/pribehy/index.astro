@@ -1,28 +1,72 @@
 ---
-// Rozcestník příběhů: hlavní příběh (/pribeh-rodu/), příběh domu, další příběhy z web.json „pribehy“ a zajímavosti.
+// Rozcestník příběhů: velké příběhy (rodu, domu, další z web.json „pribehy“) a krátké příběhy –
+// každá zajímavost z data/zajimavosti*.md má vlastní stránku /pribeh/<slug>/ (export: config.kratkePribehy).
 import Base from '../../layouts/Base.astro';
-import { config } from '../../lib/data.js';
+import { config, lines } from '../../lib/data.js';
 import { frontmatter as pribeh } from '../../generated/pribeh.md';
 import { frontmatter as pribehDomu } from '../../generated/pribeh_domu.md';
-const items = [
+const leads = Object.fromEntries(Object.entries(import.meta.glob('../../generated/pribehy/*.md', { eager: true }))
+  .map(([f, m]) => [f.split('/').pop().replace(/\.md$/, ''), m.frontmatter?.lead ?? '']));
+const big = [
   ...(config.maPribeh ? [['/pribeh-rodu/', pribeh.title, pribeh.lead]] : []),
   ...(config.pribehDomuStranka ? [['/pribeh-domu/', pribehDomu.title, pribehDomu.lead]] : []),
-  ...(config.pribehy ?? []).map((p) => [`/pribeh/${p.slug}/`, p.titulek, '']),
-  ['/zajimavosti/', 'Zajímavosti z rodokmenu', 'Co nás při hledání nejvíc překvapilo – nejstarší předek, spojené větve, řemesla a osudy.'],
-  ['/osobnosti/', 'Významné osobnosti', 'Předci, kteří vyčnívali – kněží a učitelé, starostové, vojáci, umělci, podnikatelé.'],
-  ['/statistiky/', 'Rodokmen v číslech', 'Řemesla, věk při svatbě, délka života, nejčastější jména a odkud to víme.'],
+  ...(config.pribehy ?? []).map((p) => [`/pribeh/${p.slug}/`, p.titulek, leads[p.slug]]),
 ];
+const short = config.kratkePribehy ?? [];
+// filtr podle rodu: jen rody, které se v krátkých příbězích opravdu vyskytují
+const count = {};
+short.forEach((s) => s.rody.forEach((r) => (count[r] = (count[r] ?? 0) + 1)));
+const filterLines = Object.values(lines).filter((l) => count[l.slug]).sort((a, b) => count[b.slug] - count[a.slug]);
 ---
 <Base title="Příběhy" wide>
   <h1>Příběhy</h1>
   <p class="lead">Vyprávění o rodině a domech, sepsaná z matrik a dalších pramenů.</p>
-  <div class="house-list">
-    {items.map(([url, title, lead]) => (
-      <a class="card card-link" href={url}>
-        <h3>{title}</h3>
-        {lead && <p class="small">{lead}</p>}
-        <span class="more-link">Číst</span>
-      </a>
-    ))}
-  </div>
+
+  {big.length > 0 && (
+    <div class="grid2">
+      {big.map(([url, title, lead]) => (
+        <a class="card card-link" href={url}>
+          <h3>{title}</h3>
+          {lead && <p class="small">{lead}</p>}
+          <span class="more-link">Číst</span>
+        </a>
+      ))}
+    </div>
+  )}
+
+  {short.length > 0 && (
+    <>
+      <h2 id="kratke">Krátké příběhy <span class="muted small">({short.length})</span></h2>
+      <p class="small muted">Na pár minut: co nás při hledání překvapilo – jedna svatba, jeden dům, jeden osud.</p>
+      {filterLines.length > 1 && (
+        <p class="chips" id="story-filter">
+          <button class="chip" data-rod="" type="button" aria-pressed="true">vše</button>
+          {filterLines.map((l) => <button class="chip" data-rod={l.slug} type="button" aria-pressed="false"><span class="dot" style={`background:${l.color}`}></span>{l.name} <span class="muted">{count[l.slug]}</span></button>)}
+        </p>
+      )}
+      <div class="house-list" id="story-list">
+        {short.map((s) => (
+          <a class="card card-link" href={`/pribeh/${s.slug}/`} data-rody={s.rody.join(' ')}>
+            {s.skupina && <span class="small muted">{s.skupina}</span>}
+            <h3>{s.titulek}</h3>
+            {s.lead && <p class="small">{s.lead}</p>}
+          </a>
+        ))}
+      </div>
+    </>
+  )}
 </Base>
+<script is:inline>
+  (() => {
+    const box = document.getElementById('story-filter');
+    if (!box) return;
+    const cards = [...document.querySelectorAll('#story-list > a')];
+    box.addEventListener('click', (e) => {
+      const b = e.target.closest('button');
+      if (!b) return;
+      box.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      const rod = b.dataset.rod;
+      cards.forEach((c) => (c.hidden = !!rod && !c.dataset.rody.split(' ').includes(rod)));
+    });
+  })();
+</script>

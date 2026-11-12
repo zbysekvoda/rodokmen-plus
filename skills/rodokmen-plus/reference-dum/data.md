@@ -88,7 +88,8 @@ Bod přidá `mista.py pridej` (poloha z OSM), další pole `zapis.py mista "<ná
 - `druh` – barva a skupina v legendě a v seznamu pod mapou: `vira` (kaple, kostely), `pamatka` (kříže, pomníky), `remeslo`
   (mlýny, hamry, kovárny), `verejne` (škola, hospoda, obecní místa), `ves` (sousední vsi), jinak `jine`. Názvy a barvy:
   `web/src/lib/places.js`.
-- `odkaz` + `odkaz_text` – kam vede odkaz z bubliny: zajímavost `/zajimavosti/#<id nadpisu>` (id = nadpis malými písmeny,
+- `odkaz` + `odkaz_text` – kam vede odkaz z bubliny: zajímavost `/pribeh/<slug>/` (slug = nadpis bez diakritiky, viz `web/src/generated/pribehy/`; stará adresa
+  `/zajimavosti/#<id nadpisu>` se přesměruje – id = nadpis malými písmeny,
   mezery → `-`, interpunkce pryč, diakritika zůstává; ověř v `web/dist/zajimavosti/index.html`), zápis `/zdroj/<klíč>/`,
   `/obec/`, `/mapy/`, příběh `/pribehy/<slug>/`. Krátký text, dlouhý se v kartě zalomí pod „Na mapě“: „Celý příběh“
   jen pro `/pribehy/`, na zajímavosti „Zajímavosti“, na zápis např. „Zpráva z novin 1889“.

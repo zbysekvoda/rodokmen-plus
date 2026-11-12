@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.11.0
+
+### Změněno
+- Web: každá zajímavost (`##` v `data/zajimavosti*.md`) je samostatný „krátký příběh“ na `/pribeh/<slug>/` s perexem,
+  štítky rodů a odkazy předchozí / další; rozcestník `/pribehy/` má velké příběhy a krátké příběhy s filtrem podle rodu.
+  Stará adresa `/zajimavosti/#kotva` přesměruje na příběh. „Zmíněno v příběhu“ u osob a domů vede na stránku příběhu.
+- Web: „Osobnosti“ a „V číslech“ mají vlastní položku v menu; úvod má místo tlačítka na každý příběh jeden odkaz
+  „Všechny příběhy“.
+- Web: `web.json` → `menu_skryt` schová položky menu (např. `["/osobnosti/"]`, dokud nejsou osobnosti vybrané ručně).
+
 ## 0.9.0
 
 ### Přidáno
