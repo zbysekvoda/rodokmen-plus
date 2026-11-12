@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.13.0
+
+### Přidáno
+- Web: stránka příběhu ukazuje výřez rodokmenu – předky z přímé linie, na které text odkazuje, s doplněnými mezigeneracemi a manžely (`lib/vyrez.js`, `components/StoryTree.astro`, test `tests/vyrez_pribehu.test.js`).
+
 ## 0.12.1
 
 ### Opraveno

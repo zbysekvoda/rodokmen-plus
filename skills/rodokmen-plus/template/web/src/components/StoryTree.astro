@@ -1,0 +1,56 @@
+---
+// Výřez rodokmenu na stránce příběhu: předci z přímé linie, na které text odkazuje, doplnění o mezilehlé generace
+// a manžele (lib/vyrez.js). Osoby mimo přímou linii se nezobrazí – jsou odkazované v textu.
+import { people, byK, href, genName } from '../lib/data.js';
+import { vyrezStromu, osobyZTextu } from '../lib/vyrez.js';
+const { text } = Astro.props;
+const zminene = osobyZTextu(text).map((s) => people[s]).filter(Boolean);
+const ks = new Set(zminene.flatMap((p) => [p.k, ...(p.also ?? []).map((a) => a.k)]).filter((k) => k >= 1));
+const vetve = vyrezStromu(new Set(Object.keys(byK).map(Number).filter((k) => byK[k])), [...ks]);
+const osob = new Set(vetve.flat().flatMap((r) => r.pary.flatMap((p) => [p.otec, p.matka, p.sam]).filter(Boolean))).size;
+---
+{vetve.length > 0 && (
+  <details class="story-tree" open>
+    <summary><strong>Rodokmen osob z příběhu</strong> <span class="small muted">· {osob} předků v {vetve.length === 1 ? 'jedné linii' : `${vetve.length} liniích`}</span></summary>
+    {vetve.map((radky) => (
+      <ol class="vetev">
+        {radky.map((r) => (
+          <li class="radek">
+            <span class="gen small muted">{r.gen <= 3 ? genName(r.gen) : `${r.gen}. generace`}</span>
+            <span class="pary">
+              {r.pary.map((p) => (
+                <span class="par">
+                  {[p.sam ?? p.otec, p.matka].map((k, i) => {
+                    const o = k ? byK[k] : null;
+                    return [
+                      i === 1 && !p.sam && <span class="amp" aria-hidden="true">⚭</span>,
+                      i === 1 && p.sam ? null : o ? (
+                        <a class={`osoba ${ks.has(k) ? 'zminen' : ''}`} href={href.person(o.slug)}>{o.name}<span class="y">{o.years || ''}</span></a>
+                      ) : <span class="osoba nezn">?</span>,
+                    ];
+                  })}
+                </span>
+              ))}
+            </span>
+          </li>
+        ))}
+      </ol>
+    ))}
+    <p class="small muted">Tučně osoby, o kterých příběh vypráví; ostatní doplňují linii.</p>
+  </details>
+)}
+<style>
+  .story-tree { margin: 2rem 0; border: 1px solid var(--line, #ddd); border-radius: 8px; padding: .75rem 1rem; }
+  .story-tree summary { cursor: pointer; }
+  .vetev { list-style: none; padding: 0; margin: 1rem 0 0; }
+  .vetev + .vetev { border-top: 1px dashed var(--line, #ddd); padding-top: 1rem; }
+  .radek { display: grid; grid-template-columns: 8rem 1fr; gap: .5rem; align-items: start; }
+  .radek + .radek { margin-top: .5rem; }
+  .pary { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .par { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .3rem; border: 1px solid var(--line, #ddd); border-radius: 6px; padding: .3rem .5rem; }
+  .osoba { display: inline-flex; flex-direction: column; text-decoration: none; }
+  .osoba.zminen { font-weight: 700; }
+  .osoba .y { font-size: .8em; color: var(--muted, #888); font-weight: 400; }
+  .amp { color: var(--muted, #888); }
+  @media (max-width: 600px) { .radek { grid-template-columns: 1fr; gap: .2rem; } }
+</style>
