@@ -851,14 +851,24 @@ def main():
         for s_, p in people.items():
             if not (p.get("father") or p.get("mother")):
                 continue
+            # předek bez vlastních roků (y „“, jen „sedlák v …“) dostane odhad podle dítěte o generaci níž
+            # (ud.zivot_z_ditete), jinak by generace jen z takových předků box neměla (kontext, ne fakt)
             vrstva, out, out_st = [s_], [], []
+            odhad = {s_: ud.zivot(O[s_])}
             for _ in range(1, k_gens):
-                vrstva = [x for q in vrstva for x in (people[q].get("father"), people[q].get("mother")) if x in people]
-                if not vrstva:
+                dalsi = {}
+                for q in vrstva:
+                    for x in (people[q].get("father"), people[q].get("mother")):
+                        if x in people:
+                            dalsi[x] = dalsi.get(x) or ud.zivot(O[x]) or ud.zivot_z_ditete(odhad.get(q))
+                if not dalsi:
                     break
-                skup = [O[x] for x in dict.fromkeys(vrstva)]
-                out.append([e["id"] for e in ud.svet_kolem(skup, osa_ud, mista_ud)])
-                out_st.append(ud.staty_skupiny(skup, staty_ud, mista_ud))
+                vrstva, odhad = list(dalsi), dalsi
+                skup, zivoty = [O[x] for x in vrstva], [dalsi[x] for x in vrstva]
+                ids = [e["id"] for e in ud.svet_kolem(skup, osa_ud, mista_ud, zivoty=zivoty)]
+                event_ids.update(ids)
+                out.append(ids)
+                out_st.append(ud.staty_skupiny(skup, staty_ud, mista_ud, zivoty=zivoty))
             p["svet"] = out
             p["svetStaty"] = out_st
     events = [ud.pro_web(e) for e in osa_ud if e["id"] in event_ids]

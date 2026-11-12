@@ -20,7 +20,9 @@ leží ve dvou zemích – Vysočina, Moravskoslezský, okres Svitavy – odhadn
 události nefiltrují.
 
 Osoba: život = rok narození až rok úmrtí (z faktů * a †, jinak z pole y). Když úmrtí chybí, bere se
-narození + 80 let, nejvýš letošní rok (žijící). Když chybí narození, bere se úmrtí − 80. Věk je
+narození + 80 let, nejvýš letošní rok (žijící). Když chybí narození, bere se úmrtí − 80 (i z y „† před 1880“).
+Předek bez jakéhokoli roku dostane v knize („Svět kolem“) odhad podle dítěte: narození o 30 let dřív
+(zivot_z_ditete). Věk je
 rok začátku události − rok narození (u události začaté před narozením 0). Místo osoby: první bydliště
 (bydliste[0].obec), jinak místo narození, které se najde podle regulárního výrazu "re" v mista.json.
 
@@ -52,6 +54,7 @@ KRAJE = {"Jihomoravský": "morava", "Zlínský": "morava", "Olomoucký": "morava
          "Pardubický": "cechy"}
 NEJASNE_OKRESY = ("Svitavy",)   # okres v kraji jedné země, ale částečně v druhé
 DOZITI = 80
+GENERACE = 30   # odhad: rodič bez vlastních roků se narodil o tolik let dřív než dítě (zivot_z_ditete)
 
 
 def _json(path):
@@ -123,9 +126,11 @@ def _rok_faktu(p, znak):
 def zivot(p, dnes=None):
     """(narození, úmrtí, odhad_úmrtí) v letech. Fallback viz docstring modulu; None, když nejde určit nic."""
     dnes = dnes or datetime.date.today().year
-    roky = [int(x) for x in re.findall(r"\b(1[5-9]\d\d|20\d\d)\b", p.get("y", ""))]
-    nar = _rok_faktu(p, "*") or (roky[0] if roky and not p.get("y", "").strip().startswith("†") else None)
-    umr = _rok_faktu(p, "†") or (roky[1] if len(roky) > 1 else None)
+    y = p.get("y", "").strip()
+    roky = [int(x) for x in re.findall(r"\b(1[5-9]\d\d|20\d\d)\b", y)]
+    nar = _rok_faktu(p, "*") or (roky[0] if roky and not y.startswith("†") else None)
+    # „† před 1880“ / „† 1880“: jediný rok za křížkem je úmrtí (dřív se zahodil a osoba neměla život)
+    umr = _rok_faktu(p, "†") or (roky[1] if len(roky) > 1 else roky[0] if roky and y.startswith("†") else None)
     if nar and umr:
         return nar, umr, False
     if nar:
@@ -133,6 +138,16 @@ def zivot(p, dnes=None):
     if umr:
         return umr - DOZITI, umr, True
     return None
+
+
+def zivot_z_ditete(z_dite, dnes=None):
+    """Odhad života rodiče, který nemá vlastní roky, podle života dítěte (zivot nebo tento odhad): narození
+    o GENERACE let dřív, úmrtí jako u zivot. Jen pro kontext („Svět kolem“ v knize), ne fakt; None bez dítěte."""
+    if not z_dite:
+        return None
+    dnes = dnes or datetime.date.today().year
+    nar = z_dite[0] - GENERACE
+    return nar, min(nar + DOZITI, dnes), True
 
 
 def misto_osoby(p, mista):
@@ -184,21 +199,22 @@ def nejvyznamnejsi(kand, n=5, na_kategorii=2):
     return sorted(vyber, key=lambda e: (e["od"], e["id"]))
 
 
-def kontext_osob(osoby, osa, mista, dnes=None):
-    """Události, které se překrývají se životem aspoň jedné osoby (místně vázané jen pro místo té osoby)."""
+def kontext_osob(osoby, osa, mista, dnes=None, zivoty=None):
+    """Události, které se překrývají se životem aspoň jedné osoby (místně vázané jen pro místo té osoby).
+    zivoty = volitelný seznam náhradních životů (pořadí jako osoby, např. zivot_z_ditete) pro osoby bez vlastních roků."""
     ids = set()
-    for p in osoby:
-        z = zivot(p, dnes)
+    for j, p in enumerate(osoby):
+        z = zivot(p, dnes) or (zivoty[j] if zivoty else None)
         if z:
             ids.update(e["id"] for e in v_rozsahu(osa, z[0], z[1], misto_osoby(p, mista), mista))
     return [e for e in osa if e["id"] in ids]
 
 
-def svet_kolem(osoby, osa, mista, n=5, minimum=3, dnes=None):
+def svet_kolem(osoby, osa, mista, n=5, minimum=3, dnes=None, zivoty=None):
     """Box „Svět kolem“ v knize: nejvýznamnější události za životů skupiny osob (generace), chronologicky.
-    Kandidáti = kontext_osob, výběr = nejvyznamnejsi. Když limit na kategorii nechá méně než `minimum`
+    Kandidáti = kontext_osob (zivoty viz tam), výběr = nejvyznamnejsi. Když limit na kategorii nechá méně než `minimum`
     a kandidátů je víc, doplní se bez limitu na kategorii; [] = box vynechat."""
-    kand = kontext_osob(osoby, osa, mista, dnes)
+    kand = kontext_osob(osoby, osa, mista, dnes, zivoty)
     vyber = nejvyznamnejsi(kand, n)
     if len(vyber) < minimum and len(kand) > len(vyber):
         vyber = nejvyznamnejsi(kand, minimum, na_kategorii=minimum)
@@ -255,10 +271,10 @@ def _bydliste_useky(p, mista, nar, umr):
     return useky
 
 
-def staty_osoby(p, staty, mista, dnes=None):
+def staty_osoby(p, staty, mista, dnes=None, z=None):
     """Státy za života osoby podle všech jejích bydlišť (jinak podle místa narození): [{od, do, stat, zeme, misto}],
-    chronologicky, stejný stát po sobě sloučený. [] když život nejde určit."""
-    z = zivot(p, dnes)
+    chronologicky, stejný stát po sobě sloučený. z = náhradní život, když osoba nemá vlastní roky. [] když život nejde určit."""
+    z = zivot(p, dnes) or z
     if not z:
         return []
     nar, umr, _ = z
@@ -282,9 +298,11 @@ def stat_pro_web(u, nar=None):
     return d
 
 
-def staty_skupiny(osoby, staty, mista, dnes=None):
-    """Názvy států za životů skupiny osob (generace v knize), chronologicky podle prvního výskytu, bez opakování."""
-    vse = sorted((u for p in osoby for u in staty_osoby(p, staty, mista, dnes)), key=lambda u: u["od"])
+def staty_skupiny(osoby, staty, mista, dnes=None, zivoty=None):
+    """Názvy států za životů skupiny osob (generace v knize), chronologicky podle prvního výskytu, bez opakování.
+    zivoty jako u kontext_osob."""
+    vse = sorted((u for j, p in enumerate(osoby) for u in staty_osoby(p, staty, mista, dnes, zivoty[j] if zivoty else None)),
+                 key=lambda u: u["od"])
     return list(dict.fromkeys(u["stat"]["nazev"] for u in vse))
 
 
