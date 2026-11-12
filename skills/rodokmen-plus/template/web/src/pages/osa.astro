@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import OsaSwitch from '../components/OsaSwitch.astro';
 import { people, lines, events } from '../lib/data.js';
 import { layout, bar, SORTS, NOW, EV_LANE } from '../lib/osa.js';
 import { navaznost } from '../lib/navaznost.js';
@@ -26,6 +27,7 @@ const title = (r) => `${r.name} ${r.years || ''} – narození: ${evidence[r.b.q
 ---
 <Base title="Časová osa" wider>
   <h1>Časová osa</h1>
+  <OsaSwitch current="vsichni" />
   <p class="lead">Každý člověk je jeden pruh od narození do úmrtí, v barvě svého rodu. Rozostřený konec znamená, že rok známe jen přibližně; pruh, který se rozplývá, znamená, že úmrtí zatím neznáme. V pozadí jsou velké dějinné události, které naše předky zasáhly. Šedé pásy nahoře jsou historický kontext – co se v zemi dělo za jejich životů; nejsou to údaje o konkrétních lidech.</p>
   <div class="osa-ctrl" data-osa-ctrl>
     <label>Řadit <select name="sort">{Object.entries(SORTS).map(([k, v]) => <option value={k}>{v}</option>)}</select></label>

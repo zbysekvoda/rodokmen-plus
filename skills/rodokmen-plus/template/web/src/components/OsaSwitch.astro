@@ -1,0 +1,6 @@
+---
+// Přepínač Časové osy: Všichni (/osa/) / Přímí předci s vazbami (/osa-vazby/).
+const { current = 'vsichni' } = Astro.props;
+const items = [['vsichni', 'Všichni', '/osa/'], ['vazby', 'Přímí předci s vazbami', '/osa-vazby/']];
+---
+<nav class="view-switch-wrap" aria-label="Časová osa"><span class="view-switch">{items.map(([k, label, url]) => <a href={url} aria-current={k === current ? 'page' : undefined}>{label}</a>)}</span></nav>
