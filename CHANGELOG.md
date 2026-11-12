@@ -1,5 +1,12 @@
 # Changelog
 
+## Nevydáno
+
+### Změněno
+- Web: `/strom-cely/` se otevře vycentrovaný na kořen (nebo osobu z `?o=`) se zoomem, při kterém jsou vidět rodiče
+  a prarodiče. Výchozí pohled kreslí kořen a 3 generace předků (na mobilu 2), protože v plné hloubce leží rodiče
+  tisíce px od sebe. Plnou hloubku ukáže tlačítko „Všechny generace“ (`#cele`), tlačítko „Na kořen“ vrátí výchozí pohled.
+
 ## 0.13.0
 
 ### Přidáno

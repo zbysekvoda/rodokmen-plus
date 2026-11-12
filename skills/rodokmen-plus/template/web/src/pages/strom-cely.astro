@@ -31,6 +31,8 @@ const lineList = tree.lines;
       <button type="button" data-z="1.25" aria-label="Přiblížit">+</button>
       <button type="button" data-z="0.8" aria-label="Oddálit">−</button>
       <button type="button" data-z="0">100 %</button>
+      <button type="button" class="tree-home" aria-label="Výchozí pohled na kořen">Na kořen</button>
+      <button type="button" class="tree-all">Všechny generace</button>
     </span>
     <span class="small muted fan-hint">Nejstarší předci nahoře, potomci pod nimi. Klepnutím na jméno strom přecentrujete na tuto osobu, šipkou → otevřete její stránku. Šedě sourozenci a příbuzní mimo přímou linii. Podobně <a href="/vejir/">vějíř</a> a <a href="/predci/">seznam předků</a>.</span>
     <span class="tree-legend small"><span class="chip st-doc">doloženo</span> <span class="chip st-prob">pravděpodobné</span> <span class="chip st-fam">od rodiny / z literatury</span> <span class="chip st-mh">MyHeritage</span></span>
@@ -48,6 +50,7 @@ const lineList = tree.lines;
     const W = 176, H = 92, GX = 14, GY = 46;
     const esc = (t: string) => t.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
     let scale = 1;
+    let laid: { nodes: { slug: string; row: number; focus?: boolean }[]; pos: { x: number; y: number }[]; anc: Map<number, number[]> } | null = null;
 
     /** Rozložení: předci nahoru (listy zleva doprava, rodič nad středem svých rodičů), potomci dolů s manželi vedle. */
     function render(focus: string, up: number, down: number, title: string) {
@@ -65,6 +68,7 @@ const lineList = tree.lines;
         return me;
       };
       const f = anc(focus, 0);
+      const parentsOf = new Map(edges.map(([c, a, b]) => [c, b >= 0 ? [a, b] : [a]]));
       nodes[f].focus = true;
       // manžel(ka) a potomci pod fokusem
       const desc = (idx: number, depth: number) => {
@@ -113,7 +117,42 @@ const lineList = tree.lines;
             <span class="tree-y">${esc(p.y || '')}</span>${sib}</div>`;
         }).join('');
       document.querySelector('.tree-bar strong')!.textContent = title;
+      laid = { nodes, pos, anc: parentsOf };
     }
+
+    /** Výchozí pohled: fokus vodorovně uprostřed, nad ním rodiče a prarodiče (3 generace na šířku),
+     *  když by to vyžadovalo nečitelný zoom, tak jen rodiče. */
+    function home() {
+      if (!laid) return;
+      const { nodes, pos, anc } = laid;
+      const f = nodes.findIndex((n) => n.focus);
+      const sw = stage.clientWidth, sh = stage.clientHeight, pad = 24;
+      const minRead = sw < 600 ? 0.55 : 0.5;
+      let gen = [f], box = [f];
+      const fits: { s: number; box: number[] }[] = [];
+      for (let g = 0; g < 2; g++) {
+        gen = gen.flatMap((i) => anc.get(i) ?? []);
+        if (!gen.length) break;
+        box = box.concat(gen);
+        const xs = box.map((i) => pos[i].x), ys = box.map((i) => pos[i].y);
+        const fx = pos[f].x + W / 2;
+        const half = Math.max(...xs.map((x) => Math.max(Math.abs(x - fx), Math.abs(x + W - fx))));
+        const s = Math.min(1, (sw - 2 * pad) / (2 * half), (sh - 2 * pad) / (Math.max(...ys) + H - Math.min(...ys)));
+        fits.push({ s, box: [...box] });
+      }
+      const pickFit = [...fits].reverse().find((x) => x.s >= minRead) ?? fits[0];
+      scale = pickFit ? Math.max(0.3, Math.min(1, pickFit.s)) : (sw < 600 ? 0.7 : 1);
+      canvas.style.zoom = String(scale);
+      const ys = (pickFit?.box ?? [f]).map((i) => pos[i].y);
+      const top = Math.min(...ys), bottom = Math.max(...ys) + H;
+      stage.scrollTo({
+        left: (pos[f].x + W / 2) * scale - sw / 2,
+        top: ((top + bottom) / 2) * scale - sh / 2,
+      });
+    }
+
+    /** Kolik generací předků kreslit kolem osoby: na mobilu 2, jinak by se rodiče rozjeli mimo čitelný zoom. */
+    const upDefault = () => (stage.clientWidth < 600 ? 2 : 3);
 
     function show() {
       const o = new URLSearchParams(location.search).get('o');
@@ -127,21 +166,33 @@ const lineList = tree.lines;
         render(line.root, 99, 99, `Rod ${line.name}`);
         pick.value = h;
       } else if (h !== 'vse' && P[h]) {
-        render(h, 3, 3, `Strom: ${P[h].n}`);
+        render(h, upDefault(), 3, `Strom: ${P[h].n}`);
         pick.value = '';
-      } else {
+      } else if (h === 'cele') {
         render(data.root, 99, 0, 'Celý rodokmen');
         pick.value = 'vse';
+      } else {
+        // výchozí pohled: kořen a 3 generace předků (celý strom je široký tisíce px, rodiče by byli daleko od sebe)
+        const up = upDefault();
+        render(data.root, up, 0, `Rodokmen – ${up} generace předků`);
+        pick.value = 'vse';
       }
-      const f = canvas.querySelector<HTMLElement>('.is-focus');
-      if (f) stage.scrollTo({ left: f.offsetLeft * scale - stage.clientWidth / 2 + W / 2, top: f.offsetTop * scale - stage.clientHeight / 2 });
+      allBtn.hidden = h !== 'vse' || !!(o && P[o]);
+      home();
     }
-    pick.addEventListener('change', () => { location.hash = pick.value; });
+    document.querySelector('.tree-home')!.addEventListener('click', () => {
+      // zpět na výchozí osobu (kořen, nebo ?o=) a její výchozí pohled
+      if (location.hash) history.pushState(null, '', location.pathname + location.search);
+      show();
+    });
+    const allBtn = document.querySelector<HTMLButtonElement>('.tree-all')!;
+    allBtn.addEventListener('click', () => { location.hash = 'cele'; });
+    pick.addEventListener('change', () => { location.hash = pick.value === 'vse' ? 'cele' : pick.value; });
     canvas.addEventListener('click', (e) => {
       const b = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-slug]');
       if (b) location.hash = b.dataset.slug!;
     });
-    document.querySelectorAll<HTMLButtonElement>('.tree-bar .fan-btns button').forEach((b) => b.addEventListener('click', () => {
+    document.querySelectorAll<HTMLButtonElement>('.tree-bar .fan-btns button[data-z]').forEach((b) => b.addEventListener('click', () => {
       const z = Number(b.dataset.z);
       scale = z ? Math.min(2, Math.max(0.3, scale * z)) : 1;
       canvas.style.zoom = String(scale);
@@ -173,7 +224,6 @@ const lineList = tree.lines;
       stage.scrollTop = py * scale - (e.clientY - r.top);
     }, { passive: false });
     window.addEventListener('hashchange', show);
-    if (window.innerWidth < 600) { scale = 0.7; canvas.style.zoom = String(scale); }
     show();
   </script>
 </Base>
