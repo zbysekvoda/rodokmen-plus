@@ -6,32 +6,53 @@ import { people, byK, lineByK, root, statusClass, genName, href } from '../lib/d
 const anc = Object.values(people).filter((p) => p.k);
 const gen = (k) => Math.floor(Math.log2(k));
 const maxGen = Math.max(...anc.map((p) => gen(p.k)));
-const laneOf = (k) => k >> (gen(k) - 2);
-const lanes = [4, 5, 6, 7].map((k) => {
+// Pás = podstrom předka v generaci `level`. Prázdné pásy (nikdo doložený) skryjeme; když zbydou méně než
+// dva, rozpadneme pásy o generaci výš, aby pohled dával smysl i s kořenem doloženým jen z jedné strany.
+const inLane = (p, k) => gen(p.k) >= gen(k) && p.k >> (gen(p.k) - gen(k)) === k;
+const filled = (k) => anc.some((p) => inLane(p, k));
+let level = 2;
+let keys = [4, 5, 6, 7].filter(filled);
+while (keys.length < 2 && level < maxGen) {
+  const next = keys.flatMap((k) => [2 * k, 2 * k + 1]).filter(filled);
+  if (next.length <= keys.length) break;
+  keys = next;
+  level++;
+}
+const missing = [4, 5, 6, 7].filter((k) => !filled(k));
+const lanes = keys.map((k) => {
   const gp = byK[k];
-  // rod pásu = nejčastější rod mezi předky v pásu (prarodiče sami rod často nemají)
+  // rod pásu = nejčastější rod mezi předky v pásu (předek v čele pásu sám rod často nemá)
   const counts = {};
-  for (const p of anc) if (p.k >= 4 && laneOf(p.k) === k && p.line && lineByK[p.line]) counts[p.line] = (counts[p.line] ?? 0) + 1;
+  for (const p of anc) if (inLane(p, k) && p.line && lineByK[p.line]) counts[p.line] = (counts[p.line] ?? 0) + 1;
   const best = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
   const line = best ? lineByK[best[0]] : null;
   return { k, gp, name: line?.name ?? gp?.name ?? 'neznámý rod', color: line?.color ?? 'var(--line-ostatni)', slug: line?.slug };
 });
 const rows = [];
-for (let g = maxGen; g >= 2; g--) {
-  rows.push({ g, cells: lanes.map((l) => anc.filter((p) => gen(p.k) === g && laneOf(p.k) === l.k).sort((a, b) => a.k - b.k)) });
+for (let g = maxGen; g >= level; g--) {
+  const cells = lanes.map((l) => anc.filter((p) => gen(p.k) === g && inLane(p, l.k)).sort((a, b) => a.k - b.k));
+  if (cells.some((c) => c.length)) rows.push({ g, cells });
 }
-const parents = [byK[2], byK[3]].filter(Boolean);
+// pod pásy: generace mezi čelem pásů a kořenem (rodiče, případně prarodiče), jen doložení
+const base = [];
+for (let g = level - 1; g >= 1; g--) {
+  const ps = anc.filter((p) => gen(p.k) === g).sort((a, b) => a.k - b.k);
+  if (ps.length) base.push({ g, ps });
+}
+const missingText = missing.map((k) => (k < 6 ? 'otcova ' : 'matčina ') + (k % 2 ? 'babičky' : 'dědečka')).join(', ');
+const n = lanes.length;
 ---
-<Base title="Rodové pásy" wider>
+<Base title="Pásy rodů" wider>
   <div class="gen-head">
-    <h1>Rody prarodičů</h1>
+    <h1>Pásy rodů</h1>
     <ViewSwitch current="pasy" />
   </div>
-  <p class="lead">Každý pás je rod jednoho z prarodičů. Nejstarší předci nahoře, dole se rody sbíhají přes rodiče v jednu osobu.</p>
-  <div class="pasy-tabs only-mobile" role="tablist" aria-label="Rod">
+  <p class="lead">Každý pás je rod jednoho z {level === 2 ? 'prarodičů' : level === 3 ? 'praprarodičů' : `předků v ${level}. generaci`}. Nejstarší předci nahoře, dole se rody sbíhají v jednu osobu.</p>
+  {missing.length > 0 && <p class="small muted pasy-chybi">{missing.length > 1 ? 'Rody' : 'Rod'} {missingText} zatím nemáme {missing.length > 1 ? 'doložené' : 'doložený'} – <a href="/hledame/">co hledáme</a>.</p>}
+  <div class="pasy-tabs only-mobile" style={`--n:${n}`} role="tablist" aria-label="Rod">
     {lanes.map((l, i) => <button type="button" role="tab" aria-selected={i === 0 ? 'true' : 'false'} data-lane={i} style={`--c:${l.color}`}>{l.name}</button>)}
   </div>
-  <div class="pasy" data-active="0">
+  <div class="pasy" data-active="0" style={`--n:${n}`}>
     <div class="pasy-row pasy-heads">
       <div class="pasy-gen"></div>
       {lanes.map((l, i) => (
@@ -51,10 +72,12 @@ const parents = [byK[2], byK[3]].filter(Boolean);
       </div>
     ))}
   </div>
-  <div class="pasy-base">
-    <span class="pasy-gen">Rodiče</span>
-    {parents.map((p) => <a class="pasy-p" href={href.person(p.slug)}><strong>{p.name}</strong><span class="small muted">{p.years}</span></a>)}
-  </div>
+  {base.map((b) => (
+    <div class="pasy-base" style={`--m:${b.ps.length}`}>
+      <span class="pasy-gen">{genName(b.g)}</span>
+      {b.ps.map((p) => <a class="pasy-p" href={href.person(p.slug)}><strong>{p.name}</strong><span class="small muted">{p.years}</span></a>)}
+    </div>
+  ))}
   <p class="pasy-me"><a class="btn" href={href.person(root.slug)}>{root.name}{root.years && ` · ${root.years}`}</a></p>
   <script>
     const wrap = document.querySelector<HTMLElement>('.pasy')!;

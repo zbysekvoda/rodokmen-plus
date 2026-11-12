@@ -9,6 +9,9 @@
   upřesněné texty k Vratislavskému míru (1742) a připojení Zaolzí k Říši (1939).
 
 ### Změněno
+- Web: pohled Rody u Stromu se jmenuje „Pásy rodů“ (přepínač i nadpis `/pasy/`). Prázdné sloupce prarodičů
+  a prázdné řádky generací se nevykreslují, chybějící rody nahradí věta s odkazem na Co hledáme; když zbydou
+  méně než dva pásy (kořen doložený jen z jedné strany), pásy se rozpadnou o generaci výš.
 - Web: přepínač pohledů u Stromu (`ViewSwitch.astro`) ukazuje jen hlavní pohledy – Generace, Rody, Vějíř, Celý strom
   a Seznam předků (dřív „Předci“); Vějíř v čase a Řeka času jsou schované pod „Další pohledy ▾“ (adresy beze změny,
   aktivní pohled se zvýrazní i v rozbalovací nabídce).
