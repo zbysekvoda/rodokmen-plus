@@ -15,7 +15,7 @@ def setUpModule():
     _tmp = tempfile.mkdtemp()
     os.makedirs(os.path.join(_tmp, "tools")); os.makedirs(os.path.join(_tmp, "data"))
     open(os.path.join(_tmp, "data", "STAV.md"), "w").close()
-    for f in ("kontrola.py", "kontrola_domy.py", "udalosti.json"):
+    for f in ("kontrola.py", "kontrola_domy.py", "dolozeni.py", "udalosti.json"):
         shutil.copy(os.path.join(TOOLS, f), os.path.join(_tmp, "tools", f))
     sys.path.insert(0, os.path.join(_tmp, "tools"))
     for m in ("kontrola", "kontrola_domy"):

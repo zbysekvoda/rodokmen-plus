@@ -912,10 +912,23 @@ def main():
         return kanon.get(w, w)
     surnames = {s: r for s, p in people.items() if not p["alive"] and (r := rod_of(p["name"]))}
 
+
+    # stránka „Stojí za ověření“: věcné kontroly kontrola.py (vecne_polozky) jako výzvy k ověření v pramenu;
+    # položka se žijící osobou nebo osobou bez stránky na web nejde
+    overeni = []
+    try:
+        import kontrola
+        rec_keys = {r["key"] for r in records}
+        for x in kontrola.vecne_polozky(g, O, jload("zaznamy.json", []), jload("prepisy.json", {})):
+            if all(i in people and not people[i].get("alive") for i in x["osoby"]):
+                overeni.append(dict(typ=x["typ"], chyba=x["zavaznost"] == "chyba", osoby=x["osoby"], text=x["vyzva"],
+                                    zapisy=[r for r in x["zapisy"] if r in rec_keys]))
+    except (Exception, SystemExit) as e:  # noqa: BLE001 – kontrola nesmí shodit export webu
+        print(f"POZOR: věcné kontroly pro stránku Stojí za ověření selhaly: {e}")
     site = dict(config=public_cfg, surnames=surnames, events=events, places=places, houses=houses, root=root_id, roots=[dict(key=key, id=i, name=O[i]["n"]) for key, i in g.koreny.items() if i in people],
                 aliases={a: kslug[a] for a in SAME if a in kslug}, people=people,
                 families=families, records=records, lines=lines, milestones=jload("milniky.json", []),
-                villages=villages, issues=issues, stats=stats, hypotheses=hypotheses,
+                villages=villages, issues=issues, stats=stats, hypotheses=hypotheses, overeni=overeni,
                 docs=[dict(img=d["img"], caption=d["popis"], people=doc_people(d), stories=doc_stories(d))
                       for d in plain_docs if os.path.exists(os.path.join(VYREZY, d["img"] + ".jpg"))])
 
