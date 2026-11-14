@@ -12,6 +12,9 @@
 - Rozcestník `/pribehy/`: rok z nadpisu („… (1858)“) se u karty krátkého příběhu ukáže nad titulkem (`kratkePribehy[].rok`).
 
 ### Opraveno
+- Web: Celý strom (`#cele`, rody, kořeny) je v plné hloubce o polovinu užší. Předci se skládají kompaktně
+  (Reingold–Tilford kontury) a v hustých generacích stojí sousední boxy cik-cak ve dvou výškách.
+  V ukázce jsou rodiče kořene 3 938 px od sebe místo 8 497 px. Výchozí pohled na 3 generace se nemění.
 - `staty.json`: revize dat a zdrojů – Slezsko v Rakouském císařství jako „Rakouské Slezsko (od 1849 Vévodství Horní
   a Dolní Slezsko)“, neexistující citace u ČSSR nahrazena ústavním zákonem č. 100/1960 Sb., u ČSFR doplněn zákon
   č. 101/1990 Sb. a mezidobí „Československá federativní republika“, opravený titul Plačkových *Prajzáků*,
