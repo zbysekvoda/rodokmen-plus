@@ -56,18 +56,37 @@ const lineList = tree.lines;
     function render(focus: string, up: number, down: number, title: string) {
       const nodes: { slug: string; col: number; row: number; focus?: boolean }[] = [];
       const edges: [number, number, number][] = []; // [child, parentA, parentB|-1]
-      let cursor = 0;
-      const anc = (slug: string, row: number): number => {
+      // Kompaktní rozložení (Reingold–Tilford): podstrom otce a matky se přisunou k sobě na nejmenší
+      // vzdálenost, při které se na žádné úrovni nepřekrývají (kontura = min/max sloupec po řádcích).
+      // V plné hloubce stačí mezi podstromy půl kroku (kromě rodičů fokusu) – takové sousedy pak kreslíme
+      // cik-cak ve dvou výškách. Malý pohled na pár generací zůstává v jedné řadě.
+      const HALF = up > 3 ? 0.5 : 1;
+      type Sub = { me: number; ids: number[]; l: number[]; r: number[] };
+      const anc = (slug: string, row: number): Sub => {
         const p = P[slug];
-        const ids: number[] = [];
-        if (row > -up) for (const par of [p.f, p.m]) if (par && P[par]) ids.push(anc(par, row - 1));
-        const col = ids.length ? ids.reduce((a, i) => a + nodes[i].col, 0) / ids.length : cursor++;
+        const subs: Sub[] = [];
+        if (row > -up) for (const par of [p.f, p.m]) if (par && P[par]) subs.push(anc(par, row - 1));
+        if (subs.length === 2) {
+          const [a, b] = subs;
+          let shift = -Infinity;
+          for (let d = 0; d < Math.min(a.r.length, b.l.length); d++) shift = Math.max(shift, a.r[d] - b.l[d] + (d === 0 && row < -1 ? HALF : d === 0 ? 1 : HALF));
+          for (const i of b.ids) nodes[i].col += shift;
+          b.l = b.l.map((v) => v + shift); b.r = b.r.map((v) => v + shift);
+        }
+        const col = subs.length ? subs.reduce((s, x) => s + nodes[x.me].col, 0) / subs.length : 0;
         nodes.push({ slug, col, row });
         const me = nodes.length - 1;
-        if (ids.length) edges.push([me, ids[0], ids[1] ?? -1]);
-        return me;
+        if (subs.length) edges.push([me, subs[0].me, subs[1]?.me ?? -1]);
+        const depth = Math.max(0, ...subs.map((x) => x.l.length));
+        const l = [col], r = [col];
+        for (let d = 0; d < depth; d++) {
+          const ls = subs.filter((x) => d < x.l.length);
+          l.push(Math.min(...ls.map((x) => x.l[d])));
+          r.push(Math.max(...ls.map((x) => x.r[d])));
+        }
+        return { me, ids: subs.flatMap((x) => x.ids).concat(me), l, r };
       };
-      const f = anc(focus, 0);
+      const f = anc(focus, 0).me;
       const parentsOf = new Map(edges.map(([c, a, b]) => [c, b >= 0 ? [a, b] : [a]]));
       nodes[f].focus = true;
       // manžel(ka) a potomci pod fokusem
@@ -90,12 +109,26 @@ const lineList = tree.lines;
       };
       desc(f, 0);
       const minC = Math.min(...nodes.map((n) => n.col)), minR = Math.min(...nodes.map((n) => n.row));
-      const pos = nodes.map((n) => ({ x: (n.col - minC) * (W + GX) + 20, y: (n.row - minR) * (H + GY) + 20 }));
+      // cik-cak: v řádku seřazeném zleva sousedé blíž než celý krok střídají horní a spodní pozici
+      const sub = nodes.map(() => 0);
+      const rows = new Map<number, number[]>();
+      nodes.forEach((n, i) => rows.set(n.row, [...(rows.get(n.row) ?? []), i]));
+      const tall = new Set<number>();
+      for (const [row, ids] of rows) {
+        ids.sort((a, b) => nodes[a].col - nodes[b].col);
+        for (let k = 1; k < ids.length; k++) {
+          if (nodes[ids[k]].col - nodes[ids[k - 1]].col < 1 - 1e-6) { sub[ids[k]] = 1 - sub[ids[k - 1]]; tall.add(row); }
+        }
+      }
+      const rowY = new Map<number, number>();
+      let yAcc = 20;
+      for (let r = minR, maxR = Math.max(...nodes.map((n) => n.row)); r <= maxR; r++) { rowY.set(r, yAcc); yAcc += (tall.has(r) ? 2 * H + GY / 2 : H) + GY; }
+      const pos = nodes.map((n, i) => ({ x: (n.col - minC) * (W + GX) + 20, y: rowY.get(n.row)! + sub[i] * (H + GY / 2), ry: rowY.get(n.row)! }));
       const width = Math.max(...pos.map((p) => p.x)) + W + 20, height = Math.max(...pos.map((p) => p.y)) + H + 20;
       const lines = edges.map(([c, a, b]) => {
         const ch = pos[c], pa = pos[a], pb = b >= 0 ? pos[b] : null;
         const cx = ch.x + W / 2, top = ch.y;
-        const midY = top - GY / 2;
+        const midY = ch.ry - GY / 2; // nad horní pozicí řádku, i když je dítě v cik-caku dole
         const parents = pb ? [pa, pb] : [pa];
         const bottom = Math.max(...parents.map((q) => q.y + H));
         const sameRow = pb && pa.y === pb.y && pa.y + H > ch.y - GY; // manželé vedle sebe (potomci)
@@ -172,7 +205,7 @@ const lineList = tree.lines;
         render(data.root, 99, 0, 'Celý rodokmen');
         pick.value = 'vse';
       } else {
-        // výchozí pohled: kořen a 3 generace předků (celý strom je široký tisíce px, rodiče by byli daleko od sebe)
+        // výchozí pohled: kořen a 3 generace předků
         const up = upDefault();
         render(data.root, up, 0, `Rodokmen – ${up} generace předků`);
         pick.value = 'vse';

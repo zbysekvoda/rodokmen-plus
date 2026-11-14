@@ -175,7 +175,8 @@ Podrobně `reference/matriky.md`, portály `reference/portaly.md`.
    když už byl jednou stažen – i v jiném projektu) a **přečti ho sám** v plném
    rozlišení. Vybledlé nebo skvrnité místo → `python3 -I tools/vylepsi_snimek.py pracovni/<stránka>.jpg [x0,y0,x1,y1]`
    a čti ze všech variant (v přepisu poznamenej ze které). Nečitelné místo obce či příjmení → skill `ztotozneni-mist` a slovníky `data/mista_nazvy.json`,
-   `data/prijmeni_varianty.json`.
+   `data/prijmeni_varianty.json`. Volitelně druhý názor jiného modelu: `python3 -I tools/cteni_ai.py <klíč>`
+   (jen s klíčem OpenRouteru uživatele, jinak se krok vynechá; výsledek je kandidát k ověření, `reference/matriky.md`).
 6. **Zapiš nález** (vždy všech 6 kroků):
    1. svazek do `data/svazky.json` (`aron_img.py <apu> svazek`, `trebon.py svazek`, jinak `zapis.py svazky …`),
    2. zápis do `data/zaznamy.json` přes `tools/zapis.py` (klíč popisný, např. `n-horni-lhota-1820-jan`),
@@ -384,6 +385,7 @@ Vždy **projektovou kopii**, nikdy `SKILL_DIR/tools/` (zapisovala by do skillu; 
 | `ged_export.py [vystup.ged]` | graf osob → GEDCOM 5.5.1 (osoby, narození/úmrtí/sňatky, rodiny FAM, zdroje) pro jiné programy |
 | `prosle_knihy.py [příjmení]` | přehled prošlých knih ze `svazky.json`, `zaznamy.json` a deníku – podívej se před čtením knihy |
 | `vyrez.py`, `ramecek.py`, `overit.py` | výřez, rámeček čteného místa, ověření čtení na dvou polovinách |
+| `cteni_ai.py <klíč> [--model gemini\|fable]` | volitelné strojové čtení výřezu přes OpenRouter (klíč uživatele); jen do `pracovni/cteni_ai/`, převzatý přepis nese `"stroj"` a `kontrola.py` ho hlásí k ověření |
 | `vylepsi_snimek.py` | špatně čitelný snímek → varianty vedle sebe (kontrast, CLAHE, odečtené pozadí, kanál) |
 | `zapis.py <soubor> <klíč> <vstup.json> [--sloucit]` | změna jedné položky v JSON datech beze změny formátu |
 | `mista.py [pridej / znovu]`, `mista_domy.py ruian / okoli / hledej / pridej` | obce a domy (čp. z faktů osob) na mapu – Mapy.com s `MAPY_API_KEY` v prostředí (např. načtený z Keychainu, nikdy do chatu ani commitu), bez klíče fallback OSM Nominatim + RÚIAN, varuje na místa bez souřadnic; dům v RÚIAN (obec, parcela, k. ú., poloha) |

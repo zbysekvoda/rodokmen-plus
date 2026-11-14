@@ -88,7 +88,7 @@ OSOBY = {
     "karolina-peskova-1847": dict(n="Karolína Pešková", sex="F", y="1847–1920", st="doc", f=["* 27. 7. 1847 Heřmanův Městec čp. 93", "× 14. 4. 1867 Heřmanův Městec Karel Dvořák", "† 20. 3. 1920 Chrudim"], r=["hermanuv_mestec_snatek_karel_dvorak_karolina_peskova_1867"]),  # č. 49
     "jan-bartos-1838": dict(n="Jan Bartoš", sex="M", y="1838–1902", st="doc", f=["* 27. 12. 1838 Hlinsko čp. 53", "zedník", "× 3. 10. 1867 Heřmanův Městec Karolína Novotná", "† 27. 6. 1902 Hlinsko"], r=["hermanuv_mestec_snatek_jan_bartos_karolina_novotna_1867"]),  # č. 50
     "karolina-novotna-1840": dict(n="Karolína Novotná", sex="F", y="1840–1895", st="doc", f=["* 9. 1. 1840 Heřmanův Městec čp. 112", "× 3. 10. 1867 Heřmanův Městec Jan Bartoš", "† 19. 1. 1895 Hlinsko"], r=["hermanuv_mestec_snatek_jan_bartos_karolina_novotna_1867"]),  # č. 51
-    "vincenc-kucera-1831": dict(n="Vincenc Kučera", sex="M", y="1831–1913", st="doc", f=["* 10. 7. 1831 Slatiňany čp. 5", "mlynář", "× 22. 12. 1864 Třemošnice Karolína Horáková", "† 19. 2. 1913 Slatiňany"], r=["tremosnice_snatek_vincenc_kucera_karolina_horakova_1864"]),  # č. 52
+    "vincenc-kucera-1831": dict(n="Vincenc Kučera", sex="M", y="1831–1864", st="doc", note="Rok úmrtí podle rodinného podání – syn Josef se ale narodil až 1866; ověřit v matrice zemřelých.", f=["* 10. 7. 1831 Slatiňany čp. 5", "mlynář", "× 22. 12. 1864 Třemošnice Karolína Horáková", "† 1864 Slatiňany"], r=["tremosnice_snatek_vincenc_kucera_karolina_horakova_1864"]),  # č. 52
     "karolina-horakova-1838": dict(n="Karolína Horáková", sex="F", y="1838–1905", st="doc", f=["* 9. 8. 1838 Třemošnice čp. 100", "× 22. 12. 1864 Třemošnice Vincenc Kučera", "† 28. 4. 1905 Slatiňany"], r=["tremosnice_snatek_vincenc_kucera_karolina_horakova_1864"]),  # č. 53
     "jan-vavra-1843": dict(n="Jan Vávra", sex="M", y="1843–1905", st="doc", f=["* 9. 8. 1843 Slatiňany čp. 80", "krejčí", "× 13. 1. 1870 Nasavrky Kateřina Matějková", "† 9. 6. 1905 Slatiňany"], r=["nasavrky_snatek_jan_vavra_katerina_matejkova_1870"]),  # č. 54
     "katerina-matejkova-1852": dict(n="Kateřina Matějková", sex="F", y="1852–1907", st="doc", f=["* 25. 8. 1852 Nasavrky čp. 136", "× 13. 1. 1870 Nasavrky Jan Vávra", "† 16. 6. 1907 Nasavrky"], r=["nasavrky_snatek_jan_vavra_katerina_matejkova_1870"]),  # č. 55
@@ -176,7 +176,7 @@ OSOBY = {
     "zuzana-benesova-1786": dict(n="Zuzana Benešová", sex="F", y="1786–1850", st="prob", f=["* 16. 2. 1786 Holice čp. 3", "× 19. 4. 1810 Holice Tomáš Zeman", "† 6. 11. 1850 Dašice"], note="Shoda jména, domu a doby – přímý doklad chybí."),  # č. 167
     "tomas-pospisil-1777": dict(n="Tomáš Pospíšil", sex="M", y="1777–1859", st="prob", f=["* 23. 8. 1777 Vysoké Chvojno čp. 73", "řezník", "× 24. 8. 1808 Vysoké Chvojno Anna Matějková", "† 2. 12. 1859 Vysoké Chvojno"], note="Jen ze zápisu sňatku dítěte; vlastní křest zatím nenalezen."),  # č. 170
     "anna-matejkova-1789": dict(n="Anna Matějková", sex="F", y="1789–1858", st="prob", f=["* 9. 12. 1789 Vysoké Chvojno čp. 69", "× 24. 8. 1808 Vysoké Chvojno Tomáš Pospíšil", "† 5. 4. 1858 Vysoké Chvojno"], note="Křest nenalezen – rok podle věku v zápisu úmrtí."),  # č. 171
-    "jan-hruby-1779": dict(n="Jan Hrubý", sex="M", y="1779–1852", st="doc", f=["* 24. 3. 1779 Choceň čp. 123", "soukeník", "× 20. 4. 1802 Choceň Dorota Černá", "† 15. 12. 1852 Choceň"], r=["chocen_snatek_jan_hruby_dorota_cerna_1802"]),  # č. 176
+    "jan-hruby-1779": dict(n="Jan Hrubý", sex="M", y="1722–1810", st="doc", note="Rok narození podle věku v zápisu úmrtí – ověřit, nejde-li o otce stejného jména.", f=["* 1722 Choceň čp. 123", "soukeník", "× 20. 4. 1802 Choceň Dorota Černá", "† 15. 12. 1810 Choceň"], r=["chocen_snatek_jan_hruby_dorota_cerna_1802"]),  # č. 176
     "dorota-cerna-1784": dict(n="Dorota Černá", sex="F", y="1784–1848", st="doc", f=["* 12. 10. 1784 Choceň čp. 100", "× 20. 4. 1802 Choceň Jan Hrubý", "† 10. 6. 1848 Vysoké Mýto"], r=["chocen_snatek_jan_hruby_dorota_cerna_1802"]),  # č. 177
     "martin-cerny-1777": dict(n="Martin Černý", sex="M", y="1777–1848", st="prob", f=["* 7. 9. 1777 Choceň čp. 26", "ovčák", "× 9. 4. 1810 Choceň Magdalena Machová", "† 17. 12. 1848 Choceň"], note="Křest nenalezen – rok podle věku v zápisu úmrtí."),  # č. 178
     "magdalena-machova-1785": dict(n="Magdalena Machová", sex="F", y="1785–1840", st="doc", f=["* 3. 4. 1785 Choceň čp. 4", "× 9. 4. 1810 Choceň Martin Černý", "† 6. 6. 1840 Choceň"], r=["chocen_snatek_martin_cerny_magdalena_machova_1810"]),  # č. 179
@@ -301,7 +301,9 @@ OSOBY = {
     "marie-moravcova-1665": dict(n="Marie Moravcová", sex="F", y="1665–1713", st="prob", f=["* 6. 2. 1665 Býšť čp. 22", "× 6. 9. 1691 Býšť Jakub Novák", "† 12. 5. 1713 Ostřetín"], note="Jen ze zápisu sňatku dítěte; vlastní křest zatím nenalezen."),  # č. 1025
 
     # --- boční příbuzní (dřív SIDE) ---
-    "bocni-marie-novakova-18921970": dict(druh="bocni", n="Marie Nováková (1892–1970)", t="Sestra Jana, provdaná do Ostřetína.", r=[]),
+    "marie-novakova-1892": dict(n="Marie Nováková", sex="F", y="1892–1970", st="fam", f=["* 1892 Holice čp. 112", "× 1919 Ostřetín Josef Hájek", "† 1970 Ostřetín"], note="Sestra Jana; podle rodiny provdaná do Ostřetína."),
+    "josef-hajek-1888": dict(n="Josef Hájek", sex="M", y="1888–1950", st="fam", f=["* 1888 Ostřetín", "rolník v Ostřetíně", "× 1919 Ostřetín Marie Nováková", "† 1950 Ostřetín"]),
+    "karel-hajek-1921": dict(n="Karel Hájek", sex="M", y="1921–1996", st="fam", f=["* 1921 Ostřetín", "† 1996 Pardubice"], note="Syn Marie, Janův synovec – bratranec Františka."),
     "bocni-vaclav-novak-18961916": dict(druh="bocni", n="Václav Novák (1896–1916)", t="Bratr Jana, padl v 1. světové válce u Doberdò.", r=[]),
     "bocni-antonin-kucera-18691941": dict(druh="bocni", n="Antonín Kučera (1869–1941)", t="Bratr Josefa, převzal mlýn v Třemošnici.", r=[]),
 }
@@ -670,7 +672,11 @@ VZTAHY = [
     dict(t="kmotr", a="frantisek-maly-1827", b="jan-novak-1890", r=["ukazka_krest_jan_novak_1890"], datum="14. 2. 1890", note="děd křtěnce z matčiny strany"),
     dict(t="svedek", a="tomas-kral-1832", b="vaclav-novak-1858", r=["holice_snatek_vaclav_novak_barbora_mala_1884"], datum="1884"),
     dict(t="svedek", a="vaclav-kral-1893", b="jan-novak-1890", r=["ukazka_snatek_jan_novak_josefa_pokorna_1919"], datum="20. 6. 1919"),
-    dict(t="pribuzny", a="bocni-marie-novakova-18921970", b="jan-novak-1890"),
+    dict(t="rodic", a="vaclav-novak-1858", b="marie-novakova-1892"),
+    dict(t="rodic", a="barbora-mala-1862", b="marie-novakova-1892"),
+    dict(t="manzele", a="josef-hajek-1888", b="marie-novakova-1892"),
+    dict(t="rodic", a="josef-hajek-1888", b="karel-hajek-1921"),
+    dict(t="rodic", a="marie-novakova-1892", b="karel-hajek-1921"),
     dict(t="pribuzny", a="bocni-vaclav-novak-18961916", b="jan-novak-1890"),
     dict(t="pribuzny", a="bocni-antonin-kucera-18691941", b="josef-kucera-1866"),
 ]

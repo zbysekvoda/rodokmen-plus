@@ -24,6 +24,11 @@ hlásí `CITLIVÉ` i u zápisů (shrnutí, přepis, překlad) a bydlišť – vy
 posláním PDF komukoli. `citlive_schvaleno` text z knihy neodstraní, jen ho přestane hlásit. Na webu je PDF
 (`/kniha/<id>.pdf`) i tisková stránka (`/kniha/<id>/`) za stejnou branou jako zbytek webu. PDF nepatří do gitu.
 
+## Strojové čtení přes OpenRouter
+`tools/cteni_ai.py` posílá výřez třetí straně (OpenRouter a poskytovatel modelu, bez ukládání dat k tréninku).
+Před prvním použitím se zeptej uživatele, jestli souhlasí. Posílej jen výřezy zápisů starších lhůt, nikdy rodinné
+dokumenty a údaje od rodiny. Klíč patří mimo projekt (`~/.config/rodokmen/openrouter.key`).
+
 ## Placené a cizí služby (MyHeritage, Ancestry, Geni, FamilySearch)
 - Přihlášení, platby a předplatné řeší **jen uživatel**. Zkušební verze se po skončení automaticky platí – připomeň,
   kdy končí a kde ji zrušit.

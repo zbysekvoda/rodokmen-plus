@@ -11,6 +11,7 @@ import Doba from '../../components/Doba.astro';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { hasBook } from '../../lib/kniha.js';
+import { hasDescFan } from '../../lib/potomci.js';
 import { issues, people, families, lineByK, records, dateKey, href, statusClass, houses, houseTitle, span, birthOf, factWithAge } from '../../lib/data.js';
 
 export function getStaticPaths() {
@@ -57,7 +58,9 @@ const fmt = (v) => Array.isArray(v) ? v.join(', ') : typeof v === 'object' ? JSO
     <div class="views">
       <ViewSwitch slug={p.slug} />
       {p.k && <a class="chip" href={`/vejir/?o=${p.slug}`}>ve vějíři →</a>}
+      {hasDescFan(p) && <a class="chip" href={`/potomci/${p.slug}/`}>Vějíř potomků →</a>}
       <a class="chip" href={`/reka/?o=${p.slug}`}>Řeka kolem této osoby →</a>
+      {!p.alive && <a class="chip" href={`/pribuzni/?a=${p.slug}`}>Jak jsme příbuzní? →</a>}
       {onAxis && <a class="chip" href={`/osa/?o=${p.slug}`}>ukázat na ose →</a>}
       {kniha && <a class="chip" href={`/kniha/${p.slug}/?tisk`}>Tisk knihy předků</a>}
       {knihaPdf && <a class="chip" href={`/kniha/${p.slug}.pdf`} download>Kniha předků (PDF)</a>}

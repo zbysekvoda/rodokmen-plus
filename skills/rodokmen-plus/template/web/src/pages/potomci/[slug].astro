@@ -1,0 +1,46 @@
+---
+import Base from '../../layouts/Base.astro';
+import { people, href } from '../../lib/data.js';
+import { descFanSlugs, descFanSvg, descTree } from '../../lib/potomci.js';
+
+export function getStaticPaths() {
+  return descFanSlugs().map((slug) => ({ params: { slug } }));
+}
+const p = people[Astro.params.slug];
+const t = descTree(p.slug);
+let count = 0;
+const walk = (n) => { count += 1; n.kids.forEach(walk); };
+t.kids.forEach(walk);
+const svg = descFanSvg(p.slug);
+---
+<Base title={`Vějíř potomků – ${p.name}`} full>
+  <div class="fan-bar">
+    <strong>Vějíř potomků</strong>
+    <a href={href.person(p.slug)}>{p.name}</a>
+    <span class="small muted">{count} potomků v {t.depth} {t.depth === 1 ? 'generaci' : 'generacích'}</span>
+    <span class="fan-btns">
+      <button type="button" data-pz="in" aria-label="Přiblížit">+</button>
+      <button type="button" data-pz="out" aria-label="Oddálit">−</button>
+      <button type="button" data-pz="reset">Celý vějíř</button>
+    </span>
+    <span class="small muted fan-hint">Barva = větev dítěte, šíře výseče podle počtu potomků, zlatý okraj = osoba ve stromu víckrát. Žijící nejsou zobrazeni. Klepnutím otevřete stránku osoby.</span>
+  </div>
+  <div class="fan-stage desc-stage" set:html={svg} />
+
+  <script>
+    import { panZoom, bindButtons } from '../../lib/panzoom.js';
+    const stage = document.querySelector<HTMLElement>('.desc-stage')!;
+    const pz = panZoom(stage, stage.querySelector('svg')!, { maxZoom: 40, minZoom: 1 / 1.2 });
+    bindButtons(document.querySelector('.fan-btns')!, pz);
+  </script>
+</Base>
+
+<style is:global>
+  .desc-links path { stroke: var(--bg); stroke-width: 1.5; }
+  .desc-links path.again { stroke: #c9a227; stroke-width: 3.5; }
+  .desc-fan a:hover path { filter: brightness(0.92); }
+  .desc-fan circle.root { fill: var(--surface-raised); stroke: var(--rule-strong); stroke-width: 1.5; }
+  .desc-fan text { fill: #222; pointer-events: none; font-family: var(--sans, sans-serif); }
+  .desc-fan .root ~ text { fill: var(--text-head); }
+  .desc-fan text .y { opacity: 0.75; font-size: 0.85em; }
+</style>
