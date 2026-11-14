@@ -28,7 +28,13 @@ export function nazevPokrevni(da, db, s, polovicni = false) {
   if (da === 1 && db === 1) return (polovicni ? 'nevlastní ' : '') + (z ? 'sestra' : 'bratr');
   if (da === 1) return pra(db - 2) + (z ? 'neteř' : 'synovec');
   if (db === 1) return pra(da - 2) + (z ? 'teta' : 'strýc');
-  if (da === db) return (z ? 'sestřenice' : 'bratranec') + (da > 2 ? ` z ${da - 1}. kolena` : '');
+  // bratranec rodiče = strýc z 2. kolena, dítě bratrance = synovec z 2. kolena; dál než 4. koleno / 3 generace → fallback
+  const k = Math.min(da, db), r = Math.abs(da - db);
+  if (k <= 4 && r <= 3) {
+    if (r === 0) return (z ? 'sestřenice' : 'bratranec') + (k > 2 ? ` z ${k - 1}. kolena` : '');
+    if (da > db) return pra(r - 1) + (z ? 'teta' : 'strýc') + ` z ${k}. kolena`;
+    return pra(r - 1) + (z ? 'neteř' : 'synovec') + ` z ${k}. kolena`;
+  }
   return (z ? 'vzdálená příbuzná' : 'vzdálený příbuzný') + ` (společný předek ${da}. a ${db}. generace)`;
 }
 

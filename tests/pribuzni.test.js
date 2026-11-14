@@ -1,6 +1,6 @@
 // „Jak jsme příbuzní?“ – template/web/src/lib/pribuzni.js na ukázkových datech; názvy musí sedět s tools/graf.py.
 import { expect, test } from 'bun:test';
-import { vztah } from '../skills/rodokmen-plus/template/web/src/lib/pribuzni.js';
+import { nazevPokrevni, vztah } from '../skills/rodokmen-plus/template/web/src/lib/pribuzni.js';
 
 const ROOT = new URL('..', import.meta.url).pathname;
 // graf.py načte ukázku → osoby pro web (rodiče, manželé, pohlaví) a vztahy podle Pythonu pro všechny dvojice
@@ -56,8 +56,46 @@ test('přímá linie a sňatek', () => {
   expect(n('josef-novak-1952', 'eva-dvorakova-1955')).toBe('manželka');
 });
 
-test('vzdálenější vztah má fallback', () => {
-  expect(n('josef-novak-1952', 'karel-hajek-1921')).toBe('vzdálený příbuzný (společný předek 3. a 2. generace)');
+test('strýc a synovec z 2. kolena v ukázce (bratranec otce / syn bratrance)', () => {
+  expect(n('josef-novak-1952', 'karel-hajek-1921')).toBe('strýc z 2. kolena');
+  expect(n('karel-hajek-1921', 'josef-novak-1952')).toBe('synovec z 2. kolena');
+  expect(n('petr-novak-1980', 'karel-hajek-1921')).toBe('prastrýc z 2. kolena');
+});
+
+// fiktivní Novákovi: sourozenci František 1921 a Ludmila 1923, jejich děti Josef 1952, Jana 1956 a Pavel Bureš 1950
+const P = (father, mother, sex) => ({ father, mother, spouses: [], sex });
+const nov = {
+  'vaclav': P(null, null, 'M'), 'anna': P(null, null, 'F'),
+  'frantisek': P('vaclav', 'anna', 'M'), 'ludmila': P('vaclav', 'anna', 'F'),
+  'josef': P('frantisek', null, 'M'), 'jana': P('frantisek', null, 'F'),
+  'pavel': P(null, 'ludmila', 'M'), 'vera': P(null, 'ludmila', 'F'),
+  'petr': P('josef', null, 'M'), 'lucie': P('josef', null, 'F'),
+  'tomas': P('pavel', null, 'M'), 'hana': P('pavel', null, 'F'),
+  'ondrej': P('petr', null, 'M'), 'eliska': P('tomas', null, 'F'),
+};
+const m = (a, b) => vztah(nov, a, b)?.nazev;
+
+test('bratranec a sestřenice z 2. kolena', () => {
+  expect(m('pavel', 'josef')).toBe('bratranec');
+  expect(m('petr', 'tomas')).toBe('bratranec z 2. kolena');
+  expect(m('petr', 'hana')).toBe('sestřenice z 2. kolena');
+  expect(m('ondrej', 'eliska')).toBe('sestřenice z 3. kolena');
+});
+
+test('o generaci vedle: strýc/teta z 2. kolena nahoru, synovec/neteř z 2. kolena dolů', () => {
+  expect(m('petr', 'pavel')).toBe('strýc z 2. kolena');
+  expect(m('petr', 'vera')).toBe('teta z 2. kolena');
+  expect(m('pavel', 'petr')).toBe('synovec z 2. kolena');
+  expect(m('pavel', 'lucie')).toBe('neteř z 2. kolena');
+  expect(m('ondrej', 'vera')).toBe('prateta z 2. kolena');
+  expect(m('vera', 'ondrej')).toBe('prasynovec z 2. kolena');
+  expect(m('ondrej', 'hana')).toBe('teta z 3. kolena');
+  expect(m('hana', 'ondrej')).toBe('synovec z 3. kolena');
+});
+
+test('příliš vzdálený vztah má obecný fallback', () => {
+  expect(nazevPokrevni(6, 6, 'M')).toBe('vzdálený příbuzný (společný předek 6. a 6. generace)');
+  expect(nazevPokrevni(7, 2, 'F')).toBe('vzdálená příbuzná (společný předek 7. a 2. generace)');
 });
 
 test('žijící (mimo people) se do cesty nedostanou', () => {
