@@ -63,7 +63,7 @@ class HloubkaVejire(unittest.TestCase):
 
     def generace(self, svg):
         """Počet nakreslených generací včetně kořene = nejvyšší generace mezi buňkami s odkazem + 1."""
-        return max(int(k).bit_length() for k in re.findall(r'data-k="(\d+)"', svg))
+        return max(int(k).bit_length() for k in re.findall(r'<a href="[^"]*" data-k="(\d+)"', svg))
 
     def test_bez_parametru_plna_hloubka(self):
         svg = self.vejir()
