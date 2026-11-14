@@ -3,6 +3,11 @@
 ## Nevydáno
 
 ### Přidáno
+- Ukázka: sourozenci jako osoby – Františkova sestra Ludmila (× Jaroslav Bureš, syn Pavel = bratranec Josefa) a
+  Josefova sestra Jana; tři páry s více dětmi pro větvení potomků a bratrance.
+- Vztahy („Jak jsme příbuzní?“, `graf.py vztah`): vzdálenější příbuzní mají název – bratranec/sestřenice z n. kolena,
+  strýc/teta z n. kolena (bratranec rodiče), synovec/neteř z n. kolena (dítě bratrance), s „pra“ za další generace.
+  Dál než 4. koleno nebo 3 generace vedle zůstává „vzdálený/á příbuzný/á“.
 - Web: `/domy/` má nahoře malou mapu jen s body domů (`FamilyMap showPlaces={false}`, výřez podle domů).
 - Web: stránka krátkého příběhu `/pribeh/<slug>/` ukazuje pod textem karty zmíněných osob, náhledy výřezů zmíněných
   zápisů (nejvýš 4, zbytek odkazem) a odkazy na zmíněné domy. Export plní `kratkePribehy[].osoby / zdroje / domy`.
