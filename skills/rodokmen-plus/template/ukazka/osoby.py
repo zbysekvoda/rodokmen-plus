@@ -301,7 +301,9 @@ OSOBY = {
     "marie-moravcova-1665": dict(n="Marie Moravcová", sex="F", y="1665–1713", st="prob", f=["* 6. 2. 1665 Býšť čp. 22", "× 6. 9. 1691 Býšť Jakub Novák", "† 12. 5. 1713 Ostřetín"], note="Jen ze zápisu sňatku dítěte; vlastní křest zatím nenalezen."),  # č. 1025
 
     # --- boční příbuzní (dřív SIDE) ---
-    "bocni-marie-novakova-18921970": dict(druh="bocni", n="Marie Nováková (1892–1970)", t="Sestra Jana, provdaná do Ostřetína.", r=[]),
+    "marie-novakova-1892": dict(n="Marie Nováková", sex="F", y="1892–1970", st="fam", f=["* 1892 Holice čp. 112", "× 1919 Ostřetín Josef Hájek", "† 1970 Ostřetín"], note="Sestra Jana; podle rodiny provdaná do Ostřetína."),
+    "josef-hajek-1888": dict(n="Josef Hájek", sex="M", y="1888–1950", st="fam", f=["* 1888 Ostřetín", "rolník v Ostřetíně", "× 1919 Ostřetín Marie Nováková", "† 1950 Ostřetín"]),
+    "karel-hajek-1921": dict(n="Karel Hájek", sex="M", y="1921–1996", st="fam", f=["* 1921 Ostřetín", "† 1996 Pardubice"], note="Syn Marie, Janův synovec – bratranec Františka."),
     "bocni-vaclav-novak-18961916": dict(druh="bocni", n="Václav Novák (1896–1916)", t="Bratr Jana, padl v 1. světové válce u Doberdò.", r=[]),
     "bocni-antonin-kucera-18691941": dict(druh="bocni", n="Antonín Kučera (1869–1941)", t="Bratr Josefa, převzal mlýn v Třemošnici.", r=[]),
 }
@@ -670,7 +672,11 @@ VZTAHY = [
     dict(t="kmotr", a="frantisek-maly-1827", b="jan-novak-1890", r=["ukazka_krest_jan_novak_1890"], datum="14. 2. 1890", note="děd křtěnce z matčiny strany"),
     dict(t="svedek", a="tomas-kral-1832", b="vaclav-novak-1858", r=["holice_snatek_vaclav_novak_barbora_mala_1884"], datum="1884"),
     dict(t="svedek", a="vaclav-kral-1893", b="jan-novak-1890", r=["ukazka_snatek_jan_novak_josefa_pokorna_1919"], datum="20. 6. 1919"),
-    dict(t="pribuzny", a="bocni-marie-novakova-18921970", b="jan-novak-1890"),
+    dict(t="rodic", a="vaclav-novak-1858", b="marie-novakova-1892"),
+    dict(t="rodic", a="barbora-mala-1862", b="marie-novakova-1892"),
+    dict(t="manzele", a="josef-hajek-1888", b="marie-novakova-1892"),
+    dict(t="rodic", a="josef-hajek-1888", b="karel-hajek-1921"),
+    dict(t="rodic", a="marie-novakova-1892", b="karel-hajek-1921"),
     dict(t="pribuzny", a="bocni-vaclav-novak-18961916", b="jan-novak-1890"),
     dict(t="pribuzny", a="bocni-antonin-kucera-18691941", b="josef-kucera-1866"),
 ]

@@ -10,6 +10,7 @@ const hidden = config.menu_skryt ?? [];
 const top = [
   ['/pribehy/', 'Příběhy', ['/pribeh-rodu/', '/pribeh-domu/', '/pribeh/', '/zajimavosti/']], ['/osobnosti/', 'Osobnosti', []],
   ['/rody/', 'Rody', ['/rod/', '/rodina/']], ['/domy/', 'Domy', ['/dum/', '/mapa/']], ['/strom/', 'Strom', ['/vejir/', '/predci/', '/pasy/', '/strom-cely/', '/vejir-cas/', '/reka/']],
+  ['/pribuzni/', 'Jak jsme příbuzní?', []],
   ['/osa/', 'Časová osa', ['/osa-vazby/']], ['/statistiky/', 'V číslech', []], ['/hledat/', 'Hledat', []],
 ].filter(([u]) => u === '/pribehy/' || !hidden.includes(u));
 const mobileTabs = [top[0][0], '/strom/', '/domy/', '/hledat/'];

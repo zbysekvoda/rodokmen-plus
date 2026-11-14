@@ -1,0 +1,88 @@
+---
+// „Jak jsme příbuzní?“ – dvě osoby → vztah česky (lib/pribuzni.js = zrcadlo tools/graf.py) a cesta přes společné předky.
+// Žijící osoby se na stránku vůbec nepošlou: nejsou ve výběru ani v cestě (vztah přes ně se nenajde).
+import Base from '../layouts/Base.astro';
+import { people } from '../lib/data.js';
+
+const ok = (s) => s && people[s] && !people[s].alive;
+const data = Object.fromEntries(Object.values(people).filter((p) => !p.alive).map((p) => [p.slug, {
+  name: p.name, years: p.years || '', sex: p.sex,
+  father: ok(p.father) ? p.father : null, mother: ok(p.mother) ? p.mother : null,
+  spouses: (p.spouses ?? []).filter(ok),
+}]));
+const list = Object.entries(data).sort(([, a], [, b]) => a.name.localeCompare(b.name, 'cs'));
+---
+<Base title="Jak jsme příbuzní?">
+  <h1>Jak jsme příbuzní?</h1>
+  <p class="lede">Vyberte dvě osoby z rodokmenu. Ukážeme jejich nejbližší vztah a cestu přes společné předky. Žijící osoby tu nejsou.</p>
+  <form class="pribuzni-form" id="pribuzni-form" autocomplete="off">
+    <label>První osoba<input type="search" name="a" list="pribuzni-osoby" placeholder="jméno…" /></label>
+    <label>Druhá osoba<input type="search" name="b" list="pribuzni-osoby" placeholder="jméno…" /></label>
+    <div class="pribuzni-akce">
+      <button type="submit">Ukázat vztah</button>
+      <button type="button" data-prekvap>Překvap mě</button>
+    </div>
+  </form>
+  <datalist id="pribuzni-osoby">
+    {list.map(([, p]) => <option value={`${p.name} ${p.years}`.trim()} />)}
+  </datalist>
+  <section id="pribuzni-vysledek" aria-live="polite"></section>
+  <script type="application/json" id="pribuzni-data" set:html={JSON.stringify(data)} />
+</Base>
+
+<script>
+  import { vztah } from '../lib/pribuzni.js';
+  type P = { name: string; years: string; sex: string; father: string | null; mother: string | null; spouses: string[] };
+  const people: Record<string, P> = JSON.parse(document.getElementById('pribuzni-data')!.textContent!);
+  const label = (s: string) => `${people[s].name} ${people[s].years}`.trim();
+  const bySlug = new Map(Object.keys(people).map((s) => [label(s), s]));
+  const form = document.getElementById('pribuzni-form') as HTMLFormElement;
+  const out = document.getElementById('pribuzni-vysledek')!;
+  const ia = form.elements.namedItem('a') as HTMLInputElement, ib = form.elements.namedItem('b') as HTMLInputElement;
+  const esc = (t: string) => t.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+  const link = (s: string) => `<a href="/osoba/${s}/">${esc(people[s].name)}</a>${people[s].years ? ` <small>${esc(people[s].years)}</small>` : ''}`;
+
+  function ukaz(a: string, b: string) {
+    ia.value = label(a); ib.value = label(b);
+    const u = new URL(location.href); u.searchParams.set('a', a); u.searchParams.set('b', b); history.replaceState(null, '', u);
+    const r = vztah(people, a, b);
+    if (!r) { out.innerHTML = `<p>Mezi ${link(a)} a ${link(b)} jsme v rodokmenu vztah nenašli.</p>`; return; }
+    const predci = r.predci.length ? `<p>Nejbližší společní předci: ${r.predci.map(link).join(' a ')}.</p>` : '';
+    out.innerHTML = `<p class="pribuzni-veta">${link(b)} je pro ${link(a)}: <strong>${esc(r.nazev)}</strong></p>${predci}`
+      + `<ol class="pribuzni-cesta">${r.cesta.map((s: string) => `<li${r.predci.includes(s) ? ' class="spolecny"' : ''}>${link(s)}</li>`).join('')}</ol>`;
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const a = bySlug.get(ia.value.trim()), b = bySlug.get(ib.value.trim());
+    if (!a || !b) { out.innerHTML = '<p>Vyberte obě osoby ze seznamu.</p>'; return; }
+    if (a === b) { out.innerHTML = '<p>Vyberte dvě různé osoby.</p>'; return; }
+    ukaz(a, b);
+  });
+
+  const slugs = Object.keys(people);
+  document.querySelector('[data-prekvap]')!.addEventListener('click', () => {
+    const pick = () => slugs[Math.floor(Math.random() * slugs.length)];
+    for (let i = 0; i < 300; i++) {
+      const a = pick(), b = pick();
+      if (a !== b && vztah(people, a, b)) return ukaz(a, b);
+    }
+  });
+
+  const q = new URLSearchParams(location.search);
+  const qa = q.get('a'), qb = q.get('b');
+  if (qa && people[qa]) { ia.value = label(qa); if (qb && people[qb] && qb !== qa) ukaz(qa, qb); }
+</script>
+
+<style>
+  .pribuzni-form { display: grid; gap: .75rem; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); align-items: end; margin: 1.5rem 0; }
+  .pribuzni-form label { display: grid; gap: .25rem; font-size: .9rem; }
+  .pribuzni-form input { font: inherit; padding: .45rem .6rem; border: 1px solid var(--line, #ccc); border-radius: 6px; background: var(--paper, #fff); color: inherit; }
+  .pribuzni-akce { display: flex; gap: .5rem; flex-wrap: wrap; }
+  .pribuzni-akce button { font: inherit; padding: .45rem .9rem; border-radius: 6px; border: 1px solid currentColor; background: none; color: inherit; cursor: pointer; }
+  .pribuzni-veta { font-size: 1.2rem; }
+  .pribuzni-cesta { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: .35rem 1.6rem; }
+  .pribuzni-cesta li { position: relative; }
+  .pribuzni-cesta li + li::before { content: '→'; position: absolute; left: -1.2rem; opacity: .6; }
+  .pribuzni-cesta li.spolecny { font-weight: 600; }
+</style>
