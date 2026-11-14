@@ -23,22 +23,20 @@ Prozkoumáno 14. 11. 2026, srovnáno s webem v `skills/rodokmen-plus/template/we
 | Descendants (radiální, barva podle dítěte) | – | **chybí vějíř potomků** |
 | Where They Lived (mřížka místo × desetiletí, stuhy rodič→dítě) | `/mapa/`, `/domy/` | mřížka i stuhy chybí |
 | Things Worth Checking | `tools/kontrola.py` (věk rodičů, dítě po smrti) | máme jen v CLI, ne na webu |
-| What's Missing (zaplnění po generacích, chybějící data) | `/hledame/`, `tools/fronta.py` | částečně; chybí pruhy zaplnění po generacích |
+| What's Missing (zaplnění po generacích, chybějící data) | `/statistiky/` (pruhy po generacích), `/predci/`, `/hledame/`, `tools/fronta.py` | máme |
 
 ## Doporučené náměty (podle poměru užitek / práce)
 
 1. **„Jak jsme příbuzní?“ na webu** – výběr dvou osob, věta v češtině („pra­prateta“…) a nejbližší společní
    předci. Data i logika už jsou v grafu (`graf.py`, `graf_pravidla.pl`); stačí předpočítat
    v `export_web.py` nebo spočítat v JS nad `people`. Nejvyšší hodnota pro rodinu.
-2. **Pruhy zaplnění po generacích** na `/hledame/` nebo `/statistiky/` – x z 2^n předků v generaci n.
-   Malé, motivuje k dalšímu bádání a navazuje na `fronta.py`.
-3. **DNA linie** (Y po otcích, mtDNA po matkách, X-DNA vzor) jako přepínač ve vějíři – zvýraznění větví.
+2. **DNA linie** (Y po otcích, mtDNA po matkách, X-DNA vzor) jako přepínač ve vějíři – zvýraznění větví.
    Levné (jen filtr Kekulého čísel), užitečné pro lidi s DNA testem.
-4. **Vějíř potomků** od zvolené osoby – obrácený `fan_chart.py`, barva podle dítěte.
-5. **„Stojí za ověření“ na webu** – výstup věcných kontrol z `kontrola.py` jako stránka (jen pro rodinu,
+3. **Vějíř potomků** od zvolené osoby – obrácený `fan_chart.py`, barva podle dítěte.
+4. **„Stojí za ověření“ na webu** – výstup věcných kontrol z `kontrola.py` jako stránka (jen pro rodinu,
    formulace „ověřte v pramenu“, ne verdikt).
-6. **Síť příjmení** (rody jako uzly, sňatky jako hrany) na `/rody/`.
-7. Křivka současně žijících na `/reka/`, mřížka místo × desetiletí na `/mapa/` – až nakonec.
+5. **Síť příjmení** (rody jako uzly, sňatky jako hrany) na `/rody/`.
+6. Křivka současně žijících na `/reka/`, mřížka místo × desetiletí na `/mapa/` – až nakonec.
 
 Night Sky a auto-generovaný narativ nedoporučuji: první je efekt bez nové informace, druhé u nás nahrazují
 ruční příběhy z pramenů, které jsou silnější.
