@@ -1,6 +1,6 @@
 # Návrh: volitelné strojové čtení výřezů přes OpenRouter
 
-Stav: **návrh**, čeká na rozhodnutí uživatele (viz Rozhodnutí na konci).
+Stav: **schváleno, implementováno** (fáze 2).
 
 ## Proč
 Dnes čte matriky výhradně agent sám (`SKILL.md`, Režim předci, krok 5–6): stáhne snímek, čte v plném rozlišení,
@@ -69,4 +69,7 @@ Celá stránka matriky (dvoustrana, 4000+ px) stojí ~3–4× víc a čte se hů
 5. `kontrola_soukromi.py` projde.
 
 ## Rozhodnutí
-_(doplní se po odpovědi uživatele)_
+2026-11-14 uživatel zvolil **implementovat podle návrhu** (Desk). Implementace: `tools/cteni_ai.py`,
+`tests/test_cteni_ai.py` (bez sítě), hlášení `"stroj"` v `kontrola.py`, zmínky ve `SKILL.md`, `reference/matriky.md`,
+`reference/soukromi.md`. ID modelů v `MODELY` ověřit na openrouter.ai/models při prvním ostrém běhu.
+Test `sk-or-` v `kontrola.py` nebyl zaveden: odmítnutí klíče v projektu dělá přímo nástroj.
