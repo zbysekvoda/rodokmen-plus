@@ -51,13 +51,17 @@ def main():
         sys.exit(__doc__)
     key = sys.argv[1]
     magick()   # bez ImageMagicku skončit dřív, než se rámeček zapíše
-    data = json.load(open(PATH, encoding="utf-8")) if os.path.exists(PATH) else {}
+    if not os.path.exists(os.path.join(ROOT, "vyrezy", key + ".jpg")):   # rámeček se kreslí do výřezu – nejdřív výřez
+        sys.exit(f"Chybí výřez vyrezy/{key}.jpg – nejdřív ho udělej (tools/vyrez.py), pak rámeček. Nic jsem nezapsal.")
+    data = json.load(open(PATH, encoding="utf-8-sig")) if os.path.exists(PATH) else {}
     if sys.argv[2] == "--nahled":
         print(preview(key, data.get(key, {}).get("boxes", [])))
         return
     args, note = sys.argv[2:], ""
     if "--pozn" in args:
         i = args.index("--pozn")
+        if i + 1 >= len(args):
+            sys.exit('--pozn potřebuje text, např. --pozn "okraj vpravo nečitelný"')
         note = args[i + 1]
         args = args[:i] + args[i + 2:]
     crop = None
@@ -67,7 +71,12 @@ def main():
         args = args[:i] + args[i + 2:]
         if len(crop) != 4 or not (0 <= crop[0] < crop[2] <= 1 and 0 <= crop[1] < crop[3] <= 1):
             sys.exit(f"Špatná oblast výřezu {crop}: musí být a0,b0,a1,b1 v rozsahu 0..1")
-    boxes = [[float(v) for v in a.split(",")] for a in args]
+    try:
+        boxes = [[float(v) for v in a.split(",")] for a in args]
+    except ValueError:
+        sys.exit(f"Rámečky musí být čísla x0,y0,x1,y1 (zlomky 0..1, desetinná tečka), ne {' '.join(args)}")
+    if not boxes:
+        sys.exit(__doc__)
     if crop:   # souřadnice stránky → souřadnice výřezu
         a0, b0, a1, b1 = crop
         conv = lambda v, lo, hi: min(1.0, max(0.0, (v - lo) / (hi - lo)))

@@ -6,16 +6,23 @@
 | **N** | narození (křty), *Liber natorum / baptisatorum*, *Geburtsbuch* | datum narození a křtu, dům (čp.), dítě, rodiče (od ~1784 i jejich rodiče a bydliště), kmotři, porodní bába | pohlaví, legitimita, rodiče matky → další generace |
 | **O** | oddaní (sňatky), *Liber copulatorum*, *Trauungsbuch* | datum, dům, ženich a nevěsta (věk, stav, náboženství), jejich rodiče, svědci | **nejlepší první cíl** – otevírá dvě rodiny naráz |
 | **Z** | zemřelí, *Liber defunctorum*, *Sterbebuch* | datum úmrtí a pohřbu, dům, jméno, věk, příčina | věk → odhad roku narození, stav (vdova po…) |
-| **I** | index (rejstřík) k N/O/Z | jméno → datum / strana | rychlé hledání; **index bývá neúplný**, negativní výsledek v indexu nic nedokazuje |
+| **I** | index (rejstřík) k N/O/Z | jméno → datum / strana | rychlé hledání; **index bývá neúplný**, negativní výsledek v indexu nic nedokazuje – a „v rejstříku není“ ověř čtením po sloupcích (Čtení písma) |
 
-Další prameny: sčítání lidu (1857–1921; domácnosti s daty narození), soupis poddaných 1651 (celé rodiny s věkem),
+Další prameny: sčítání lidu (1857–1921; domácnosti s daty narození; operáty 1930 jsou jen v Národním archivu,
+běžně nepřístupné a online nejsou), soupis poddaných 1651 (celé rodiny s věkem),
 berní rula 1654 (jen hospodáři), gruntovní/pozemkové knihy (kdo vlastnil který dům – propojí generace přes dům),
-vojenské záznamy, domovské listy, parte. Viz `portaly.md` a `playbook.md` §2.
+vojenské záznamy, domovské listy, parte. Viz `portaly.md` a `metodika.md` (prameny mimo ČR).
 
 ## Lhůty (zákon 301/2000 Sb.)
 Do archivu (a tedy online) jde svazek, až od jeho **posledního** zápisu uplyne: narození **100 let**, sňatky **75**, úmrtí **30**.
-Mladší knihy jsou na matričním úřadě obce s rozšířenou působností / pověřeném úřadě – výpis dostane přímý příbuzný
-(žádost + doklady o příbuzenství). Zapiš do `archivni_dotazy.md`.
+Mladší knihy jsou na matričním úřadě obce s rozšířenou působností / pověřeném úřadě. **Matriční úřad ale počítá lhůtu
+u každého zápisu zvlášť** (§ 25b zákona 301/2000 Sb.): zápis starší 100 / 75 / 30 let (narození / sňatek / úmrtí) vydá
+**komukoli** i ze svazku, který je ještě na úřadě, a dovolí do knihy nahlédnout. Mladší zápis dostane jen osoba, které
+se týká, nebo člen rodiny (manžel, partner, rodiče, děti, sourozenci, prarodiče, vnuci, pravnuci) s doložením
+příbuzenství. Žádej o **doslovný výpis** – na rozdíl od rodného či oddacího listu obsahuje i okrajové poznámky
+(pozdější sňatek, úmrtí, legitimaci). Stejné lhůty platí pro sbírku listin a druhopisy do roku 1958. Slovensko má jiná
+pravidla (`metodika.md` → Prameny mimo ČR, Slovensko). Zapiš do `archivni_dotazy.md`. Když svazek online není, zkus
+samostatný rejstřík (I-N, I-O, I-Z) nebo **druhopis** (může končit dřív než originál, a být tak už v archivu).
 
 ## Jak vypadá hledání v praxi
 1. **Obec → farnost.** Malé vesnice patřily k faře v sousední obci; popis svazku vyjmenovává všechny obce farnosti.
@@ -59,9 +66,17 @@ Mladší knihy jsou na matričním úřadě obce s rozšířenou působností / 
    otázku by mířil (výstup `data/audit_zdroju.md`).
 
 ## Čtení písma
-- Kurentový rejstřík: stáhni plné rozlišení a rozřež stránku na čtvrtiny (sloupec jmen + data),
-  `magick f.jpg -crop 1250x1650+X+Y +repage ctvrt.jpg`. **Dopisované řádky** se snadno přečtou špatně (Franziska × Heinrich,
-  strana 131 × 151) – údaj z rejstříku vždy ověř v matrice.
+- **Rejstřík čti po sloupcích, ne celou dvoustranu naráz.** Při rychlém čtení sloupce příjmení se jméno snadno přehlédne
+  (skutečná chyba: „v rejstříku oddaných 1686–1739 není“, a bylo tam třikrát – rod se pak dohledal o tři generace dál).
+  Snímek v plném rozlišení rozřež na svislé pruhy a každý přečti zvlášť, řádek po řádku:
+  `python3 -I tools/mapa_knihy.py aron <apu> <snímek> <snímek> --sloupce 4` (nebo `soubory <obrázek>`; hranice podle
+  sloupců rejstříku, např. rodič – jméno – rok – folio: `--sloupce 0.3,0.55,0.8`; jednu stranu dvoustrany vybere
+  `--vyrez 0,0,0.5,1`). **Negativní výsledek z rejstříku zapiš až po takovém čtení.**
+- Ozdobná velká písmena v rejstřících 17. a 18. století řadí jména jinam, než čekáš: **Š psané jako „St“ / „Sſt“**
+  (Sſtiepanek = Štěpánek), W místo V a O (Wawra, Wotawa), C/K a G/K zaměněné. Než napíšeš „pod písmenem není“, projdi
+  i písmena, pod která mohl písař jméno zařadit.
+- Kurentový rejstřík: totéž, plné rozlišení a pruhy (`--sloupce`). **Dopisované řádky** se snadno přečtou špatně
+  (Franziska × Heinrich, strana 131 × 151) – údaj z rejstříku vždy ověř v matrice.
 - Do ~1780 latina nebo čeština, pak hodně němčina (kurent), od ~1860 často čeština, ve 20. století čeština.
 - Česká jména v němčině/latině: Johann/Joannes = Jan, Wenzel/Wenceslaus = Václav, Joseph = Josef, Franz/Franciscus = František,
   Maria = Marie, Anna, Katharina = Kateřina, Barbara = Barbora, Magdalena = Majdalena/Magdaléna, Theresia = Terezie,
@@ -72,7 +87,10 @@ Mladší knihy jsou na matričním úřadě obce s rozšířenou působností / 
 - Kurent: dlouhé „ſ“ vypadá jako „f“, „e“ jako „n“, „h“ s kličkou dolů. Při nejistotě porovnej se stejným písmenem
   jinde na stránce stejné ruky – i u „divného“ příjmení (koncové „k“ psané skoro jako „r“: „-ek“ vypadá jako „-er“).
   Slovo rozdělené přes konec řádku („Urlau-“ / „ber“) dočti na začátku dalšího řádku.
-- Daty bývají svátky (*Dominica*, *festum S. Joannis*) – v nejasných případech dopočítej.
+- Daty bývají svátky (*Dominica*, *festum S. Joannis*) – v nejasných případech dopočítej: *feria* = den v týdnu
+  (*feria 2da* = pondělí), neděle se jmenují podle introitu (*Dominica Laetare* = 4. neděle postní), takže
+  „feria 2da post Dominicam Laetare“ = pondělí po 4. neděli postní; přesné datum dá věčný (liturgický) kalendář pro
+  daný rok (Velikonoce se mění).
 
 ### Slovníček (lat. / něm. → česky)
 | výraz | význam |
@@ -85,7 +103,7 @@ Mladší knihy jsou na matričním úřadě obce s rozšířenou působností / 
 | *filius, filia / Sohn, Tochter* | syn, dcera |
 | *patrini / Pathen*, *testes / Zeugen*, *obstetrix / Hebamme* | kmotři, svědci, porodní bába |
 | *agricola, rusticus / Bauer* | sedlák, rolník |
-| *Häusler*, *casarius* | domkář |
+| *Häusler*, *domunculus* | domkář |
 | *Inwohner / inquilinus*, *podruh* | podruh (bydlel v cizím domě) |
 | *Gärtner* (na vsi) | zahradník = malý usedlík, ne nutně pěstitel |
 | *Inleute*, *Taglöhner* | podruzi, nádeníci |
@@ -96,6 +114,47 @@ Mladší knihy jsou na matričním úřadě obce s rozšířenou působností / 
 | *Lungensucht*, *Abzehrung* | souchotiny (TBC) |
 | *Cholera*, *Blattern* | cholera, neštovice |
 | *Fraisen* | křeče (časté u kojenců) |
+| *avus, avia / Großvater, Großmutter* | děd, babička |
+| *nepos / Enkel, Neffe* | vnuk i synovec (podle souvislosti) |
+| *maritus, uxor / Ehemann, Ehefrau* | manžel, manželka |
+| *gener / Schwiegersohn*, *nurus / Schwiegertochter* | zeť, snacha |
+| *socer / Schwiegervater* | tchán |
+| *vitricus / Stiefvater*, *noverca / Stiefmutter*, *privignus / Stiefsohn* | otčím, macecha, nevlastní syn |
+| *tutor, curator / Vormund*, *orphanus / Waise* | poručník, sirotek |
+| *gemelli / Zwillinge* | dvojčata |
+| *posthumus / nachgeboren* | pohrobek (narozen po otcově smrti) |
+| *expositus, inventus / Findelkind* | nalezenec |
+| *spurius* | nemanželský (hanlivě) |
+| *legitimatus per subsequens matrimonium / legitimiert durch nachfolgende Ehe* | legitimován následným sňatkem rodičů |
+| *parvulus*, *infans / Kind* | nemluvně, dítě |
+| *in periculo mortis baptizatus / nottgetauft*, *mortuus natus / totgeboren* | pokřtěn z nouze, mrtvě narozený |
+| *proclamationes, banna / Aufgebot* | ohlášky |
+| *consanguinitas*, *dispensatio / Dispens*, *Konsens* | pokrevní příbuzenství, dispens (od překážky sňatku), povolení k sňatku |
+| *provisus sacramentis / versehen* | zaopatřen (svátostmi před smrtí) |
+| *Ausgedinger, Auszügler* | výměnkář (předal grunt, žije na výměnku) |
+| *colonus* | sedlák |
+| *casarius / Chalupner* | chalupník (menší usedlost s polem) |
+| *servus, famulus / Knecht*, *ancilla / Magd* | čeledín, děvečka |
+| *subditus / Untertan*, *dominium / Herrschaft*, *judex / Richter* | poddaný, panství, rychtář |
+| *miles / Soldat*, *miles emeritus / Invalide* | voják, vysloužilec |
+| *ludimagister / Schullehrer*, *aedituus / Mesner* | učitel, kostelník |
+| *Grund*, *Kaufbrief*, *Waisenbuch*, *Heiratsvertrag*, *Verlassenschaft* | grunt (usedlost), trhová smlouva, sirotčí kniha, svatební smlouva, pozůstalost |
+| *Heimatrecht, Heimatschein*, *Entlassungsschein* | domovské právo, domovský list; výhostní list (propuštění z poddanství) |
+| *vulgo / genannt*, *olim / ehemals* | řečený (jméno po chalupě), dříve |
+| *quondam (q.) / weiland, verstorben*, *hujas / hiesig* | nebožtík (zesnulý), zdejší |
+| *annorum 40 / alt 40 J.*, *eodem*, *ut supra (u. s.)*, *anno currente* | 40 let, téhož dne, jako výše, letošního roku |
+| *7bris, 8bris, 9bris, Xbris* | září, říjen, listopad, prosinec (ne 7.–10. měsíc!) |
+| *febris*, *hydrops / Wassersucht*, *apoplexia / Schlagfluss*, *marasmus senilis / Altersschwäche* | horečka, vodnatelnost, mrtvice, sešlost věkem |
+| *dysenteria / Ruhr*, *typhus / Nervenfieber*, *angina, diphtheria / Halsbräune* | úplavice, tyfus, záškrt |
+| *morbilli / Masern*, *pertussis / Keuchhusten*, *partus / Kindbett*, *submersus / ertrunken* | spalničky, černý kašel, šestinedělí, utonul |
+| *obiit, denatus* | zemřel |
+| *phthisis, tabes*, *variolae*, *convulsiones* | souchotiny, neštovice, křeče (u dětí „psotník“) |
+| *confirmatus* | biřmován |
+| *A.C. / Augsburger*, *H.C. / Helvetisch*, *acatholicus*, *Judaeus*, *conversus* | luterán, kalvinista (evangelík a. v. / h. v.), nekatolík, Žid, konvertita |
+| *lanio*, *pistor*, *braxator*, *caupo* | řezník, pekař, sládek, hostinský |
+| *figulus*, *faber lignarius*, *murarius* | hrnčíř, tesař, zedník |
+| *opilio*, *pastor*, *venator* | ovčák, **pastýř** (ne farář!), myslivec |
+| *mendicus*, *testamentum*, *mane / vespere* | žebrák, závěť, ráno / večer |
 
 ## Odhad roků
 - Věk při úmrtí/sňatku je často zaokrouhlený o ±2–5 let. Uváděj „asi 1756“ a hledej křest v širším okně.
@@ -120,7 +179,7 @@ Mladší knihy jsou na matričním úřadě obce s rozšířenou působností / 
 - Nemanželské dítě nese příjmení matky; otec chybí nebo je dopsán později (legitimace na okraji).
 - Stejný předek dvakrát v rodokmenu (vzdálení příbuzní se vzali) – v datech `SAME`.
 - Index nenašel ≠ zápis neexistuje. Zapiš, co přesně jsi prošel.
-- Pomocníci (subagenti) a OCR/AI čtou historické písmo chybně – vždy ověř sám (viz `playbook.md` §1 bod 10).
+- Čtení pomocníků (subagentů) i jiných nástrojů na čtení písma vždy ověř sám na snímku (princip čtyř očí, SKILL.md → Pomocníci).
 
 ## Technické pasti (macOS, zsh) – napiš je i pomocníkům do zadání
 - Shell je zsh: `for a in "x y z"; do set -- $a` slova nerozdělí (v zsh `${=a}`); `ls F*` bez shody = chyba

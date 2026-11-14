@@ -1,6 +1,7 @@
 #!/bin/bash
 # Matriky AHMP (Praha): ahmp_search.sh "dotaz" -> vypíše svazky Sbírky matrik (popis | farnost | XID, počet snímků).
 # Používá starý katalog katalog.ahmp.cz/pragapublica (nový digi.ahmp.cz má ochranu proti robotům – nepoužívat).
+if [ "$1" = -h ] || [ "$1" = --help ] || [ $# -lt 1 ]; then sed -n '2,3p' "$0" | sed 's/^# \{0,1\}//'; exit 2; fi   # nápověda
 # Katalog řadí výsledky pokaždé jinak, takže se stránky překrývají a část svazků vypadne. Hledání se proto opakuje
 # (nejvýš 2×, pod společným limitem rychlosti slusne.py) a výsledky se slučují, dokud jich není tolik, kolik katalog hlásí.
 D=$(mktemp -d); trap 'rm -rf "$D"' EXIT; B=https://katalog.ahmp.cz; C=$D/cj; P="$(dirname "$0")/ahmp_parse.py"

@@ -6,6 +6,8 @@ Vypíše CHYBY (rozbijí web nebo jsou věcně špatně) a UPOZORNĚNÍ (něco c
 Návratový kód 1, pokud jsou chyby.
 """
 import datetime, json, os, re, sys, unicodedata
+if sys.argv[1:2] in (["-h"], ["--help"]):   # nápověda místo pádu
+    sys.exit(__doc__.strip())
 for _s in (sys.stdout, sys.stderr):   # UTF-8 výstup i na Windows bez -X utf8 (cp1250 neumí třeba „→“)
     if hasattr(_s, "reconfigure"):
         _s.reconfigure(encoding="utf-8", errors="replace")
@@ -19,7 +21,7 @@ import dolozeni  # noqa: E402
 
 def jload(name, default):
     p = os.path.join(DATA, name)
-    return json.load(open(p, encoding="utf-8")) if os.path.exists(p) else default
+    return json.load(open(p, encoding="utf-8-sig")) if os.path.exists(p) else default
 
 
 def slugify(text):   # stejně jako export_web.py
@@ -51,7 +53,7 @@ def wiki_odkazy(err, warn, g, O, LINES, kek, keys, D, obec_domu, dum_id, cfg):
         path = os.path.join(DATA, f)
         if not os.path.exists(path):
             continue
-        text = re.sub(r"<!--.*?-->", "", open(path, encoding="utf-8").read(), flags=re.S)   # komentáře export zahodí
+        text = re.sub(r"<!--.*?-->", "", open(path, encoding="utf-8-sig").read(), flags=re.S)   # komentáře export zahodí
         for m in rx.finditer(text):
             typ, x, odkaz = m.group(1).strip(), m.group(2).strip(), m.group(0)
             kde = f"data/{f}: odkaz {odkaz}"
@@ -93,7 +95,7 @@ def slugy_pribehu(warn, cfg):
         path = os.path.join(DATA, f)
         if not os.path.exists(path):
             continue
-        text = re.sub(r"<!--.*?-->", "", open(path, encoding="utf-8").read(), flags=re.S)
+        text = re.sub(r"<!--.*?-->", "", open(path, encoding="utf-8-sig").read(), flags=re.S)
         for sec in re.split(r"^(?=## )", text, flags=re.M):
             heads = re.findall(r"^### +(.+)$", sec, re.M) or re.findall(r"^## +(.+)$", sec, re.M)
             for h in heads:
@@ -284,14 +286,14 @@ def kontrola_udalosti(cesta=None, osa=None):
     if not os.path.exists(cesta):
         return []
     try:
-        with open(cesta, encoding="utf-8") as f:
+        with open(cesta, encoding="utf-8-sig") as f:
             polozky = json.load(f)
     except (OSError, ValueError) as e:
         return [f"data/udalosti.json není platný JSON: {e}"]
     if not isinstance(polozky, list):
         return ["data/udalosti.json musí být pole položek ([])"]
     try:
-        with open(osa or os.path.join(os.path.dirname(os.path.abspath(__file__)), "udalosti.json"), encoding="utf-8") as f:
+        with open(osa or os.path.join(os.path.dirname(os.path.abspath(__file__)), "udalosti.json"), encoding="utf-8-sig") as f:
             kategorie = {e["kategorie"] for e in json.load(f)}
     except (OSError, ValueError, KeyError, TypeError):
         kategorie = None
@@ -378,6 +380,39 @@ def main():
     for k in LINES:
         if k < 4:
             err.append(f"LINES: rod {k} – zakladatel rodu má být nejméně prarodič výchozí osoby (č. 4 a výš)")
+    nazvy = {}
+    for k, v in sorted(LINES.items()):
+        nazvy.setdefault(str(v[0] if isinstance(v, (list, tuple)) else v).strip().lower(), []).append(k)
+    for ks in nazvy.values():
+        if len(ks) > 1:
+            n = LINES[ks[0]][0] if isinstance(LINES[ks[0]], (list, tuple)) else LINES[ks[0]]
+            err.append(f"LINES: rody {', '.join(map(str, ks))} mají stejný název „{n}“ – rozliš je "
+                       "(např. „Novákové z Holic“ a „Novákové z Chrudimi“), web by je jinak nerozlišil")
+    for k, p in O.items():
+        if p.get("druh") == "bocni" and not (p.get("t") or "").strip():
+            warn.append(f"boční příbuzný {k} ({p.get('n')}) nemá text (t) – na webu bude jen jméno")
+    for d in jload("dokumenty.json", []):
+        if isinstance(d, dict) and d.get("img") and not (d.get("popis") or "").strip():
+            warn.append(f"dokument {d.get('img')} nemá popis – na webu bude bez popisku")
+        if isinstance(d, dict) and d.get("img") and not os.path.exists(os.path.join(ROOT, "vyrezy", d["img"] + ".jpg")):
+            warn.append(f"dokument {d.get('img')}: chybí vyrezy/{d['img']}.jpg – na webu se nezobrazí "
+                        "(originál z dokumenty/ zmenši do vyrezy/, reference/data.md)")
+    for i, x in enumerate(ns.get("ISSUES", [])):
+        if not (isinstance(x, str) or (isinstance(x, (tuple, list)) and 2 <= len(x) <= 3
+                                       and all(isinstance(y, str) for y in x[:2])
+                                       and (len(x) == 2 or isinstance(x[2], dict)))):
+            err.append(f"ISSUES[{i}]: má být text, nebo (\"Otázka\", \"Stav…\"[, dict(osoby=[…], rody=[…])]), ne "
+                       f"{type(x).__name__} {str(x)[:60]} – export webu ji vynechá")
+    for k, t in prep.items():
+        if not isinstance(t, dict):
+            err.append(f"prepisy.json „{k}“: má být {{\"orig\": …, \"cs\": …}}")
+            continue
+        nezname = sorted(set(t) - {"orig", "cs"})
+        if nezname:
+            warn.append(f"prepisy.json „{k}“: neznámý klíč {', '.join(nezname)} – web čte jen „orig“ (přepis) "
+                        "a „cs“ (překlad), text se nezobrazí")
+        elif not (t.get("cs") or "").strip():
+            warn.append(f"prepisy.json „{k}“: chybí překlad („cs“)")
 
     cited = {r for p in O.values() for r in p.get("r", [])} | {r for e in g.vztahy for r in e.get("r", [])}
 
@@ -506,7 +541,8 @@ def main():
                     return True
                 i = text.find(s, i + 1)
         return False
-    texty = [("ISSUES", i if isinstance(i, str) else " ".join(x for x in i if isinstance(x, str))) for i in ns.get("ISSUES", [])]
+    texty = [("ISSUES", i if isinstance(i, str) else " ".join(x for x in (i.values() if isinstance(i, dict) else i) if isinstance(x, str)))
+             for i in ns.get("ISSUES", []) if isinstance(i, (str, tuple, list, dict))]
     blizci = {i for k, i in kek.items() if k < 8} | set(g.koreny.values())
     for k, p in O.items():
         if p.get("druh") == "bocni":
@@ -518,7 +554,7 @@ def main():
         texty.append((f"osoba {k}", text + (f" {hranice}" if roky and min(roky) >= 1870 or k in blizci else "")))
     for f in ("zajimavosti.md", "pribeh.md", "pribeh_domy.md", *(x.get("soubor", "") for x in cfg.get("pribehy", []))):
         if os.path.exists(os.path.join(DATA, f)):
-            texty += [(f, odst) for odst in open(os.path.join(DATA, f), encoding="utf-8").read().split("\n\n")]
+            texty += [(f, odst) for odst in open(os.path.join(DATA, f), encoding="utf-8-sig").read().split("\n\n")]
     # zápisy: shrnutí, přepis a překlad – web je ukazuje u zdroje, Kniha předků (PDF) u výřezů v kartách a pramenech
     for z in zaz:
         tr = prep.get(z.get("klic")) or {}
@@ -539,7 +575,7 @@ def main():
     vecne_kontroly(err, warn, g, O, zaz, prep)
     pribehy = ["zajimavosti.md", "zajimavosti_domy.md", "pribeh.md", "pribeh_domy.md",
                *(x.get("soubor", "") for x in cfg.get("pribehy", []) if isinstance(x, dict))]
-    dolozeni.kontroluj(warn, [(f, open(os.path.join(DATA, f), encoding="utf-8").read())
+    dolozeni.kontroluj(warn, [(f, open(os.path.join(DATA, f), encoding="utf-8-sig").read())
                               for f in dict.fromkeys(pribehy) if f and os.path.exists(os.path.join(DATA, f))])
 
     if not os.path.exists(os.path.join(DATA, "pribeh.md")) and LINES:
@@ -550,7 +586,7 @@ def main():
                         f"(data/pribeh.md, reference/pribehy.md); koncept nejdřív ukaž uživateli v chatu")
 
     log = os.path.join(DATA, "research_log.md")
-    rows = sum(1 for l in open(log, encoding="utf-8") if re.match(r"^\| \d+ \|", l)) if os.path.exists(log) else 0
+    rows = sum(1 for l in open(log, encoding="utf-8-sig") if re.match(r"^\| \d+ \|", l)) if os.path.exists(log) else 0
     print(f"{sum(1 for d in O.values() if not d.get('druh') and not d.get('tataz'))} osob, {souhrn_domy}, {len(zaz)} zápisů, {len(svazky)} svazků, {rows} řádků deníku")
     for e in err:
         print("CHYBA:", e)

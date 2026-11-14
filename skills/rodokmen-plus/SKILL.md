@@ -26,7 +26,8 @@ Uživatel může začít kterýmkoli režimem a přepínat mezi nimi („teď se
 - `reference/pribehy.md`, `reference-dum/pribehy.md`, `reference-dum/texty.md` – zajímavosti, příběhy, texty na web,
 - `reference/udalosti.md` – regionální historické události projektu (`data/udalosti.json`: kroniky, NDK, Wolny, Hosák),
 - `reference/web.md`, `reference/soukromi.md` (u domů přísnější `reference-dum/soukromi.md`),
-- `reference/playbook.md` – profesionální metodika (EN, dlouhá – čti jen potřebnou kapitolu).
+- `reference/metodika.md` – spojování záznamů, ztotožnění osob, mrtvé body, prameny mimo ČR,
+- `reference/instalace.md` – příprava počítače (macOS, Windows), prohlížeč pro archivy, založení projektu.
 
 **Procesní skilly** (načti je, když nastane jejich situace):
 - `matriky-v-prohlizeci` – portál je za ALTCHA/CAPTCHA, stahovač selže, čteš v Chromu uživatele, MZA Brno (Morava),
@@ -58,7 +59,8 @@ Uživatel může začít kterýmkoli režimem a přepínat mezi nimi („teď se
 
 ## Fáze 0 – Příprava (jednou)
 1. Nástroje: `python3` (≥ 3.9), `node` (≥ 20), `magick` (ImageMagick 7), `git`; volitelně `swipl` (Prolog, dotazy na
-   příbuzenství). Instalace a pasti macOS a Windows: `reference/matriky.md` → Technické pasti. Na Windows místo
+   příbuzenství). **Instalace, certifikáty, Windows a prohlížeč pro archivy: přečti `reference/instalace.md`**
+   (pasti při práci: `reference/matriky.md` → Technické pasti). Na Windows místo
    `python3 -I` vždy `python -I -X utf8`, nikdy `convert` (systémový nástroj Windows), vždy `magick`. Pravidla zapiš do
    `CLAUDE.md` projektu, ať platí i příště a pro pomocníky. Instalace systémových věcí nech uživatele potvrdit;
    interaktivní příkazy mu dej s předponou `!`.
@@ -132,11 +134,12 @@ Cíl: znát co nejvíc o 3–4 generacích, než sáhneš do matrik.
   a přímá linie s původem údajů. Cizí stromy jsou jen vodítko (`mh`), jména vždy ověř v zápisu.
 
 ## Režim osoba – matriky, generace po generaci
-Podrobně `reference/matriky.md`, portály `reference/portaly.md`.
+Podrobně `reference/matriky.md`, portály `reference/portaly.md`, metodika `reference/metodika.md`.
 1. **Vyber cíl a začni od nejmladšího zápisu**: úmrtí (ve 20. století uvádí narození i rodiče), pak sňatek (rodiče
    a bydliště obou snoubenců), teprve pak křest. **Nikdy nehledej křest naslepo** po stovkách snímků bez rejstříku.
 2. **Ověř přístupnost**: v archivu je svazek až po lhůtě od posledního zápisu (narození 100 let, sňatky 75, úmrtí 30).
-   Mladší → matriční úřad, zapiš do `data/archivni_dotazy.md`.
+   Mladší → matriční úřad: zápis starší lhůty tam dostane kdokoli, mladší jen rodina (`matriky.md` → Lhůty, § 25b);
+   zapiš do `data/archivni_dotazy.md`. Sporná ztotožnění, mrtvé body a prameny mimo ČR: `reference/metodika.md`.
 3. **Najdi svazek**: obec → farnost → archiv. ARON `aron_search.py`, SOA Třeboň `trebon.py`, Porta fontium
    `portafontium.py`, SOA Praha `ebadatelna.py` (Třeboň a eBadatelna od 2. 11. 2026 zakázaly skripty – nástroj
    skončí hláškou bez dotazu; uživatel svazek najde v prohlížeči a pošle trvalý odkaz/snímek, neobcházej), Praha `ahmp_search.sh`, MZA Brno `mza.py` (často za ALTCHA →
@@ -263,6 +266,7 @@ Pravidla navíc:
 - **Sporné věci** ukaž uživateli s výřezem a nech ho rozhodnout. Desítky sporných najednou sesbírej do
   `pracovni/sporna_cteni.json` a udělej z nich jednu stránku s odpověďmi na kliknutí (artefakt nebo HTML se stažením).
 - Pro 17. století: soupis poddaných 1651, berní rula 1654, lánové rejstříky, gruntovní knihy.
+- Zasekne-li se větev (mrtvý bod), náhradní prameny v pořadí: `reference/metodika.md` → Mrtvé body.
 
 ## Šetrnost k archivům (závazné)
 - **Žádné smyčky stahování.** Nepiš cykly přes `curl`, WebFetch, `fetch`/XHR v `javascript_tool` ani jiný hromadný
@@ -289,7 +293,8 @@ Pravidla navíc:
 Na velké kolo (5 svazků, sčítání 1857–1921, vlna příběhů) můžeš pustit pomocníky na levnějším modelu. Pravidla, brief,
 větve a ověřování jsou ve skillu **`paralelni-badani`** – načti ho dřív, než prvního pustíš. Minimum: pomocník bez vlastní větve píše jen
 do `pracovni/pom_<úkol>/`; do `data/` jen na vlastní větvi, kterou slučuje integrační krok (ne on sám); jeho čtení ověř sám na snímku (`tools/overit.py`), než ho zapíšeš
-jako `doc`; před velkým kolem si nech plán schválit (kredity).
+jako `doc`; před velkým kolem si nech plán schválit (kredity). Rejstřík ať pomocník čte po sloupcích (`mapa_knihy.py … --sloupce`,
+`reference/matriky.md` → Čtení písma) – jeho „v rejstříku není“ bez toho neber jako výsledek.
 
 ## Zajímavosti a příběhy
 Podrobně `reference/pribehy.md` (rod), `reference-dum/pribehy.md` (dům), texty pro web `reference-dum/texty.md`.

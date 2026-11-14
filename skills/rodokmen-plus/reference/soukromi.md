@@ -15,7 +15,7 @@ Co uživatel na webu schválí, zapiš úryvkem do `web.json` → `citlive_schva
 2. Rodinné fotky a dokumenty – souhlasí ti, kdo jsou na nich (nebo jejich rodina)?
 3. Přihlašovací otázka a odpověď (`web.json`) – nastavená a dost těžká?
 4. Kontakt na webu – chce tam uživatel svůj e-mail?
-Teprve pak `npm run nasadit`.
+Teprve pak zveřejni (`npm run nasadit-cloudflare`, kdo má web na Netlify `npm run nasadit` – viz `web.md`).
 
 ## Kniha předků (PDF)
 Stejná pravidla jako web (žijící jen jméno a rok), ale **PDF se šíří mimo přihlášení**: kdo ho dostane, může ho

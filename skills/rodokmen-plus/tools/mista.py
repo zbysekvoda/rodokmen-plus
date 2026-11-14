@@ -30,6 +30,8 @@ Převzato a sloučeno z forků (MIT):
     @ 59ba1e666208af7888f6dd4dd5dc54e7c2706807 (repo HEAD 532f7b0a2fed99b9003a23a600085659edb741d2)
 """
 import json, math, os, re, sys, urllib.parse, urllib.request
+if sys.argv[1:2] in (["-h"], ["--help"]):   # nápověda místo pádu
+    sys.exit(__doc__.strip())
 for _s in (sys.stdout, sys.stderr):   # UTF-8 výstup i na Windows bez -X utf8 (cp1250 neumí třeba „→“)
     if hasattr(_s, "reconfigure"):
         _s.reconfigure(encoding="utf-8", errors="replace")
@@ -177,7 +179,7 @@ def osoby():
     if not os.path.exists(f):
         return {}
     ns = {}
-    exec(open(f, encoding="utf-8").read(), ns)
+    exec(open(f, encoding="utf-8-sig").read(), ns)
     return dict(ns.get("OSOBY", {}))   # graf osob: {id: dict(n=…, f=[…], …)}
 
 
@@ -192,12 +194,18 @@ def uloz(cache):
 
 
 def main():
-    cache = json.load(open(OUT, encoding="utf-8")) if os.path.exists(OUT) else {}
+    cache = json.load(open(OUT, encoding="utf-8-sig")) if os.path.exists(OUT) else {}
     arg = sys.argv[1] if len(sys.argv) > 1 else ""
     if arg == "pridej" and len(sys.argv) > 2:
         name = sys.argv[2]
-        cache[name] = dict(cache.get(name, {}), re=sys.argv[3] if len(sys.argv) > 3 and sys.argv[3] else kmen(name),
-                           dotaz=sys.argv[4] if len(sys.argv) > 4 else f"{name}, Česko")
+        stare = cache.get(name, {})
+        dotaz = sys.argv[4] if len(sys.argv) > 4 else stare.get("dotaz", f"{name}, Česko")
+        cache[name] = dict(stare, re=sys.argv[3] if len(sys.argv) > 3 and sys.argv[3] else stare.get("re", kmen(name)),
+                           dotaz=dotaz)
+        if bod(stare) and dotaz != stare.get("dotaz", f"{name}, Česko"):   # jiný dotaz = oprava místa → hledat znovu
+            for k in ("lat", "lon", "osm", "mapy"):
+                cache[name].pop(k, None)
+            print(f"přepočítávám: {name} (nový dotaz „{dotaz}“)")
     print("Zdroj:", "Mapy.com (MAPY_API_KEY)" if klic() else "OpenStreetMap Nominatim + RÚIAN (bez klíče Mapy.com)")
     P = osoby()
     pozor, nove = [], []

@@ -28,6 +28,8 @@ sbory (fara <skupina>/<úřad>) převzaty a upraveny z forku (licence MIT, © Ja
 Rozdíly: síť jen přes slusne.py (žádné vlastní pauzy a opakování), snímky přes cache.py.
 """
 import html, http.client, json, os, re, ssl, sys, textwrap, unicodedata, urllib.error, urllib.parse, urllib.request
+if len(sys.argv) < 2 or sys.argv[1] in ("-h", "--help"):   # nápověda místo pádu
+    sys.exit(__doc__.strip())
 for _s in (sys.stdout, sys.stderr):   # UTF-8 výstup i na Windows bez -X utf8 (cp1250 neumí třeba „→“)
     if hasattr(_s, "reconfigure"):
         _s.reconfigure(encoding="utf-8", errors="replace")
@@ -114,7 +116,7 @@ def kniha_page(kniha):
     os.makedirs(CACHE, exist_ok=True)
     path = os.path.join(CACHE, kniha + ".html")
     if os.path.exists(path):
-        return kniha, open(path, encoding="utf-8").read()
+        return kniha, open(path, encoding="utf-8-sig").read()
     # číslo = stránka prohlížeče (dům ze sčítání, id vypíše „scitani“ / „domy“), jinak adresa knihy matriky
     page = get(f"/iipimage/{kniha}" if kniha.isdigit() else f"/register/{ARCHIV}/{kniha}")
     if "data-iip-path" in page:   # kešuj jen opravdovou stránku knihy se snímky
@@ -231,7 +233,7 @@ def cached(url, name):
     os.makedirs(CACHE, exist_ok=True)
     path = os.path.join(CACHE, name)
     if os.path.exists(path):
-        return open(path, encoding="utf-8").read()
+        return open(path, encoding="utf-8-sig").read()
     page = get(url)
     if "/census/" in page:   # kešuj jen opravdovou stránku sčítání
         with open(path, "w", encoding="utf-8", newline="\n") as f:
@@ -303,7 +305,7 @@ def zkrat(s, n=300):
 def svazek(kniha):
     kniha, fields, scans, _ = info(kniha)
     path = os.path.join(ROOT, "data", "svazky.json")
-    d = json.load(open(path, encoding="utf-8")) if os.path.exists(path) else {}
+    d = json.load(open(path, encoding="utf-8-sig")) if os.path.exists(path) else {}
     if kniha.isdigit():   # dům ze sčítání lidu
         fond = ", ".join(x for x in (fields.get("Značka fondu"), fields.get("Karton") and "karton " + fields["Karton"]) if x)
         zaznam = {"archiv": fields.get("Archiv", "SOA Plzeň"), "portal": "Porta fontium",

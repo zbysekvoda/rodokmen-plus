@@ -3,7 +3,7 @@
 řádků LF), takže změna v historii je jen ta jedna položka.
 
 Použití (z kořene projektu):
-  zapis.py <soubor> <klíč> <vstup.json> [--sloucit]
+  zapis.py <soubor> <klíč> <vstup.json> [--sloucit | --prepsat]
   zapis.py dokumenty <starý_klíč> --prejmenovat <nový_klíč> [--nahled]
     soubor    zaznamy | svazky | prepisy | zvyrazneni | mista | scitani_mza | dokumenty | mapy | web  (= data/<soubor>.json)
     klíč       zaznamy: „klic“ zápisu; dokumenty, mapy: „img“; web: pole nastavení (uvod, pribeh, prihlaseni,
@@ -11,20 +11,29 @@ Použití (z kořene projektu):
                scitani_mza: obec – s --sloucit a {"operaty": {…}} se celé „operaty“ nahradí, tak je uveď všechny)
     vstup.json soubor s jedním objektem JSON (napiš ho nástrojem Write do pracovni/), „-“ = ze vstupu
     --sloucit  jen změní / doplní uvedená pole, ostatní pole položky nechá
+    --prepsat  nahradí položku celou, i když nový vstup některá dosavadní pole nemá (ta se ztratí)
     --prejmenovat  přejmenuje „img“ dokumentu včetně výřezů (vyrezy/, zdroje/, web/public/), zvýraznění, web.json
                „uvod.foto“ a odkazů img/…jpg v datech a web/src; --nahled jen vypíše, co by změnil
-Položka se stejným klíčem se nahradí, jinak se přidá na konec. Python skripty ani `sed -i` na data nepoužívej.
+Položka se stejným klíčem se nahradí, jinak se přidá na konec. Chyběla-li by v náhradě pole, která položka měla,
+nástroj nic nezmění a vypíše je (pak --sloucit, nebo --prepsat). Python skripty ani `sed -i` na data nepoužívej.
 
+  zapis.py odkaz <osoba> <klíč zápisu> [<klíč> …]
+    Přidá klíč(e) do seznamu `r` osoby v OSOBY (data/osoby.py): osoba = id, nebo část jména (musí sedět na jedinou
+    osobu, i boční). Zbytek souboru zůstane doslova, klíč musí být v zaznamy.json.
+
+„odkaz“ a --prepsat převzaty z upstreamu sarsonj/rodokmen-skill 0.10.0 (MIT), upraveno na graf OSOBY.
 --prejmenovat převzato z forku xkraust/rodokmen-skill (https://github.com/xkraust/rodokmen-skill),
 commit 79d3685 (https://github.com/xkraust/rodokmen-skill/commit/79d36850afaa080b0ebcf70a368cbbb5237d700e).
 """
-import json, os, re, sys
+import ast, json, os, re, sys
 import tempfile, unicodedata
 from pathlib import Path
 from urllib.parse import quote
 for _s in (sys.stdout, sys.stderr):   # UTF-8 výstup i na Windows bez -X utf8 (cp1250 neumí třeba „→“)
     if hasattr(_s, "reconfigure"):
         _s.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stdin, "reconfigure"):   # vstup „-“ (roura, heredoc) je UTF-8; na Windows by se jinak četl v cp1250
+    sys.stdin.reconfigure(encoding="utf-8-sig")
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if not os.path.exists(os.path.join(ROOT, "data", "STAV.md")):   # spuštěno ze složky skillu: data projektu tam nejsou, zápis by šel do skillu
@@ -219,7 +228,112 @@ def rename_document(root, old, new, preview=False):
           "Spusť kontrola.py a export webu (export_web.py), ať se přegeneruje web.")
 
 
+def bajty_pozice(src):
+    """(řádek, sloupec v bajtech UTF-8) z ast → pozice v bajtech celého souboru."""
+    starts, n = [0], 0
+    for radek in src.split(b"\n"):
+        n += len(radek) + 1
+        starts.append(n)
+    return lambda line, col: starts[line - 1] + col
+
+
+def nacti_osoby(src):
+    ns = {}
+    exec(compile(src, "data/osoby.py", "exec"), ns)
+    return ns
+
+
+def odkaz(osoba, klice):
+    """Přidá klíče zápisů do `r` jedné osoby v OSOBY; zbytek data/osoby.py zůstane doslova."""
+    path = os.path.join(ROOT, "data", "osoby.py")
+    src = open(path, "rb").read()
+    if src.startswith(b"\xef\xbb\xbf"):
+        src = src[3:]
+    try:
+        strom = ast.parse(src)
+        pred = nacti_osoby(src)
+    except Exception as e:
+        sys.exit(f"data/osoby.py nejde načíst ({e}) – oprav ho nejdřív (git diff ukáže poslední změnu).")
+    try:
+        zaznamy = {z.get("klic") for z in json.load(open(os.path.join(ROOT, "data", "zaznamy.json"), encoding="utf-8-sig"))}
+    except (OSError, ValueError) as e:
+        sys.exit(f"data/zaznamy.json nejde přečíst ({e}).")
+    chybi = [k for k in klice if k not in zaznamy]
+    if chybi:
+        sys.exit(f"Zápis {', '.join(chybi)} v data/zaznamy.json není – nejdřív ho zapiš (zapis.py zaznamy …).")
+
+    O = next((u.value for u in strom.body if isinstance(u, ast.Assign)
+              and any(isinstance(t, ast.Name) and t.id == "OSOBY" for t in u.targets)), None)
+    if not isinstance(O, ast.Dict):
+        sys.exit("V data/osoby.py chybí OSOBY = {…}.")
+    polozky_o = [(kl.value, v) for kl, v in zip(O.keys, O.values) if isinstance(kl, ast.Constant)]
+    kandidati = [(i, v) for i, v in polozky_o if i == osoba]
+    if not kandidati:
+        kandidati = [(i, v) for i, v in polozky_o if osoba.lower() in str(pred["OSOBY"][i].get("n", "")).lower()]
+    if len(kandidati) != 1:
+        sys.exit(f"Osobu „{osoba}“ " + ("v OSOBY nenacházím." if not kandidati else
+                 "sedí na víc osob: " + "; ".join(f"{i} ({pred['OSOBY'][i].get('n')})" for i, _ in kandidati)
+                 + " – napiš id."))
+    oid, volani = kandidati[0]
+    stare = pred["OSOBY"][oid]
+    popis = f"osoba {oid} ({stare.get('n')})"
+    jako_dict = isinstance(volani, ast.Call) and getattr(volani.func, "id", "") == "dict" and not volani.args
+    if not (jako_dict or isinstance(volani, ast.Dict)):
+        sys.exit(f"{popis}: čekal jsem dict(…) nebo {{…}} – uprav ručně.")
+
+    nove = [k for k in dict.fromkeys(klice) if k not in (stare.get("r") or [])]
+    if not nove:
+        print(f"{popis}: zápis už má, nic neměním.")
+        return
+    pos = bajty_pozice(src)
+    if jako_dict:
+        r = next((kw.value for kw in volani.keywords if kw.arg == "r"), None)
+    else:
+        r = next((v for kl, v in zip(volani.keys, volani.values) if isinstance(kl, ast.Constant) and kl.value == "r"), None)
+    # styl uvozovek podle souboru: první řetězec v položce
+    prvni = next((n for n in ast.walk(volani) if isinstance(n, ast.Constant) and isinstance(n.value, str)), None)
+    apostrof = prvni is not None and src[pos(prvni.lineno, prvni.col_offset):][:1] == b"'"
+    retez = lambda k: (repr(k) if apostrof else json.dumps(k, ensure_ascii=False))
+    vlozit = ", ".join(retez(k) for k in nove).encode("utf-8")
+    if r is not None:
+        if not isinstance(r, ast.List):
+            sys.exit(f"{popis}: r není seznam [ … ] – uprav ručně.")
+        konec = pos(r.end_lineno, r.end_col_offset) - 1          # pozice „]“
+        pred_z = src[:konec].rstrip()
+        oddel = b"" if not r.elts else (b" " if pred_z.endswith(b",") else b", ")
+    else:
+        konec = pos(volani.end_lineno, volani.end_col_offset) - 1   # pozice „)“ nebo „}“
+        pred_z = src[:konec].rstrip()
+        klic_r = b"r=[" if jako_dict else (retez("r") + ": [").encode()
+        oddel = (b" " if pred_z.endswith(b",") else b", ") + klic_r
+        vlozit += b"]"
+    if r is not None and not r.elts:   # r=[] → r=["klíč"]
+        novy = src[:konec] + vlozit + src[konec:]
+    else:   # za poslední prvek / argument; mezery a konec řádku před „]“ či „)“ zůstanou
+        novy = pred_z + oddel + vlozit + src[len(pred_z):]
+
+    # pojistka: soubor jde načíst, u osoby přibyly jen ty klíče a nic jiného se nezměnilo
+    try:
+        po = nacti_osoby(novy)
+    except Exception as e:
+        sys.exit(f"Úprava by rozbila data/osoby.py ({e}) – nic jsem nezapsal, uprav ručně.")
+    ocekavane = dict(pred, OSOBY={**pred["OSOBY"], oid: {**stare, "r": (stare.get("r") or []) + nove}})
+    for jmeno in ("OSOBY", "VZTAHY", "KORENY", "RODY", "ISSUES", "HYPOTEZY"):
+        if po.get(jmeno) != ocekavane.get(jmeno):
+            sys.exit(f"Úprava by změnila i {jmeno} – nic jsem nezapsal, uprav ručně.")
+
+    tmp = path + ".tmp"
+    with open(tmp, "wb") as f:
+        f.write(novy)
+    os.replace(tmp, path)
+    print(f"data/osoby.py: {popis} – přidán zápis {', '.join(nove)}")
+
+
 def main():
+    if sys.argv[1:2] == ["odkaz"]:
+        if len(sys.argv) < 4:
+            sys.exit(__doc__)
+        return odkaz(sys.argv[2], sys.argv[3:])
     if "--prejmenovat" in sys.argv:
         args = [a for a in sys.argv[1:] if a != "--nahled"]
         if len(args) != 4 or args[0] != "dokumenty" or args[2] != "--prejmenovat":
@@ -229,8 +343,10 @@ def main():
         except (OSError, ValueError) as e:
             sys.exit(f"Přejmenování se nezdařilo: {e}")
         return
-    args = [a for a in sys.argv[1:] if a != "--sloucit"]
-    sloucit = "--sloucit" in sys.argv
+    args = [a for a in sys.argv[1:] if a not in ("--sloucit", "--prepsat")]
+    sloucit, prepsat = "--sloucit" in sys.argv, "--prepsat" in sys.argv
+    if sloucit and prepsat:
+        sys.exit("--sloucit a --prepsat nejdou spolu – vyber jedno.")
     if len(args) != 3 or args[0] not in {*SEZNAMY, *SLOVNIKY}:
         sys.exit(__doc__)
     nazev, klic, vstup = args
@@ -261,6 +377,10 @@ def main():
         idx = next((n for n, (k, _, _) in enumerate(poz) if k == klic), None)
     stare = None if idx is None else (data[idx] if seznam else data[klic])
     nove = {**stare, **obj} if sloucit and isinstance(stare, dict) else obj
+    ztracena = sorted(set(stare) - set(nove)) if isinstance(stare, dict) and not prepsat else []
+    if ztracena:   # tiché přepsání by smazalo pole (např. podrobný seznam obcí svazku)
+        sys.exit(f"data/{nazev}.json: „{klic}“ už existuje a náhrada nemá pole {', '.join(ztracena)} – nic jsem "
+                 "nezměnil. Doplnit / změnit jen uvedená pole: --sloucit; nahradit celé (pole se ztratí): --prepsat.")
     if not poz:   # prázdný nebo nový soubor
         text = json.dumps([nove] if seznam else {klic: nove}, ensure_ascii=False, indent=1) + "\n"
     elif idx is not None:   # nahradit jen text té jedné položky, zbytek souboru zůstane doslova

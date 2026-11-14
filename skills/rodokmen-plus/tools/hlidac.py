@@ -100,6 +100,8 @@ def webfetch(url):
 
 def main():
     try:
+        if hasattr(sys.stdin, "reconfigure"):   # Claude Code posílá UTF-8; na Windows by se četl v cp1250
+            sys.stdin.reconfigure(encoding="utf-8-sig")
         d = json.load(sys.stdin)
     except ValueError:
         return

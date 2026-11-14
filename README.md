@@ -214,4 +214,4 @@ zvažte poslat ji i autorům původních skillů.
 
 ## Licence
 [MIT](LICENSE). Původní části © Jindřich Šaršon a Vojtěch Žoha, nové části © Zbyšek Voda. Výjimkou je metodická
-příručka `reference/playbook.md` (převzatá rešeršní zpráva bez uvedeného autora, MIT se na ni nevztahuje).
+příručka `reference-dum/playbook.md` (převzatá rešeršní zpráva bez uvedeného autora, MIT se na ni nevztahuje).

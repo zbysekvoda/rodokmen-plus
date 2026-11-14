@@ -6,8 +6,8 @@ a archivy pak přitvrzují vůči všem. Proto:
 - limit platí pro každý web zvlášť a je SPOLEČNÝ všem procesům (pomocníci/subagenti, dva nástroje najednou),
 - dotazy (hledání, API, HTML) přísně – výchozí 1 za 2 s; obrázky a dlaždice volněji – 20 za s
   (ban způsobují rychlé dotazy, ne dlaždice jednoho snímku),
-- weby, které skripty zakázaly (ZAKAZ_SKRIPTU: SOA Třeboň a eBadatelna SOA Praha od 2. 11. 2026), se vůbec
-  nedotazují – nástroj hned skončí hláškou, co dělat ručně v prohlížeči,
+- weby, které skripty zakázaly (ZAKAZ_SKRIPTU: SOA Třeboň a eBadatelna SOA Praha od 2. 11. 2026, ZA Opava od 11/2026),
+  se vůbec nedotazují – nástroj hned skončí hláškou, co dělat ručně v prohlížeči,
 - po HTTP 429 nebo 503 (a po 403 na dotaz uprostřed práce) se web zablokuje na 30 minut pro všechny procesy a nástroj hned skončí –
   žádné další pokusy; chce-li server v Retry-After (sekundy i datum HTTP) delší pauzu, trvá blokace tak dlouho,
 - když server hlásí, že dotazy docházejí (RateLimit-Remaining / X-RateLimit-Remaining 0–1, i tvar `RateLimit: r=0;t=30`),
@@ -19,6 +19,9 @@ Nástroje v tools/ to mají zapnuté samy (`slusne.instaluj()` na začátku). Vl
   python3 -I tools/slusne.py stav                                 -> které weby jsou teď zablokované a do kdy
   python3 -I tools/slusne.py zablokuj <web> [důvod]               -> zablokovat web na 30 min (429/503/403 v prohlížeči)
   python3 -I tools/slusne.py odblokuj <web>                       -> zrušit blokaci (jen když víš, že šlo o omyl)
+V curl jedna adresa na příkaz (víc adres ani rozsahy [1-200] / {a,b} brzda nepustí – curl by je stáhl naráz).
+V prohlížeči (Playwright, Claude in Chrome) brzda neplatí – tam aspoň 5–10 s mezi stránkami, žádné souběžné dotazy ani
+smyčky přes celé svazky.
 Stav je ve ~/.cache/dejiny-domu/slusne/ (jinde: proměnná SLUSNE_DIR).
 """
 import http.client, json, os, re, subprocess, sys, threading, time, urllib.parse
@@ -47,6 +50,10 @@ ZAKAZ_SKRIPTU = {
                                "otevři https://ebadatelna.soapraha.cz v prohlížeči, matriku najdi přes lokalitu "
                                "a snímek si ulož nebo opiš trvalý odkaz https://ebadatelna.soapraha.cz/d/<matrikaId>/<snímek>"),
 }
+for _h in ("digi.archives.cz", "images.archives.cz"):   # ZA Opava: robots.txt „Disallow: /“, od 11/2026 obrázky skriptům 403/404
+    ZAKAZ_SKRIPTU[_h] = ("ZA Opava (digi.archives.cz, images.archives.cz)", "listopadu 2026",
+                         "snímek ulož z prohlížeče snímků – Playwright (dlaždice, které načte prohlížeč, složí úryvek do "
+                         "celého snímku, cache.py uloz), jinak snímek obrazovky přiblíženého zápisu (reference/portaly.md, ZA Opava)")
 OBRAZEK = re.compile(r"\.(jpe?g|png|gif|webp|tiff?|jp2|dzi)(\?|$)|_files/|iipsrv|IIIF=|Deepzoom=|ximage|zoomify|"
                      r"TileGroup|ImageProperties\.xml|isrv\d*\.cgi|/full/|default\.jpg|/image/|mrimage|/tiles?/", re.I)
 
@@ -301,8 +308,49 @@ def instaluj():
     http.client.HTTPConnection.getresponse = getresponse
 
 
-HODNOTOVE = {"-e", "--referer", "-x", "--proxy", "-H", "--header", "-b", "--cookie", "-A", "--user-agent",
-             "-u", "--user", "-d", "--data", "--data-urlencode", "-F", "--form"}   # volby curl, jejichž hodnota může být adresa
+# přepínače curlu, které berou hodnotu (ta pak není adresa); krátké se dají slučovat („-sSLo soubor“) – podle upstreamu 0.10.1
+_CURL_HODNOTA = {"--output", "--header", "--user-agent", "--data", "--data-raw", "--data-binary", "--data-urlencode",
+                 "--data-ascii", "--json", "--referer", "--user", "--proxy", "--write-out", "--cookie", "--cookie-jar",
+                 "--request", "--upload-file", "--form", "--form-string", "--max-time", "--range", "--config",
+                 "--connect-timeout", "--retry", "--retry-delay", "--retry-max-time", "--limit-rate", "--continue-at",
+                 "--output-dir", "--resolve", "--connect-to", "--cacert", "--capath", "--cert", "--key", "--dump-header",
+                 "--speed-limit", "--speed-time", "--max-filesize", "--max-redirs", "--time-cond", "--interface",
+                 "--proto", "--proto-redir", "--stderr", "--trace", "--trace-ascii", "--etag-save", "--etag-compare"}
+_CURL_KRATKE = set("oHAdeuxwbcXTFmrKCDEYyz")
+_HOLY_HOST = re.compile(r"(?i)^[a-z0-9-]+(\.[a-z0-9-]+)+\.?(:\d+)?([/?#].*)?$")   # www.mza.cz/… bez https://
+
+
+def curl_adresy(args):
+    """Adresy v příkazu curl; adresa bez schématu dostane http:// (curl ji tak bere)."""
+    out, i = [], 0
+    while i < len(args):
+        a = args[i]
+        if a == "--url" and i + 1 < len(args):
+            u = args[i + 1]
+            out.append(u if "://" in u else "http://" + u)
+            i += 2
+            continue
+        if a.startswith("--url="):
+            out.append(a[6:] if "://" in a[6:] else "http://" + a[6:])
+        elif a.startswith("--"):
+            if a in _CURL_HODNOTA:
+                i += 1
+        elif a.startswith("-") and len(a) > 1:
+            for j, c in enumerate(a[1:]):
+                if c in _CURL_KRATKE:
+                    if j == len(a) - 2:
+                        i += 1   # hodnota je další argument
+                    break        # jinak je hodnota přilepená („-ofile“)
+        elif re.match(r"(?i)https?://", a):
+            out.append(a)
+        elif _HOLY_HOST.match(a):
+            out.append("http://" + a)
+        i += 1
+    return out
+
+
+class CurlOdmitnut(SystemExit):
+    pass
 
 
 def hlavicky_ze_souboru(cesta):
@@ -325,7 +373,13 @@ def hlavicky_ze_souboru(cesta):
 def curl(args, **kw):
     """Spustí curl s limitem: počká podle první adresy, po odpovědi posoudí kód a hlavičky (Retry-After, RateLimit-*).
     Vrací CompletedProcess (stderr jako text)."""
-    urls = [a for i, a in enumerate(args) if re.match(r"https?://", a) and (i == 0 or args[i - 1] not in HODNOTOVE)]
+    urls = curl_adresy(args)
+    if len(urls) > 1:   # curl by je poslal hned za sebou, brzda by nestihla čekat ani zastavit
+        raise CurlOdmitnut("slusne: jeden curl = jedna adresa. Víc snímků stahuj postupně (každý zvlášť přes brzdu).")
+    globoff = any(a in ("-g", "--globoff") or (re.match(r"-[a-zA-Z]+$", a) and "g" in a) for a in args)
+    if urls and not globoff and re.search(r"[\[\]{}]", urls[0]):   # rozsah [1-200] / {a,b} = mnoho dotazů naráz
+        raise CurlOdmitnut("slusne: rozsahy [..] a {..} v adrese nejdou (curl by je stáhl všechny naráz). Stahuj snímky "
+                           "postupně, nebo je-li závorka v adrese doslova, přidej -g.")
     host = urllib.parse.urlsplit(urls[0]).hostname if urls else ""
     co = druh(urls[0]) if urls else "dotaz"
     if host:
@@ -355,7 +409,7 @@ def curl(args, **kw):
         docasny = True
         args += ["-D", soubor_hlavicek]
     try:
-        p = subprocess.run(["curl", *args], **kw)
+        p = subprocess.run([os.environ.get("SLUSNE_CURL") or "curl", *args], **kw)
         hlavicka = hlavicky_ze_souboru(soubor_hlavicek) if soubor_hlavicek else (lambda jmeno: None)
     finally:
         if docasny:
@@ -396,6 +450,9 @@ def main(a):
     elif a[0] == "curl":
         try:
             p = curl(a[1:])
+        except CurlOdmitnut as e:
+            print(e, file=sys.stderr)
+            sys.exit(2)
         except Zablokovano as e:
             print(e, file=sys.stderr)
             sys.exit(22)

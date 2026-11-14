@@ -16,6 +16,18 @@
 - `kontrola.py` upozorní na dva příběhy se stejným slugem (krátké příběhy navzájem i proti `pribehy` ve `web.json`).
 - Rozcestník `/pribehy/`: rok z nadpisu („… (1858)“) se u karty krátkého příběhu ukáže nad titulkem (`kratkePribehy[].rok`).
 
+### Převzato z upstreamu (sarsonj/rodokmen-skill 0.10.0–0.10.1)
+- Návody: `reference/metodika.md` místo `playbook.md` (plus části přesunuty na konec), nový `reference/instalace.md`;
+  matriky: § 25b (lhůty po zápisech), rejstřík číst po sloupcích, ozdobné iniciály; portály: ZA Opava jen v prohlížeči.
+- `mapa_knihy.py --sloupce` (pruhy sloupců rejstříku v plném rozlišení), `zapis.py --prepsat` a `zapis.py odkaz`.
+- `slusne.py curl`: přísnější rozbor argumentů (holý host, víc adres, rozsahy `[..]`), ZA Opava zakázaná pro skripty.
+- `kontrola.py` a `export_web.py`: tvar ISSUES, `prepisy.json`, dokument bez popisu, duplicitní linie, BOM (utf-8-sig).
+- `ged_import.py` UTF-16, `napady.py` nepřesná data („před“, „asi“), `mista.py` nový dotaz = nové souřadnice,
+  `matricula_dl.sh` nepřijme chybovou stránku místo snímku, nápověda `-h` u nástrojů, náhled webu `--ignore-lock`,
+  `main.wide` zpět na 1400 px.
+- Opraveno při slučování: `soal_zoomify.py` volal neexistující `slusne.zastav`, `zapis.py` neznámé `prepsat`.
+- Nepřevzato: Cloudflare nasazení, `verze.py`, snímky z prohlížeče v `cache.py`, SAME/SIDE (plus má graf).
+
 ### Opraveno
 - Web: Celý strom (`#cele`, rody, kořeny) je v plné hloubce o polovinu užší. Předci se skládají kompaktně
   (Reingold–Tilford kontury) a v hustých generacích stojí sousední boxy cik-cak ve dvou výškách.

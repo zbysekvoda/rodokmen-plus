@@ -9,7 +9,7 @@ a překladem), stránka osoby, rodiny, „Co hledáme“, výzkumný deník, hle
 | příkaz | co dělá |
 |---|---|
 | `npm install` | jednou na začátku (stáhne knihovny, ~1 minuta) |
-| `npm run data` | převede data do webu (vždy po změně dat; funkční Python 3 vyhledá `scripts/data.mjs`) |
+| `npm run data` | převede data do webu (vždy po změně dat; `scripts/data.mjs` si sám najde funkční Python 3) |
 | `npm run build` | sestaví web do `dist/` |
 | `npm run nahled` | data + build + náhled na http://localhost:4321 (Ctrl+C ukončí) |
 | `npm run dev` | vývojový režim při úpravách vzhledu |

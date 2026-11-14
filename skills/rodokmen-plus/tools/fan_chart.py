@@ -5,6 +5,8 @@ Použití: fan_chart.py <out_dir> [--koren <klíč>]                       (plak
 Volitelně --generaci <N>: nejvýš N generací včetně kořene (Kniha předků: web.json → kniha.generaci); prstence se
 roztáhnou na celý poloměr. Bez něj plná hloubka (nejvýš 11 generací)."""
 import html, itertools, json, math, os, re, subprocess, sys
+if sys.argv[1:2] in (["-h"], ["--help"]):   # nápověda místo pádu
+    sys.exit(__doc__.strip())
 for _s in (sys.stdout, sys.stderr):   # UTF-8 výstup i na Windows bez -X utf8 (cp1250 neumí třeba „→“)
     if hasattr(_s, "reconfigure"):
         _s.reconfigure(encoding="utf-8", errors="replace")
@@ -23,7 +25,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); import graf; ns.
 P, LINES, SAME = ns["P"], ns.get("LINES", {}), ns.get("SAME", {})
 # rody leží v jedné generaci (obvykle pradědečci 8–15; při kořeni dítěti 16–31) – barvy podle pořadí rodů
 LG = (min(LINES).bit_length() - 1) if LINES else 3
-WEBCFG = json.load(open(os.path.join(ROOT, "data", "web.json"), encoding="utf-8")) if os.path.exists(os.path.join(ROOT, "data", "web.json")) else {}
+WEBCFG = json.load(open(os.path.join(ROOT, "data", "web.json"), encoding="utf-8-sig")) if os.path.exists(os.path.join(ROOT, "data", "web.json")) else {}
 
 W, H = (4520, 4520) if WEB else (4600, 5650)
 CX, CY = (2260, 2260) if WEB else (W / 2, 2760)
@@ -304,7 +306,7 @@ for cell in build_cells(solve_flags()):
 known = [k for k, p in P.items() if k > 1 and not p["n"].startswith("otec neuveden")]
 doc = [k for k in known if P[k].get("st") == "doc"]
 zpath = os.path.join(ROOT, "data", "zaznamy.json")
-recs = json.load(open(zpath, encoding="utf-8")) if os.path.exists(zpath) else []
+recs = json.load(open(zpath, encoding="utf-8-sig")) if os.path.exists(zpath) else []
 maxg = max(gen(k) for k in P)
 
 title = (f'<text x="{W / 2}" y="250" text-anchor="middle" font-family="Georgia, \'Times New Roman\', serif" font-size="128" fill="#3B2E22">{html.escape(WEBCFG.get("nazev", "Rodokmen"))}</text>'
