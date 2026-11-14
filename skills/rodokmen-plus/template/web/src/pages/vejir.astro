@@ -22,6 +22,14 @@ const names = [...new Set(Object.values(people).filter((p) => p.k > 1).map((p) =
       <datalist id="fan-names">{names.map((n) => <option value={n} />)}</datalist>
       <button type="submit">Najít</button>
     </form>
+    <fieldset class="fan-dna" aria-describedby="fan-dna-popis">
+      <legend class="small">DNA linie</legend>
+      <label><input type="radio" name="dna" value="" checked /> Žádná</label>
+      <label><input type="radio" name="dna" value="y" /> Y-DNA</label>
+      <label><input type="radio" name="dna" value="mt" /> mtDNA</label>
+      <label><input type="radio" name="dna" value="x" /> X-DNA</label>
+      <span id="fan-dna-popis" class="small muted" aria-live="polite"></span>
+    </fieldset>
     <span class="fan-btns">
       <button type="button" data-pz="in" aria-label="Přiblížit">+</button>
       <button type="button" data-pz="out" aria-label="Oddálit">−</button>
@@ -33,6 +41,7 @@ const names = [...new Set(Object.values(people).filter((p) => p.k > 1).map((p) =
 
   <script>
     import { panZoom, bindButtons } from '../lib/panzoom.js';
+    import { vLinii, POPIS } from '../lib/dna.js';
     const stages = [...document.querySelectorAll<HTMLElement>('.fan-stage')];
     const want = new URLSearchParams(location.search).get('o');
     const stage = stages.find((s) => s.dataset.root === want) ?? stages[0];
@@ -54,6 +63,24 @@ const names = [...new Set(Object.values(people).filter((p) => p.k > 1).map((p) =
       a.addEventListener('pointerenter', () => orig?.classList.add('hit'));
       a.addEventListener('pointerleave', () => orig?.classList.remove('hit'));
     });
+
+    // DNA linie: zvýraznění podle Kekulého čísla pozice (data-k), ne podle osoby – implex se posoudí na každém místě
+    const sex = (svg.dataset.sex || undefined) as 'M' | 'F' | undefined;
+    const dnaBox = document.querySelector<HTMLFieldSetElement>('.fan-dna')!;
+    const dnaPopis = document.getElementById('fan-dna-popis')!;
+    const yInput = dnaBox.querySelector<HTMLInputElement>('input[value="y"]')!;
+    if (sex !== 'M') {
+      yInput.disabled = true;
+      yInput.parentElement!.title = POPIS.yZena;
+    }
+    const segs = [...svg.querySelectorAll<SVGElement>('.fan-seg')];
+    const setDna = (linie: string) => {
+      if (linie) stage.dataset.dna = linie; else delete stage.dataset.dna;
+      segs.forEach((el) => el.classList.toggle('dna-on', !!linie && vLinii(Number(el.dataset.k), linie as 'y' | 'mt' | 'x', sex)));
+      dnaPopis.textContent = linie ? POPIS[linie as 'y' | 'mt' | 'x'] : sex !== 'M' ? POPIS.yZena : '';
+    };
+    dnaBox.addEventListener('change', (e) => setDna((e.target as HTMLInputElement).value));
+    setDna('');
 
     // search: zoom to the ancestor's segment and highlight it
     const norm = (t: string) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();

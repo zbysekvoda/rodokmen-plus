@@ -207,7 +207,7 @@ for cell in build_cells(solve_flags()):
         n_repeat += 1
         rr = RINGS[-1][1]
         d = sector(r0, rr, a0, a1)
-        paths.append(f'<path class="fan-repeat" d="{d}" fill="url(#fan-repeat)" stroke="#8A7F70" stroke-width="2" '
+        paths.append(f'<path class="fan-repeat fan-seg" data-k="{k}" d="{d}" fill="url(#fan-repeat)" stroke="#8A7F70" stroke-width="2" '
                      f'stroke-dasharray="10 6" vector-effect="non-scaling-stroke"/>')
         p = P.get(ck, {})
         lab = f"↺ viz č. {ck}"
@@ -224,9 +224,9 @@ for cell in build_cells(solve_flags()):
                          f'v rodokmenu znovu (sdílený předek), větev viz č. {ck}</title><path d="{d}"/></a>')
         continue
     if g == 0:
-        paths.append(f'<circle cx="{CX}" cy="{CY}" r="{r1}" fill="{fill(k)}" stroke="#fff" stroke-width="3"/>')
+        paths.append(f'<circle class="fan-seg" data-k="1" cx="{CX}" cy="{CY}" r="{r1}" fill="{fill(k)}" stroke="#fff" stroke-width="3"/>')
     else:
-        paths.append(f'<path d="{sector(r0, r1, a0, a1)}" fill="{fill(k)}" stroke="#FBF8F2" stroke-width="{3 if g < 6 else 1.6}"/>')
+        paths.append(f'<path class="fan-seg" data-k="{k}" d="{sector(r0, r1, a0, a1)}" fill="{fill(k)}" stroke="#FBF8F2" stroke-width="{3 if g < 6 else 1.6}"/>')
     if cell.get("merged") and ck in P:   # sloučení předci sourozenců: přerušovaný obrys = sdílení více liniemi
         n_merged += 1
         paths.append(f'<path class="fan-merged" d="{sector(r0, r1, a0, a1)}" fill="none" stroke="#7A5C3E" stroke-width="2" '
@@ -336,7 +336,7 @@ svg = (f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBo
        f'{title}{"".join(paths)}{"".join(texts)}{"".join(legend)}{footer}</svg>')
 if WEB:
     open(OUT, "w", encoding="utf-8", newline="\n").write(
-        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" font-family="{FONT}" class="fan">'
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" font-family="{FONT}" class="fan" data-sex="{P[1].get("sex", "")}">'
         f'<defs>{"".join(defs)}</defs>{"".join(paths)}{"".join(texts)}<g class="fan-links">{"".join(links)}</g></svg>')
     print(OUT, len(links), "odkazů,", n_merged, "sloučených sdílených předků,", n_repeat, "opakování")
     sys.exit(0)
