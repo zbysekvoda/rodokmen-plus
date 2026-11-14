@@ -884,7 +884,35 @@ def main():
             p["svetStaty"] = out_st
     events = [ud.pro_web(e) for e in osa_ud if e["id"] in event_ids]
 
-    site = dict(config=public_cfg, events=events, places=places, houses=houses, root=root_id, roots=[dict(key=key, id=i, name=O[i]["n"]) for key, i in g.koreny.items() if i in people],
+    # síť příjmení na /rody/: klíč rodu = rodné příjmení v mužském tvaru (kmotri.prijmeni), varianty podle
+    # data/prijmeni_varianty.json („Nowak“, „Nowakin (žena)“ → „Novák“); žijící osoby do sítě nejdou
+    from kmotri import zaklad
+    kanon = {}
+    for z in jload("prijmeni_varianty.json", {}).get("prijmeni", []):
+        for v in [z["prijmeni"]] + z.get("varianty", []):
+            v = re.sub(r"\(.*?\)", "", v).strip()
+            kanon[zaklad(re.sub(r"in$", "", v) if v.endswith("in") and len(v) > 5 else v)] = z["prijmeni"]
+    def slovo(name):   # poslední slovo jména s velkým písmenem, bez závorek a otazníků
+        w = [x for x in re.sub(r"\(.*?\)", "", name).replace("?", "").split() if x[:1].isupper()]
+        return w[-1] if len(w) >= 2 else None
+    muzi = {slovo(p["name"]) for p in people.values() if p["sex"] == "M"} - {None}
+    def rod_of(name):
+        w = slovo(name)
+        if not w:
+            return None
+        if w.endswith("in") and len(w) > 5 and zaklad(w[:-2]) in kanon:   # Nowakin
+            w = w[:-2]
+        if w.endswith("ová") and len(w) > 4:   # Dušková → Dušek, Fialová → Fiala, Moravcová → Moravec
+            k = w[:-3]
+            cand = [k, k + "a", k[:-1] + "ek", k[:-1] + "ec", k + "e"]
+            w = next((c for c in cand if c in muzi or c in kanon), None) or (
+                k[:-1] + "e" + k[-1] if k[-1:] in "kc" and k[-2:-1] not in "aáeéěiíoóuúůyý" else k)   # Jelínková → Jelínek
+        elif w.endswith("á") and len(w) > 2:   # Malá → Malý
+            w = w[:-1] + "ý"
+        return kanon.get(w, w)
+    surnames = {s: r for s, p in people.items() if not p["alive"] and (r := rod_of(p["name"]))}
+
+    site = dict(config=public_cfg, surnames=surnames, events=events, places=places, houses=houses, root=root_id, roots=[dict(key=key, id=i, name=O[i]["n"]) for key, i in g.koreny.items() if i in people],
                 aliases={a: kslug[a] for a in SAME if a in kslug}, people=people,
                 families=families, records=records, lines=lines, milestones=jload("milniky.json", []),
                 villages=villages, issues=issues, stats=stats, hypotheses=hypotheses,
