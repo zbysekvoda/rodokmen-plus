@@ -141,6 +141,18 @@ def vek(nar, kdy):
 
 
 def vecne_kontroly(err, warn, g, O, zaz, prep):
+    """Textový výstup věcných kontrol pro badatele – odvozený ze strukturovaných položek (vecne_polozky)."""
+    polozky = vecne_polozky(g, O, zaz, prep)
+    for p in polozky:
+        (err if p["zavaznost"] == "chyba" else warn).append(p["text"])
+    return polozky
+
+
+def vecne_polozky(g, O, zaz, prep):
+    """Věcné kontroly (věk při sňatku a porodu, dítě po smrti rodiče, čísla domů) jako seznam položek:
+    {typ, zavaznost: chyba|upozorneni, osoby: [id], text (pro příkazovou řádku), vyzva (pro web: co ověřit),
+    zapisy: [klíč zápisu]}. Web je ukazuje na stránce „Stojí za ověření“ (export_web.py → overeni)."""
+    out = []
     meze = dict(VEK)
     for k, v in (jload("kontrola.json", {}).get("vek") or {}).items():
         if k in meze and isinstance(v, (list, tuple)) and len(v) == 2:
@@ -149,18 +161,30 @@ def vecne_kontroly(err, warn, g, O, zaz, prep):
     nar = {i: udalost(p, "*") for i, p in O.items() if vlastni(i)}
     smrt = {i: udalost(p, "†") for i, p in O.items() if vlastni(i)}
     jmeno = lambda i: f"{i} ({O[i].get('n')})"
+    n = lambda i: O[i].get("n") or i
+    zdroje = lambda *ids: list(dict.fromkeys(r for i in ids for r in O[i].get("r", []) if isinstance(r, str)))
 
-    def mimo(i, typ, kdy, co):
+    def pridej(typ, zavaznost, osoby, text, vyzva, zapisy=None):
+        out.append(dict(typ=typ, zavaznost=zavaznost, osoby=list(osoby), text=text, vyzva=vyzva,
+                        zapisy=list(zapisy if zapisy is not None else zdroje(*osoby))))
+
+    def mimo(i, typ, kdy, co, dalsi=()):
         if not nar.get(i) or not kdy:
             return
         v, presne = vek(nar[i], kdy)
         lo, hi = meze[typ]
         # u dat jen s rokem může být věk o rok menší/větší – hlásit až jasné překročení
         if v < 0:
-            err.append(f"osoba {jmeno(i)}: {co} je {-v} let před narozením této osoby – ověř data, nebo jde o jinou osobu")
+            pridej("pred_narozenim", "chyba", (i, *dalsi),
+                   f"osoba {jmeno(i)}: {co} je {-v} let před narozením této osoby – ověř data, nebo jde o jinou osobu",
+                   f"{co[:1].upper()}{co[1:]} vychází {-v} let před narozením osoby {n(i)}. Ověřte data v pramenu – "
+                   "nejde o jinou osobu stejného jména?")
         elif v < lo - (0 if presne else 1) or v > hi + (0 if presne else 1):
-            warn.append(f"osoba {jmeno(i)}: {co} ve věku {v} let (mez {lo}–{hi}, data/kontrola.json „vek.{typ}“) – "
-                        "ověř data, nebo jde o jinou osobu")
+            pridej(f"vek_{typ}", "upozorneni", (i, *dalsi),
+                   f"osoba {jmeno(i)}: {co} ve věku {v} let (mez {lo}–{hi}, data/kontrola.json „vek.{typ}“) – "
+                   "ověř data, nebo jde o jinou osobu",
+                   f"{n(i)}: {co} ve věku {v} let, což je neobvyklé (běžně {lo}–{hi}). Ověřte data v pramenu – "
+                   "nejde o jinou osobu stejného jména?")
 
     for i, p in O.items():
         if not vlastni(i):
@@ -168,7 +192,8 @@ def vecne_kontroly(err, warn, g, O, zaz, prep):
         sn = udalost({"f": [f for f in p.get("f", []) if isinstance(f, str) and f.startswith("×")]}, "×")
         mimo(i, "snatek", sn, "sňatek")
         if sn and smrt.get(i) and not sn[1] and not smrt[i][1] and sn[0] > smrt[i][0]:
-            err.append(f"osoba {jmeno(i)}: sňatek {dat(sn[0])} po vlastní smrti {dat(smrt[i][0])}")
+            pridej("snatek_po_smrti", "chyba", (i,), f"osoba {jmeno(i)}: sňatek {dat(sn[0])} po vlastní smrti {dat(smrt[i][0])}",
+                   f"{n(i)}: sňatek {dat(sn[0])} je zapsaný až po úmrtí ({dat(smrt[i][0])}). Ověřte obě data v pramenu.")
 
     for d, p in O.items():
         if not vlastni(d) or not nar.get(d):
@@ -178,19 +203,27 @@ def vecne_kontroly(err, warn, g, O, zaz, prep):
         for r, typ in ((matka, "porod_matka"), (otec, "porod_otec")):
             if r is None or r not in nar:
                 continue
-            mimo(r, typ, nar[d], f"{'porod' if typ == 'porod_matka' else 'narození dítěte'} {jmeno(d)}")
+            mimo(r, typ, nar[d], f"{'porod' if typ == 'porod_matka' else 'narození dítěte'} {jmeno(d)}", (d,))
             if not smrt.get(r):
                 continue
             sd, sd_rok = smrt[r]
+            kdo = "otec" if r == otec else "matka"
             tol = TOLERANCE_OTEC_DNY if r == otec else 0
             if dn_rok or sd_rok:   # jen roky: chyba až rok (u otce dva roky) po smrti
                 if dn.year > sd.year + (1 if r == otec else 0):
-                    warn.append(f"osoba {jmeno(d)}: narození {dn.year}, ale {'otec' if r == otec else 'matka'} "
-                                f"{jmeno(r)} zemřel{'a' if r == matka else ''} {sd.year} – ověř roky, nebo jde o jiného rodiče")
+                    pridej("narozeni_po_smrti", "upozorneni", (d, r),
+                           f"osoba {jmeno(d)}: narození {dn.year}, ale {kdo} "
+                           f"{jmeno(r)} zemřel{'a' if r == matka else ''} {sd.year} – ověř roky, nebo jde o jiného rodiče",
+                           f"{n(d)} se narodil(a) {dn.year}, ale {kdo} {n(r)} zemřel{'a' if r == matka else ''} už {sd.year}. "
+                           "Ověřte roky v pramenu – nejde o jiného rodiče?")
             elif (dn - sd).days > tol:
-                err.append(f"osoba {jmeno(d)}: narození {dat(dn)} je {(dn - sd).days} dní po smrti "
-                           f"{'otce' if r == otec else 'matky'} {jmeno(r)} († {dat(sd)})"
-                           + (f" – víc než tolerance {tol} dní" if tol else ""))
+                pridej("narozeni_po_smrti", "chyba", (d, r),
+                       f"osoba {jmeno(d)}: narození {dat(dn)} je {(dn - sd).days} dní po smrti "
+                       f"{'otce' if r == otec else 'matky'} {jmeno(r)} († {dat(sd)})"
+                       + (f" – víc než tolerance {tol} dní" if tol else ""),
+                       f"{n(d)} se narodil(a) {dat(dn)}, {(dn - sd).days} dní po úmrtí "
+                       f"{'otce' if r == otec else 'matky'} {n(r)} († {dat(sd)}). Ověřte obě data v pramenu – "
+                       "nejde o jiného rodiče?")
 
     # Čísla domů: čp. ve faktech doložené osoby má být v některém citovaném zápisu, čp. v 'bydliste' v zápisech,
     # které uvádí jako zdroj. Převzato a zjednodušeno z upstreamu (MIT, Jindřich Šaršon; čísla domů pavelzbornik, PR #86):
@@ -223,8 +256,9 @@ def vecne_kontroly(err, warn, g, O, zaz, prep):
             fakta = " ".join(f for f in p.get("f", []) if isinstance(f, str)
                              and not re.search(r"\([^)]*\b(?:strom|vyprávění|rodin)", f, re.I))
             for c in sorted(set(re.findall(r"čp\.\s*(\d+)", fakta)) - dolozena, key=int):
-                warn.append(f"osoba {jmeno(i)}: čp. {c} není v žádném citovaném zápisu – ověř, "
-                            "nebo označ zdroj (strom, vyprávění)")
+                pridej("cp_fakta", "upozorneni", (i,), f"osoba {jmeno(i)}: čp. {c} není v žádném citovaném zápisu – ověř, "
+                       "nebo označ zdroj (strom, vyprávění)",
+                       f"{n(i)}: číslo domu čp. {c} z faktů se v citovaných zápisech nenašlo. Ověřte ho v pramenu.", rs)
         for b in p.get("bydliste", []) if isinstance(p.get("bydliste"), list) else []:
             cp = str(b.get("cp") or "").strip()
             for r in b.get("zdroj") or []:
@@ -232,8 +266,13 @@ def vecne_kontroly(err, warn, g, O, zaz, prep):
                     continue
                 cisla = cisla_zapisu(r)
                 if cisla and cp.isdigit() and cp not in cisla:
-                    warn.append(f"osoba {jmeno(i)}, bydliště {b.get('obec')} čp. {cp}: zápis {r} uvádí "
-                                f"čp. {', '.join(sorted(cisla, key=int))} – překlep, přečíslování, nebo jiný dům?")
+                    pridej("cp_bydliste", "upozorneni", (i,), f"osoba {jmeno(i)}, bydliště {b.get('obec')} čp. {cp}: zápis {r} uvádí "
+                           f"čp. {', '.join(sorted(cisla, key=int))} – překlep, přečíslování, nebo jiný dům?",
+                           f"{n(i)}: u bydliště {b.get('obec')} čp. {cp} pramen uvádí čp. {', '.join(sorted(cisla, key=int))}. "
+                           "Ověřte – překlep, přečíslování, nebo jiný dům?", [r])
+
+
+    return out
 
 
 def kontrola_udalosti(cesta=None, osa=None):
