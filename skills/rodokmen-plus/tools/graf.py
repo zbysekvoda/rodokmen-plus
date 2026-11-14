@@ -264,8 +264,16 @@ def nazev_pokrevni(da, db, s, polovicni=False):
         return pra(db - 2) + ("neteř" if z else "synovec")
     if db == 1:
         return pra(da - 2) + ("teta" if z else "strýc")
-    if da == db:
-        return ("sestřenice" if z else "bratranec") + (f" z {da - 1}. kolena" if da > 2 else "")
+    # Bratranci n-tého kolena: koleno = generace ke společnému předkovi u bližší osoby.
+    # Rodič/potomek bratrance se počítá jako strýc/synovec „z kolena“ (bratranec rodiče = strýc z 2. kolena),
+    # každá další generace přidá „pra“. Dál než 4. koleno nebo 3 generace vedle → obecný fallback.
+    k, r = min(da, db), abs(da - db)
+    if k <= 4 and r <= 3:
+        if r == 0:
+            return ("sestřenice" if z else "bratranec") + (f" z {k - 1}. kolena" if k > 2 else "")
+        if da > db:
+            return pra(r - 1) + ("teta" if z else "strýc") + f" z {k}. kolena"
+        return pra(r - 1) + ("neteř" if z else "synovec") + f" z {k}. kolena"
     return ("vzdálená příbuzná" if z else "vzdálený příbuzný") + f" (společný předek {da}. a {db}. generace)"
 
 
