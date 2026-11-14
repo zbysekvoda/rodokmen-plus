@@ -1,0 +1,141 @@
+---
+// Síť příjmení: uzel = rod podle rodného příjmení (site.surnames, sjednocené v tools/export_web.py),
+// hrana = sňatky mezi dvěma rody (families s otcem i matkou). Žijící osoby v site.surnames nejsou.
+// Rozložení počítá malý vlastní force layout v prohlížeči (bez závislosti, graf má desítky uzlů).
+import { people, families, href } from '../lib/data.js';
+import site from '../data/site.json';
+const S = site.surnames ?? {};
+const count = {};
+for (const r of Object.values(S)) count[r] = (count[r] ?? 0) + 1;
+const pairs = Object.values(families)
+  .filter((f) => f.father && f.mother && S[f.father] && S[f.mother])
+  .map((f) => ({ a: S[f.father], b: S[f.mother], h: f.father, w: f.mother }));
+const edges = {};
+for (const p of pairs) {
+  if (p.a === p.b) continue;
+  const key = [p.a, p.b].sort().join('|');
+  edges[key] = (edges[key] ?? 0) + 1;
+}
+const used = new Set(pairs.flatMap((p) => [p.a, p.b]));
+const nodes = Object.keys(count).filter((r) => used.has(r)).sort((x, y) => count[y] - count[x] || x.localeCompare(y, 'cs'));
+const person = (s) => ({ s, n: people[s].name, y: people[s].years ?? '', u: href.person(s) });
+const data = {
+  nodes: nodes.map((r) => ({ id: r, n: count[r] })),
+  edges: Object.entries(edges).map(([k, w]) => ({ a: k.split('|')[0], b: k.split('|')[1], w })),
+  pairs: pairs.map((p) => ({ a: p.a, b: p.b, h: person(p.h), w: person(p.w) })),
+};
+---
+{nodes.length > 1 && (
+  <section class="snet">
+    <h2>Síť rodů</h2>
+    <p class="small muted">Rody podle rodného příjmení (varianty zápisu sloučené). Velikost kruhu = počet osob, tloušťka čáry = počet sňatků mezi rody. Klikněte na rod nebo čáru.</p>
+    <div class="snet-wrap">
+      <svg class="snet-svg" role="img" aria-label="Síť sňatků mezi rody"></svg>
+      <div class="snet-list" aria-live="polite"><p class="small muted">Vyberte rod nebo spojnici.</p></div>
+    </div>
+    <script type="application/json" class="snet-data" set:html={JSON.stringify(data)} />
+  </section>
+)}
+
+<script>
+  const NS = 'http://www.w3.org/2000/svg';
+  for (const root of document.querySelectorAll<HTMLElement>('.snet')) {
+    const D = JSON.parse(root.querySelector('.snet-data')!.textContent!);
+    const svg = root.querySelector<SVGSVGElement>('.snet-svg')!;
+    const list = root.querySelector<HTMLElement>('.snet-list')!;
+    const N = D.nodes.length;
+    const idx = Object.fromEntries(D.nodes.map((n: any, i: number) => [n.id, i]));
+    const r = D.nodes.map((n: any) => 6 + 4 * Math.sqrt(n.n));
+    // deterministický start na spirále, pak odpuzování + pružiny + slabá gravitace
+    const P = D.nodes.map((_: any, i: number) => {
+      const a = i * 2.4, d = 30 * Math.sqrt(i + 1);
+      return { x: Math.cos(a) * d, y: Math.sin(a) * d };
+    });
+    const E = D.edges.map((e: any) => [idx[e.a], idx[e.b], e.w]);
+    for (let it = 0; it < 400; it++) {
+      const t = 1 - it / 400;
+      const F = P.map(() => ({ x: 0, y: 0 }));
+      for (let i = 0; i < N; i++)
+        for (let j = i + 1; j < N; j++) {
+          let dx = P[i].x - P[j].x, dy = P[i].y - P[j].y;
+          const d2 = Math.max(dx * dx + dy * dy, 1), d = Math.sqrt(d2);
+          const min = r[i] + r[j] + 40;
+          const f = 2500 / d2 + (d < min ? (min - d) * 0.5 : 0);
+          dx /= d; dy /= d;
+          F[i].x += dx * f; F[i].y += dy * f; F[j].x -= dx * f; F[j].y -= dy * f;
+        }
+      for (const [i, j] of E) {
+        const dx = P[j].x - P[i].x, dy = P[j].y - P[i].y, d = Math.hypot(dx, dy) || 1;
+        const f = (d - (r[i] + r[j] + 50)) * 0.05;
+        F[i].x += (dx / d) * f; F[i].y += (dy / d) * f; F[j].x -= (dx / d) * f; F[j].y -= (dy / d) * f;
+      }
+      for (let i = 0; i < N; i++) {
+        F[i].x -= P[i].x * 0.01; F[i].y -= P[i].y * 0.01;
+        const m = Math.hypot(F[i].x, F[i].y), cap = 20 * t + 1;
+        const k = m > cap ? cap / m : 1;
+        P[i].x += F[i].x * k; P[i].y += F[i].y * k;
+      }
+    }
+    const xs = P.map((p: any, i: number) => [p.x - r[i] - 60, p.x + r[i] + 60]).flat();
+    const ys = P.map((p: any, i: number) => [p.y - r[i] - 10, p.y + r[i] + 24]).flat();
+    const x0 = Math.min(...xs), y0 = Math.min(...ys);
+    svg.setAttribute('viewBox', `${x0} ${y0} ${Math.max(...xs) - x0} ${Math.max(...ys) - y0}`);
+    const el = (tag: string, attrs: Record<string, any>, parent: Element) => {
+      const e = document.createElementNS(NS, tag);
+      for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, String(v));
+      parent.appendChild(e);
+      return e;
+    };
+    const gE = el('g', { class: 'snet-edges' }, svg), gN = el('g', { class: 'snet-nodes' }, svg);
+    const all: Element[] = [];
+    const select = (target: Element, filter: (p: any) => boolean, title: string) => {
+      all.forEach((x) => x.classList.remove('on'));
+      target.classList.add('on');
+      const ps = D.pairs.filter(filter).sort((p: any, q: any) => p.h.n.localeCompare(q.h.n, 'cs'));
+      const a = (o: any) => `<a href="${o.u}">${o.n}</a>${o.y ? ` <span class="muted">${o.y}</span>` : ''}`;
+      list.innerHTML = `<h3>${title}</h3><p class="small muted">${ps.length} ${ps.length === 1 ? 'pár' : ps.length < 5 ? 'páry' : 'párů'}</p><ul>${ps
+        .map((p: any) => `<li>${a(p.h)} – ${a(p.w)}</li>`)
+        .join('')}</ul>`;
+    };
+    D.edges.forEach((e: any, k: number) => {
+      const [i, j] = E[k];
+      const g = el('g', { class: 'snet-edge', tabindex: 0, role: 'button', 'aria-label': `${e.a} a ${e.b}: ${e.w} sňatků` }, gE);
+      el('line', { x1: P[i].x, y1: P[i].y, x2: P[j].x, y2: P[j].y, 'stroke-width': 1.5 + 2.5 * (e.w - 1) }, g);
+      el('line', { class: 'hit', x1: P[i].x, y1: P[i].y, x2: P[j].x, y2: P[j].y }, g);
+      const go = () => select(g, (p) => (p.a === e.a && p.b === e.b) || (p.a === e.b && p.b === e.a), `${e.a} × ${e.b}`);
+      g.addEventListener('click', go);
+      g.addEventListener('keydown', (ev) => (ev as KeyboardEvent).key === 'Enter' && go());
+      all.push(g);
+    });
+    D.nodes.forEach((n: any, i: number) => {
+      const g = el('g', { class: 'snet-node', tabindex: 0, role: 'button', 'aria-label': `${n.id}: ${n.n} osob` }, gN);
+      el('circle', { cx: P[i].x, cy: P[i].y, r: r[i] }, g);
+      const t = el('text', { x: P[i].x, y: P[i].y + r[i] + 14, 'text-anchor': 'middle' }, g);
+      t.textContent = n.id;
+      const go = () => select(g, (p) => p.a === n.id || p.b === n.id, `Rod ${n.id}`);
+      g.addEventListener('click', go);
+      g.addEventListener('keydown', (ev) => (ev as KeyboardEvent).key === 'Enter' && go());
+      all.push(g);
+    });
+  }
+</script>
+
+<style>
+  .snet-wrap { display: grid; grid-template-columns: minmax(0, 3fr) minmax(14rem, 1fr); gap: 1rem; align-items: start; }
+  @media (max-width: 760px) { .snet-wrap { grid-template-columns: 1fr; } }
+  .snet-svg { width: 100%; height: auto; max-height: 80vh; background: var(--surface-sunken); border: 1px solid var(--rule); border-radius: var(--radius); }
+  .snet-list { max-height: 80vh; overflow: auto; }
+  .snet-list :global(ul) { padding-left: 1rem; margin: 0; }
+  .snet-list :global(li) { margin: 0.25rem 0; }
+  .snet-list :global(h3) { margin: 0 0 0.25rem; }
+  .snet-svg :global(.snet-edge line) { stroke: var(--muted); stroke-opacity: 0.55; stroke-linecap: round; }
+  .snet-svg :global(.snet-edge line.hit) { stroke: transparent; stroke-width: 12; }
+  .snet-svg :global(.snet-edge) { cursor: pointer; }
+  .snet-svg :global(.snet-edge:hover line:not(.hit)), .snet-svg :global(.snet-edge.on line:not(.hit)) { stroke: var(--accent); stroke-opacity: 1; }
+  .snet-svg :global(.snet-node) { cursor: pointer; }
+  .snet-svg :global(.snet-node circle) { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.5; }
+  .snet-svg :global(.snet-node:hover circle), .snet-svg :global(.snet-node.on circle) { fill: var(--accent); }
+  .snet-svg :global(.snet-node text) { fill: var(--ink); font: 12px var(--sans); paint-order: stroke; stroke: var(--surface-sunken); stroke-width: 3px; }
+  .snet-svg :global(:focus-visible) { outline: none; }
+  .snet-svg :global(:focus-visible circle) { stroke-width: 3; }
+</style>

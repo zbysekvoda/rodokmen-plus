@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import PersonLink from '../components/PersonLink.astro';
+import SurnameNet from '../components/SurnameNet.astro';
 import { lines, people, href, linesTitle } from '../lib/data.js';
 const list = Object.values(lines).sort((a, b) => a.k - b.k);
 // strana otce/matky: v generaci g má otcova polovina čísla 2^g … 1,5·2^g − 1
@@ -30,4 +31,5 @@ const poOtci = (k) => k < 3 * 2 ** (Math.floor(Math.log2(k)) - 1);
       </a>
     ))}
   </div>
+  <SurnameNet />
 </Base>
