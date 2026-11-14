@@ -168,22 +168,23 @@ def vecne_polozky(g, O, zaz, prep):
         out.append(dict(typ=typ, zavaznost=zavaznost, osoby=list(osoby), text=text, vyzva=vyzva,
                         zapisy=list(zapisy if zapisy is not None else zdroje(*osoby))))
 
-    def mimo(i, typ, kdy, co, dalsi=()):
+    def mimo(i, typ, kdy, co, dalsi=(), co_web=None):
         if not nar.get(i) or not kdy:
             return
         v, presne = vek(nar[i], kdy)
         lo, hi = meze[typ]
+        co_web = co_web or co
         # u dat jen s rokem může být věk o rok menší/větší – hlásit až jasné překročení
         if v < 0:
             pridej("pred_narozenim", "chyba", (i, *dalsi),
                    f"osoba {jmeno(i)}: {co} je {-v} let před narozením této osoby – ověř data, nebo jde o jinou osobu",
-                   f"{co[:1].upper()}{co[1:]} vychází {-v} let před narozením osoby {n(i)}. Ověřte data v pramenu – "
+                   f"{co_web[:1].upper()}{co_web[1:]} vychází {-v} let před narozením osoby {n(i)}. Ověřte data v pramenu – "
                    "nejde o jinou osobu stejného jména?")
         elif v < lo - (0 if presne else 1) or v > hi + (0 if presne else 1):
             pridej(f"vek_{typ}", "upozorneni", (i, *dalsi),
                    f"osoba {jmeno(i)}: {co} ve věku {v} let (mez {lo}–{hi}, data/kontrola.json „vek.{typ}“) – "
                    "ověř data, nebo jde o jinou osobu",
-                   f"{n(i)}: {co} ve věku {v} let, což je neobvyklé (běžně {lo}–{hi}). Ověřte data v pramenu – "
+                   f"{n(i)}: {co_web} ve věku {v} let, což je neobvyklé (běžně {lo}–{hi}). Ověřte data v pramenu – "
                    "nejde o jinou osobu stejného jména?")
 
     for i, p in O.items():
@@ -203,7 +204,8 @@ def vecne_polozky(g, O, zaz, prep):
         for r, typ in ((matka, "porod_matka"), (otec, "porod_otec")):
             if r is None or r not in nar:
                 continue
-            mimo(r, typ, nar[d], f"{'porod' if typ == 'porod_matka' else 'narození dítěte'} {jmeno(d)}", (d,))
+            co = 'porod' if typ == 'porod_matka' else 'narození dítěte'
+            mimo(r, typ, nar[d], f"{co} {jmeno(d)}", (d,), f"{co} {n(d)}")
             if not smrt.get(r):
                 continue
             sd, sd_rok = smrt[r]
