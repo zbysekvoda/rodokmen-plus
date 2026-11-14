@@ -425,6 +425,8 @@ def main():
             warn.append(f"zápis {k}: chybí rámeček (tools/ramecek.py)")
         if k not in prep and z.get("druh") != "M":   # mapa: stačí shrnutí
             warn.append(f"zápis {k}: chybí přepis a překlad v data/prepisy.json")
+        if isinstance(prep.get(k), dict) and prep[k].get("stroj"):
+            warn.append(f"zápis {k}: strojové čtení k ověření ({prep[k]['stroj']}) – ověř na výřezu a pole 'stroj' smaž")
         if k not in cited:
             warn.append(f"zápis {k}: necituje ho žádná osoba ani dům (doplnit do 'r' u osoby, bočního příbuzného nebo v domy.py)")
 

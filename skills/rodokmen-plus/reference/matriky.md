@@ -150,3 +150,13 @@ Mladší knihy jsou na matričním úřadě obce s rozšířenou působností / 
   (`nahled_`, `plne_`), jinak se přepíšou.
 - Datové soubory zapisuj v UTF-8 **bez BOM** (Windows PowerShell 5.1 s `-Encoding UTF8` přidá BOM a `osoby.py` pak nejde načíst).
 
+
+## Strojové čtení jiným modelem (volitelné)
+`tools/cteni_ai.py <klíč>` pošle výřez `zdroje/<klíč>.jpg` přes OpenRouter modelu Gemini (`--model gemini`, levné)
+nebo Fable (`--model fable`) a vrátí přepis, překlad a nejistá místa. Je to **druhý názor**, ne náhrada vlastního čtení:
+rozdíly ověř na výřezu (`overit.py`), přepis do `data/prepisy.json` zapiš sám a převzaté čtení označ
+`"stroj": "<model>, nepotvrzeno"`, dokud ho neověříš (pak pole smaž; `kontrola.py` ho do té doby hlásí).
+- Klíč zadává jen uživatel v terminálu: `export OPENROUTER_API_KEY=…` nebo `~/.config/rodokmen/openrouter.key`
+  (chmod 600). Nikdy do projektu ani do konverzace. Bez klíče nástroj jen ohlásí, že chybí, a pokračuje se jako dřív.
+- Zápisy mladší lhůt (narození 100, sňatek a úmrtí 75 let) a rodinné dokumenty neposílá; výjimka `--souhlas` jen po souhlasu uživatele.
+- Cena řádově 0,002 USD (Gemini Flash) až 0,05 USD (Fable) za výřez; nástroj vypíše skutečnou cenu.
