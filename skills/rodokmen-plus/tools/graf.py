@@ -6,6 +6,7 @@ Knihovna:   import graf; g = graf.nacti()
             g.legacy() → P, LINES, SIDE, ISSUES, HYPOTEZY, SAME v původním tvaru (Kekulé od kořene)
 Příkazy:    python3 tools/graf.py cisla [koren]        # id ↔ Kekulého číslo
             python3 tools/graf.py osoba <id|č.>        # rodiče, manželé, děti, sourozenci, kmotři
+            python3 tools/graf.py vztah <a> <b>        # čím je b osobě a (česky) a cesta přes předky
             python3 tools/graf.py prolog > graf.pl     # fakta pro Prolog (pravidla viz tools/graf_pravidla.pl)
             python3 tools/graf.py kontrola             # konzistence grafu (exit 1 při chybě)
 """
@@ -92,6 +93,17 @@ class Graf:
                     seen.append(r)
                     st.append(r)
         return seen
+
+    def vztah(self, a, b, vynech=()):
+        """Čím je osoba b osobě a – česky. Web zrcadlí v template/web/src/lib/pribuzni.js (držet shodně).
+        Pokrevní: nejbližší společní předci (BFS nahoru; při implexu ta nejkratší cesta). Jinak sňatek
+        (manžel, švagr, tchán, zeť/snacha). `vynech` = osoby, přes které se nehledá (žijící na webu).
+        → {"nazev", "cesta": [a … b], "predci": [společní předci], "da", "db"} nebo None."""
+        vyn = set(vynech)
+        sex = lambda i: self.osoby.get(i, {}).get("sex")
+        rod = lambda i: [r for r in self.rodice(i) if r and r not in vyn]
+        man = lambda i: [m for m in self.manzele(i) if m not in vyn]
+        return vztah_obecny(a, b, rod, man, sex, vyn)
 
     def kekule(self, koren=None):
         """{číslo: id} pro předky kořene; osoba ve více větvích má víc čísel (předci se číslují jen
@@ -212,6 +224,87 @@ class Graf:
         return err
 
 
+def _nahoru(x, rod):
+    """{předek: (vzdálenost, dítě na cestě k x)} včetně x samého (0, None); BFS – nejkratší cesta při implexu."""
+    out, fr = {x: (0, None)}, [x]
+    while fr:
+        nxt = []
+        for i in fr:
+            for r in rod(i):
+                if r not in out:
+                    out[r] = (out[i][0] + 1, i)
+                    nxt.append(r)
+        fr = nxt
+    return out
+
+
+def _dolu(p, nah):
+    """Cesta od předka p dolů k výchozí osobě podle _nahoru."""
+    c = [p]
+    while nah[c[-1]][1] is not None:
+        c.append(nah[c[-1]][1])
+    return c
+
+
+def nazev_pokrevni(da, db, s, polovicni=False):
+    """Název b vůči a: da = generací od a ke společnému předkovi, db = od b; s = pohlaví b („M“/„F“)."""
+    z = s == "F"
+    pra = lambda n: "pra" * max(n, 0)
+    if da == 0:
+        if db == 1:
+            return "dcera" if z else "syn"
+        return pra(db - 2) + ("vnučka" if z else "vnuk")
+    if db == 0:
+        if da == 1:
+            return "matka" if z else "otec"
+        return pra(da - 2) + ("babička" if z else "dědeček")
+    if da == db == 1:
+        return ("nevlastní " if polovicni else "") + ("sestra" if z else "bratr")
+    if da == 1:
+        return pra(db - 2) + ("neteř" if z else "synovec")
+    if db == 1:
+        return pra(da - 2) + ("teta" if z else "strýc")
+    if da == db:
+        return ("sestřenice" if z else "bratranec") + (f" z {da - 1}. kolena" if da > 2 else "")
+    return ("vzdálená příbuzná" if z else "vzdálený příbuzný") + f" (společný předek {da}. a {db}. generace)"
+
+
+def vztah_obecny(a, b, rod, man, sex, vynech=()):
+    """Jádro Graf.vztah nad funkcemi rod(i) → rodiče, man(i) → manželé, sex(i)."""
+    if a == b or a in vynech or b in vynech:
+        return None
+    na, nb = _nahoru(a, rod), _nahoru(b, rod)
+    spol = [p for p in na if p in nb]
+    if spol:
+        klic = lambda p: (na[p][0] + nb[p][0], max(na[p][0], nb[p][0]))
+        nej = min(klic(p) for p in spol)
+        predci = [p for p in spol if klic(p) == nej]
+        p = predci[0]
+        da, db = na[p][0], nb[p][0]
+        pol = da == db == 1 and len(predci) == 1
+        return {"nazev": nazev_pokrevni(da, db, sex(b), pol), "cesta": _dolu(p, na)[::-1] + _dolu(p, nb)[1:],
+                "predci": predci, "da": da, "db": db}
+    z = sex(b) == "F"
+    ma = man(a)
+    if b in ma:
+        return {"nazev": "manželka" if z else "manžel", "cesta": [a, b], "predci": [], "da": 0, "db": 0}
+    for m in ma:   # tchán, tchyně: rodič manžela
+        if b in rod(m):
+            return {"nazev": "tchyně" if z else "tchán", "cesta": [a, m, b], "predci": [], "da": 0, "db": 0}
+    for m in man(b):   # zeť, snacha: manžel dítěte
+        if a in rod(m):
+            return {"nazev": "snacha" if z else "zeť", "cesta": [a, m, b], "predci": [], "da": 0, "db": 0}
+    for m in ma:   # švagr: sourozenec manžela
+        r = vztah_obecny(m, b, rod, lambda i: [], sex, vynech)
+        if r and r["da"] == r["db"] == 1:
+            return {**r, "nazev": "švagrová" if z else "švagr", "cesta": [a] + r["cesta"]}
+    for m in man(b):   # švagr: manžel sourozence
+        r = vztah_obecny(a, m, rod, lambda i: [], sex, vynech)
+        if r and r["da"] == r["db"] == 1:
+            return {**r, "nazev": "švagrová" if z else "švagr", "cesta": r["cesta"] + [b]}
+    return None
+
+
 def nacti(path=None):
     ns = {}
     exec(open(path or os.path.join(DATA, "osoby.py"), encoding="utf-8").read(), ns)
@@ -253,6 +346,9 @@ def main():
         for e in g.hrany(i):
             if e["t"] not in ("rodic", "manzele"):
                 print(f"  {e['t']}:", jm(e["a"] if e["b"] == i else e["b"]))
+    elif cmd == "vztah":
+        r = g.vztah(sys.argv[2], sys.argv[3])
+        print(r["nazev"] + "  " + " → ".join(r["cesta"]) if r else "bez nalezeného vztahu")
     elif cmd == "prolog":
         print("% Vygenerováno: python3 tools/graf.py prolog. Pravidla: tools/graf_pravidla.pl")
         for i, d in g.osoby.items():
