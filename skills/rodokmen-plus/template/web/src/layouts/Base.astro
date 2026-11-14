@@ -14,7 +14,7 @@ const top = [
   ['/osa/', 'Časová osa', ['/osa-vazby/']], ['/statistiky/', 'V číslech', []], ['/hledat/', 'Hledat', []],
 ].filter(([u]) => u === '/pribehy/' || !hidden.includes(u));
 const mobileTabs = [top[0][0], '/strom/', '/domy/', '/hledat/'];
-const research = [['/zapisy/', 'Zápisy'], ['/denik/', 'Deník'], ['/hledame/', 'Co hledáme']];
+const research = [['/zapisy/', 'Zápisy'], ['/denik/', 'Deník'], ['/hledame/', 'Co hledáme'], ['/overeni/', 'Stojí za ověření']];
 const lineVars = Object.values(lines).map((l) => `--line-${l.slug}:${l.color}`).join(';');
 const current = (url, also = []) => ([url, ...also].some((u) => path.startsWith(u)) ? 'page' : undefined);
 ---

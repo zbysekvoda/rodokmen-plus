@@ -1,0 +1,29 @@
+---
+import Base from '../layouts/Base.astro';
+import PersonLink from '../components/PersonLink.astro';
+import { records, href } from '../lib/data.js';
+import site from '../data/site.json';
+// věcné kontroly z tools/kontrola.py (vecne_polozky) – export_web.py vynechá žijící osoby
+const list = site.overeni ?? [];
+const nadpis = {
+  narozeni_po_smrti: 'Narození po smrti rodiče', pred_narozenim: 'Událost před narozením', snatek_po_smrti: 'Sňatek po úmrtí',
+  vek_snatek: 'Neobvyklý věk při sňatku', vek_porod_matka: 'Neobvyklý věk matky', vek_porod_otec: 'Neobvyklý věk otce',
+  cp_fakta: 'Číslo domu bez pramene', cp_bydliste: 'Jiné číslo domu v pramenu',
+};
+---
+<Base title="Stojí za ověření">
+  <h1>Stojí za ověření</h1>
+  <p class="lead">Místa, kde data rodokmenu vypadají neobvykle. Nejde o verdikt – často je vše v pořádku a jen pramen zapsal něco nečekaného. Ale stojí za to podívat se znovu do matriky. {list.length ? `Celkem ${list.length}.` : ''}</p>
+  {list.length === 0 ? <p>Kontroly teď nic podezřelého nenašly.</p> : (
+    <div class="grid2">
+      {list.map((x) => (
+        <div class="card">
+          <h3>{nadpis[x.typ] ?? 'Ověřit'}</h3>
+          <p class="small">{x.text}</p>
+          <p class="small">Týká se: {x.osoby.map((s, i) => <>{i > 0 && ', '}<PersonLink slug={s} showYears={false} /></>)}</p>
+          {x.zapisy.length > 0 && <p class="small">Ověřte v pramenu: {x.zapisy.map((k, i) => <>{i > 0 && ', '}<a href={href.record(k)}>{records[k]?.title ?? k}</a></>)}</p>}
+        </div>
+      ))}
+    </div>
+  )}
+</Base>
