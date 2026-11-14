@@ -58,6 +58,7 @@ const fmt = (v) => Array.isArray(v) ? v.join(', ') : typeof v === 'object' ? JSO
       <ViewSwitch slug={p.slug} />
       {p.k && <a class="chip" href={`/vejir/?o=${p.slug}`}>ve vějíři →</a>}
       <a class="chip" href={`/reka/?o=${p.slug}`}>Řeka kolem této osoby →</a>
+      {!p.alive && <a class="chip" href={`/pribuzni/?a=${p.slug}`}>Jak jsme příbuzní? →</a>}
       {onAxis && <a class="chip" href={`/osa/?o=${p.slug}`}>ukázat na ose →</a>}
       {kniha && <a class="chip" href={`/kniha/${p.slug}/?tisk`}>Tisk knihy předků</a>}
       {knihaPdf && <a class="chip" href={`/kniha/${p.slug}.pdf`} download>Kniha předků (PDF)</a>}
